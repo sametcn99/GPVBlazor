@@ -1,0 +1,160 @@
+﻿@page "/p/{username}"
+@using GPVBlazor.Models
+@inject HttpClient Http
+@using GPVBlazor.Components.Displays
+
+<PageTitle>@username 's Profile</PageTitle>
+
+@if (user != null)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <img src="@user.AvatarUrl" alt="Avatar" class="img-thumbnail rounded-circle mb-3" style="width: 100px; height: 100px;" />
+            <h2 class="mb-1 text-decoration-none fw-bold" href="@user.HtmlUrl">@user.Name</h2>
+            <p class="mb-1">@user.Bio</p>
+            <p class="mb-1">@user.Email</p>
+            <p class="mb-1">@user.Location</p>
+            <p class="mb-1"><strong>Public Repos:</strong> @user.PublicRepos</p>
+            <p class="mb-1"><strong>Public Gists:</strong> @user.PublicGists</p>
+            <p class="mb-1"><strong>Organizations:</strong> @user.Company</p>
+        </div>
+        <div class="card-footer d-flex gap-2 flex-wrap">
+            <p class="mb-1"><strong>Followers:</strong> @user.Followers</p>
+            <p class="mb-1"><strong>Followings:</strong> @user.Following</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="spinner-border" />
+}
+
+@if (stats != null)
+{
+    <div class="card mt-4 mb-3">
+        <div class="card-header">
+            <h3>Statistics</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <p><strong>Number of repositories:</strong> @repositories.Count</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Number of followers:</strong> @user?.Followers</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Number of following:</strong> @user?.Following</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Number of public repositories:</strong> @user?.PublicRepos</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Number of public gists:</strong> @user?.PublicGists</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Number of organizations:</strong> @user?.Company</p>
+                </div>
+                <div class="col-12">
+                    <p><strong>Total Stars:</strong> @stats.TotalStars</p>
+                </div>
+                <div class="col-12">
+                    <p><strong>Top Topics:</strong></p>
+                    @if (stats.TopTopics != null && stats.TopTopics.Any())
+                    {
+                        <ul>
+                            @foreach (var topic in stats.TopTopics)
+                            {
+                                <li>@topic</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No topics found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (repositories != null)
+{
+    <div>
+        <h3 class="mb-4">Repositories</h3>
+        <div class="row">
+            @foreach (var repo in repositories)
+            {
+                <RepositoryDisplay repository="@repo" />
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="spinner-border" />
+}
+
+
+
+@code {
+    [Parameter]
+    public string? username { get; set; }
+
+    private User? user;
+
+    private List<Repository>? repositories = new List<Repository>();
+
+    RepositoryStats stats;
+
+    private System.Net.Http.Headers.AuthenticationHeaderValue authHeader = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "AUTH_TOKEN_HERE");
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(username))
+        {
+            await FetchUserProfile();
+            await FetchUserRepositories();
+            if (repositories != null)
+            {
+                stats = new RepositoryStats(repositories); // Initialize stats here
+            }
+        }
+    }
+
+    private async Task FetchUserProfile()
+    {
+        var userRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}");
+        userRequest.Headers.Add("User-Agent", "BlazorApp");
+        userRequest.Headers.Authorization = authHeader;
+
+        var response = await Http.SendAsync(userRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            user = System.Text.Json.JsonSerializer.Deserialize<User>(json);
+        }
+    }
+
+    private async Task FetchUserRepositories(int page = 1)
+    {
+        var reposRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/repos?per_page=100&page={page}");
+        reposRequest.Headers.Add("User-Agent", "BlazorApp");
+        reposRequest.Headers.Authorization = authHeader;
+
+        var reposResponse = await Http.SendAsync(reposRequest);
+
+        if (reposResponse.IsSuccessStatusCode)
+        {
+            var json = await reposResponse.Content.ReadAsStringAsync();
+            var pageRepositories = System.Text.Json.JsonSerializer.Deserialize<List<Repository>>(json);
+            if (pageRepositories != null && pageRepositories.Count > 0 && repositories != null)
+            {
+                repositories.AddRange(pageRepositories);
+                await FetchUserRepositories(page + 1); // Recursive call to fetch next page
+            }
+        }
+    }
+}
