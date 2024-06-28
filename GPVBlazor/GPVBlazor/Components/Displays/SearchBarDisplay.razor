@@ -9,29 +9,31 @@
 @inject IUserService UserService
 @inject IContactService ContactService
 
-<div class="search-bar">
-    <input type="text" @bind="inputValue" @bind:event="oninput" @onkeydown="HandleKeyPress" placeholder="Write user name..." />
-    <button @onclick="SearchHandle">Search User</button>
+<div class="input-group mb-3">
+    <input type="text" class="form-control" placeholder="Write user name..." @bind="inputValue" @bind:event="oninput" @onkeydown="HandleKeyPress">
+    <button class="btn btn-outline-secondary" type="button" @onclick="SearchHandle">Search User</button>
 </div>
 
 <div class="search-results" style="@(showResults ? "display: block;" : "display: none;")">
     <div>
-        <input type="text" @bind="inputValue" @bind:event="oninput" @onkeydown="HandleKeyPress" placeholder="Write user name..." />
-        <Virtualize Items="@data" Context="item">
-            <div class="search-item">
-                <img src="@item.AvatarUrl" alt="@item.Login" />
-                <div>
-                    <strong>@item.Login</strong>
-                    <span>@item.Type</span>
-                </div>
-            </div>
-        </Virtualize>
+        @if (data?.Items != null)
+        {
+            <Virtualize Items="@data.Items" Context="item">
+                <a class="search-item d-flex gap-2 text-black text-decoration-none" href="/p/@item.Login">
+                    <img src="@item.AvatarUrl" alt="@item.Login" style="height: 60px; width: 60px;" class="rounded-circle img-thumbnail" />
+                    <div class="d-flex flex-column gap-2 ">
+                        <span class="fs-4 fw-bold">@item.Login</span>
+                        <span>@item.Type</span>
+                    </div>
+                </a>
+            </Virtualize>
+        }
     </div>
 </div>
 
 @code {
     private string inputValue = string.Empty;
-    private List<User> data = new List<User>();
+    private UserSearchResult data;
     private string selectedFilter = "All";
     private bool showResults = false;
 
@@ -39,13 +41,12 @@
     {
         if (string.IsNullOrWhiteSpace(inputValue))
         {
-            data.Clear();
+            data.Items.Clear();
             return;
         }
         if (inputValue is not null)
         {
-            var user = await UserService.SearchUser(inputValue);
-            data = user != null ? new List<User> { user } : new List<User>();
+            data = await UserService.SearchUsers(inputValue);
         }
     }
 

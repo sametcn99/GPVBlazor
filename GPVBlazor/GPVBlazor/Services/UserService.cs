@@ -26,7 +26,7 @@ namespace GPVBlazor.Services
                 : null;
         }
 
-        public async Task<User?> SearchUser(string inputValue)
+        public async Task<UserSearchResult> SearchUsers(string inputValue)
         {
             var url = $"https://api.github.com/search/users?q={inputValue}";
             var userRequest = new HttpRequestMessage(HttpMethod.Get, url);
@@ -34,10 +34,18 @@ namespace GPVBlazor.Services
             //userRequest.Headers.Authorization = _authHeader;
 
             var response = await _httpClient.SendAsync(userRequest);
-            return response.IsSuccessStatusCode
-                ? JsonSerializer.Deserialize<User>(await response.Content.ReadAsStringAsync())
-                : null;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var users = JsonSerializer.Deserialize<UserSearchResult>(content);
+                return users;
+            }
+            else
+            {
+                return new UserSearchResult(); // Return an empty list instead of null to avoid null reference returns
+            }
         }
+
 
         public async Task<List<Repository>> FetchUserRepositories(string username, int page = 1)
         {
