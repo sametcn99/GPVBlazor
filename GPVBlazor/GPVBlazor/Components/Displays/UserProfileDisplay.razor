@@ -1,0 +1,67 @@
+﻿@rendermode InteractiveServer
+@using GPVBlazor.Models
+@using GPVBlazor.Services
+@using GPVBlazor.Services.Interfaces
+@inject IContactService ContactService
+
+@if (UserProfile == null) { return; }
+
+<div class="card mb-3">
+    <div class="card-body">
+        <img src="@UserProfile.AvatarUrl" alt="Avatar" class="img-thumbnail rounded-circle mb-3 user-select-none pe-none" style="width: 200px; height: 200px;" />
+        <h2 class="mb-1 text-decoration-none fw-bold" href="@UserProfile.HtmlUrl">@UserProfile.Name</h2>
+        <p class="mb-1">@UserProfile.Bio</p>
+        <p class="mb-1">@UserProfile.Email</p>
+        <p class="mb-1">@UserProfile.Location</p>
+        <p class="mb-1"><strong>Public Repos:</strong> @UserProfile.PublicRepos</p>
+        <p class="mb-1"><strong>Public Gists:</strong> @UserProfile.PublicGists</p>
+        <p class="mb-1"><strong>Organizations:</strong> @UserProfile.Company</p>
+        <p class="mb-1"><strong>Last Update:</strong> @UserProfile.UpdatedAt</p>
+        <p class="mb-1"><strong>Member Since:</strong> @UserProfile.CreatedAt</p>
+    </div>
+    <div class="card-footer d-flex gap-2 flex-wrap">
+        <button class="btn btn-primary" @onclick="FetchAndShowFollowersModal">Followers: @UserProfile.Followers</button>
+        <button class="btn btn-primary" @onclick="FetchAndShowFollowingModal">Followings: @UserProfile.Following</button>
+        <a class="mb-1 text-decoration-none text-black" href="@UserProfile.Blog"><strong>Website:</strong> @UserProfile.Blog</a>
+        <p class="mb-1"><strong>Company:</strong> @UserProfile.Company</p>
+    </div>
+</div>
+
+@if (showFollowersModal == true)
+{
+    <ContactListModal ShowModal="showFollowersModal" Users="followers" ModalTitle="ContactListModal.ModalTitleEnum.Followers" />
+}
+@if (showFollowingModal == true)
+{
+    <ContactListModal ShowModal="showFollowingModal" Users="followings" ModalTitle="ContactListModal.ModalTitleEnum.Following" />
+}
+
+@code {
+    [Parameter] public User? UserProfile { get; set; }
+
+
+    private List<User>? followers;
+    private bool showFollowersModal = false;
+
+    private List<User>? followings;
+    private bool showFollowingModal = false;
+
+
+    private async Task FetchAndShowFollowersModal()
+    {
+        followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers");
+        ToggleModalVisibility(showFollowers: true);
+    }
+
+    private async Task FetchAndShowFollowingModal()
+    {
+        followings = await ContactService.FetchModalData<User>(UserProfile.Login, "following");
+        ToggleModalVisibility(showFollowing: true);
+    }
+
+    private void ToggleModalVisibility(bool showFollowers = false, bool showFollowing = false)
+    {
+        showFollowersModal = showFollowers;
+        showFollowingModal = showFollowing;
+    }
+}

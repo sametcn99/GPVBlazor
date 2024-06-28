@@ -1,4 +1,6 @@
 using GPVBlazor.Components;
+using GPVBlazor.Services;
+using GPVBlazor.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +10,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7261/") });
-
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IContactService, ContactService>();
 
 var app = builder.Build();
 
