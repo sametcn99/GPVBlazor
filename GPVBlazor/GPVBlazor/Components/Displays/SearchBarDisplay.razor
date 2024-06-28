@@ -1,0 +1,68 @@
+﻿@rendermode InteractiveServer
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Web
+@using GPVBlazor.Models
+@using GPVBlazor.Services
+@using GPVBlazor.Services.Interfaces
+@inject IUserService UserService
+@inject UserService UserService
+@inject IUserService UserService
+@inject IContactService ContactService
+
+<div class="search-bar">
+    <input type="text" @bind="inputValue" @bind:event="oninput" @onkeydown="HandleKeyPress" placeholder="Write user name..." />
+    <button @onclick="SearchHandle">Search User</button>
+</div>
+
+<div class="search-results" style="@(showResults ? "display: block;" : "display: none;")">
+    <div>
+        <input type="text" @bind="inputValue" @bind:event="oninput" @onkeydown="HandleKeyPress" placeholder="Write user name..." />
+        <Virtualize Items="@data" Context="item">
+            <div class="search-item">
+                <img src="@item.AvatarUrl" alt="@item.Login" />
+                <div>
+                    <strong>@item.Login</strong>
+                    <span>@item.Type</span>
+                </div>
+            </div>
+        </Virtualize>
+    </div>
+</div>
+
+@code {
+    private string inputValue = string.Empty;
+    private List<User> data = new List<User>();
+    private string selectedFilter = "All";
+    private bool showResults = false;
+
+    private async Task FetchData()
+    {
+        if (string.IsNullOrWhiteSpace(inputValue))
+        {
+            data.Clear();
+            return;
+        }
+        if (inputValue is not null)
+        {
+            var user = await UserService.SearchUser(inputValue);
+            data = user != null ? new List<User> { user } : new List<User>();
+        }
+    }
+
+
+    private async Task HandleKeyPress(KeyboardEventArgs e) // Changed to async Task
+    {
+        if (e.Key == "Enter")
+        {
+            await SearchHandle(); // Added await
+        }
+    }
+
+    private async Task SearchHandle()
+    {
+        showResults = true;
+        await FetchData();
+    }
+
+}
+

@@ -1,4 +1,4 @@
-﻿@page "/p/{username}"
+﻿@page "/p/{Username}"
 @rendermode InteractiveServer
 @using GPVBlazor.Models
 @using GPVBlazor.Components.Displays
@@ -7,62 +7,64 @@
 @inject IContactService ContactService
 @inject HttpClient Http
 
-<PageTitle>@Username 's Profile</PageTitle>
+<PageTitle>@Username's Profile</PageTitle>
 
-@if (user != null)
+@if (user is not null)
 {
     <UserProfileDisplay UserProfile="@user" />
 }
 else
 {
-    <div class="spinner-border" />
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
 }
 
-@if (stats != null && repositories != null)
+@if (stats is not null && repositories is not null)
 {
-    <UserStatisticsDisplay UserStats="@stats" Repositories="@repositories" user="@user" />
+    <UserStatisticsDisplay UserStats="@stats" Repositories="@repositories" User="@user" />
 }
 else
 {
-    <div class="spinner-border" />
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
 }
 
-@if (repositories?.Count > 0)
+@if (repositories?.Any() == true)
 {
     <div>
         <h3 class="mb-4">Repositories</h3>
         <div class="row">
             @foreach (var repo in repositories)
             {
-                <RepositoryDisplay repository="@repo" />
+                <RepositoryDisplay Repository="@repo" />
             }
         </div>
     </div>
 }
-else
+else if (repositories is not null)
 {
-    <div class="spinner-border" />
+    <p>No repositories found.</p>
 }
-
 
 @code {
     [Parameter]
     public string? Username { get; set; }
     private User? user;
-    private List<Repository>? repositories = new List<Repository>();
-    RepositoryStats? stats;
+    private List<Repository>? repositories;
+    private RepositoryStats? stats;
 
     protected override async Task OnParametersSetAsync()
     {
-        if (!string.IsNullOrWhiteSpace(Username))
-        {
-            user = await UserService.FetchUserProfile(Username);
-            repositories = await UserService.FetchUserRepositories(Username);
+        if (string.IsNullOrWhiteSpace(Username)) return;
 
-            if (repositories?.Count > 0)
-            {
-                stats = new RepositoryStats(repositories);
-            }
+        user = await UserService.FetchUserProfile(Username);
+        repositories = await UserService.FetchUserRepositories(Username) ?? new List<Repository>();
+
+        if (repositories.Any())
+        {
+            stats = new RepositoryStats(repositories);
         }
     }
 }

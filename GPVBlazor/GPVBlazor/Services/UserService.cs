@@ -26,6 +26,19 @@ namespace GPVBlazor.Services
                 : null;
         }
 
+        public async Task<User?> SearchUser(string inputValue)
+        {
+            var url = $"https://api.github.com/search/users?q={inputValue}";
+            var userRequest = new HttpRequestMessage(HttpMethod.Get, url);
+            userRequest.Headers.Add("User-Agent", "BlazorApp");
+            //userRequest.Headers.Authorization = _authHeader;
+
+            var response = await _httpClient.SendAsync(userRequest);
+            return response.IsSuccessStatusCode
+                ? JsonSerializer.Deserialize<User>(await response.Content.ReadAsStringAsync())
+                : null;
+        }
+
         public async Task<List<Repository>> FetchUserRepositories(string username, int page = 1)
         {
             var repos = new List<Repository>();

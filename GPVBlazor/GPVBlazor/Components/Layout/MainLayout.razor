@@ -1,15 +1,17 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
+ 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+     <div class="top-row px-4">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+            <NavLink class="nav-link" href="/p/sametcn99" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> sametcn99
+            </NavLink>
+            <a href="https://sametcc.me/GPVBlazor" target="_blank">Source Code</a>
         </div>
-
         <article class="content px-4">
             @Body
         </article>
