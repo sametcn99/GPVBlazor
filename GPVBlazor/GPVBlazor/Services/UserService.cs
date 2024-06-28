@@ -1,6 +1,5 @@
 ﻿using GPVBlazor.Models;
 using GPVBlazor.Services.Interfaces;
-using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace GPVBlazor.Services
@@ -8,7 +7,7 @@ namespace GPVBlazor.Services
     public class UserService : IUserService
     {
         private readonly HttpClient _httpClient;
-        private readonly AuthenticationHeaderValue _authHeader = new("Bearer", "TOKEN");
+        //private readonly AuthenticationHeaderValue _authHeader = new("Bearer", "TOKEN");
 
         public UserService(HttpClient httpClient)
         {
@@ -19,7 +18,7 @@ namespace GPVBlazor.Services
         {
             var userRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}");
             userRequest.Headers.Add("User-Agent", "BlazorApp");
-            userRequest.Headers.Authorization = _authHeader;
+            //userRequest.Headers.Authorization = _authHeader;
 
             var response = await _httpClient.SendAsync(userRequest);
             return response.IsSuccessStatusCode
@@ -34,7 +33,7 @@ namespace GPVBlazor.Services
             {
                 var reposRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/repos?per_page=100&page={page}");
                 reposRequest.Headers.Add("User-Agent", "BlazorApp");
-                reposRequest.Headers.Authorization = _authHeader;
+                //reposRequest.Headers.Authorization = _authHeader;
 
                 var reposResponse = await _httpClient.SendAsync(reposRequest);
                 if (!reposResponse.IsSuccessStatusCode) break;
