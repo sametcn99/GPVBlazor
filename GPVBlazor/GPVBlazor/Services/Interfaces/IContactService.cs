@@ -2,6 +2,6 @@
 {
     public interface IContactService
     {
-        Task<List<T>> FetchModalData<T>(string username, string endpoint, int page = 1);
+        Task<List<T>> FetchModalData<T>(string username, string endpoint, string token, int page = 1);
     }
 }

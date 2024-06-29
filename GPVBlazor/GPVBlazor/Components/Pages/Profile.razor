@@ -6,12 +6,14 @@
 @inject IUserService UserService
 @inject IContactService ContactService
 @inject HttpClient Http
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 
 <PageTitle>@Username's Profile</PageTitle>
 
 @if (user is not null)
 {
-    <UserProfileDisplay UserProfile="@user" />
+    <UserProfileDisplay UserProfile="@user"  token="@token"/>
 }
 else
 {
@@ -54,13 +56,44 @@ else if (repositories is not null)
     private User? user;
     private List<Repository>? repositories;
     private RepositoryStats? stats;
+    string token;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+                if (token is null)
+                {
+                    JS.InvokeVoidAsync("alert", "You need to add a auth token in home page.");
+                    NavigationManager.NavigateTo("/");
+                }
+
+                user = await UserService.FetchUserProfile(Username, token);
+                repositories = await UserService.FetchUserRepositories(Username, token) ?? new List<Repository>();
+
+                if (repositories.Any())
+                {
+                    stats = new RepositoryStats(repositories);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred", ex);
+            }
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrWhiteSpace(Username)) return;
 
-        user = await UserService.FetchUserProfile(Username);
-        repositories = await UserService.FetchUserRepositories(Username) ?? new List<Repository>();
+
+        user = await UserService.FetchUserProfile(Username, token);
+        repositories = await UserService.FetchUserRepositories(Username, token) ?? new List<Repository>();
 
         if (repositories.Any())
         {

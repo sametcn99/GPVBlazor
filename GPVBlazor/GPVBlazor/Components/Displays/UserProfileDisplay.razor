@@ -38,7 +38,7 @@
 
 @code {
     [Parameter] public User? UserProfile { get; set; }
-
+    [Parameter] public string? token { get; set; }
 
     private List<User>? followers;
     private bool showFollowersModal = false;
@@ -49,13 +49,13 @@
 
     private async Task FetchAndShowFollowersModal()
     {
-        followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers");
+        followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers", token);
         ToggleModalVisibility(showFollowers: true);
     }
 
     private async Task FetchAndShowFollowingModal()
     {
-        followings = await ContactService.FetchModalData<User>(UserProfile.Login, "following");
+        followings = await ContactService.FetchModalData<User>(UserProfile.Login, "following", token);
         ToggleModalVisibility(showFollowing: true);
     }
 

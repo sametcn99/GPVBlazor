@@ -1,4 +1,6 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
 
 <PageTitle>GPV Dotnet</PageTitle>
 
@@ -6,4 +8,29 @@
 
 <i>Search for a Github user to view their profile</i>
 <div class="text-muted">It's a clone of githubprofileviewer.com built with .net</div>
-<GPVBlazor.Components.Displays.SearchBarDisplay/>
+
+<GPVBlazor.Components.Displays.SearchBarDisplay />
+
+<div class="d-flex flex-column gap-4 align-items-center">
+    <input @bind="AuthToken" placeholder="Enter Auth Token" class="form-control" />
+    <button class="btn btn-primary" @onclick="AddToken">Add Token</button>
+</div>
+
+@code {
+    private string? AuthToken { get; set; } = string.Empty;
+
+    private async Task AddToken()
+    {
+        if (!string.IsNullOrWhiteSpace(AuthToken))
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", "authToken", AuthToken);
+            await JS.InvokeAsync<object>("alert", "Token added successfully");
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        AuthToken = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        StateHasChanged();
+    }
+}
