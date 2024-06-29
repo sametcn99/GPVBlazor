@@ -6,18 +6,18 @@
     <div class="col-md-4 mb-4">
         <div class="card h-100">
             <div class="card-body">
-               <div class="d-flex gap-2 align-items-center flex-wrap">
-                <h5 class="card-title">@repository.Name</h5>
+                <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <h5 class="card-title">@repository.Name</h5>
                     <h6 class="text-muted">@((repository.Archived) ? "Archived" : "")</h6>
-               </div>
-                    <h6 class="card-subtitle mb-2 text-muted">@repository.Language</h6>
-                <p class="card-text">@repository.Description</p>
+                </div>
+                <h6 class="card-subtitle mb-2 text-muted">@repository.Language</h6>
                 @if (repository.Homepage != "")
                 {
-                    <a href="@repository.Homepage" class="card-link text-decoration-none text-black fw-bold">Homepage</a>
+                    <a href="@repository.Homepage" class="card-link text-decoration-none fw-bold">Homepage</a>
                 }
-                <a href="@repository.Url" class="card-link text-decoration-none text-black fw-bold">Github</a>
-                <a href="@repository.CloneUrl" class="card-link text-decoration-none text-black fw-bold">Clone URL</a>
+                <a href="@repository.Url" class="card-link text-decoration-none fw-bold">Github</a>
+                <a href="@repository.CloneUrl" class="card-link text-decoration-none fw-bold">Clone URL</a>
+                <p class="card-text pt-2">@repository.Description</p>
             </div>
             <div class="card-footer flex-column d-flex">
                 <small class="text-muted">Created At: @repository.CreatedAt</small>

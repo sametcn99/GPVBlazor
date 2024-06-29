@@ -1,15 +1,14 @@
 * {
-    color: black;
-    -webkit-text-decoration: none;
-    text-decoration: none;
 }
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-a, .btn-link {
-    color: #006bb7;
+a, .btn-link, .btn {
+    color: #dee2e6;
+    -webkit-text-decoration: none;
+    text-decoration: none;
 }
 
 .btn-primary {
@@ -18,8 +17,14 @@ a, .btn-link {
     border-color: #1861ac;
 }
 
+.btn:hover {
+    color: #fff;
+    background-color: #1861ac;
+    border-color: #165f9c;
+}
+
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {

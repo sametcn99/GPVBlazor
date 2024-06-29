@@ -1,6 +1,6 @@
 ﻿@using GPVBlazor.Models
 
-@if(UserStats == null) { return; }
+@if (UserStats == null) { return; }
 
 <div class="card mt-4 mb-3">
     <div class="card-header">
@@ -41,6 +41,21 @@
             </div>
             <div class="col-12">
                 <p><strong>Average Forks per Repository:</strong> @UserStats.AverageForksPerRepository</p>
+            </div>
+            <div class="col-12">
+                <p><strong>Most Starred Repository:</strong><RepositoryDisplay repository="@UserStats.MostStarred" /></p>
+            </div>
+            <div class="col-12">
+                <p><strong>Latest Updated Repository:</strong> <RepositoryDisplay repository="@UserStats.LatestUpdatedRepository" /></p>
+            </div>
+            <div class="col-12">
+                <p><strong>Last Created Repository:</strong> <RepositoryDisplay repository="@UserStats.LastCreatedRepository" /></p>
+            </div>
+            <div class="col-12">
+                <p><strong>Oldest Repository:</strong> <RepositoryDisplay repository="@UserStats.OldestRepository" /></p>
+            </div>
+            <div class="col-12">
+                <p><strong>Longest Update Period Repository:</strong> <RepositoryDisplay repository="@UserStats.LongestUpdatePeriod" /></p>
             </div>
         </div>
     </div>

@@ -22,7 +22,7 @@
     <div class="card-footer d-flex gap-2 flex-wrap">
         <button class="btn btn-primary" @onclick="FetchAndShowFollowersModal">Followers: @UserProfile.Followers</button>
         <button class="btn btn-primary" @onclick="FetchAndShowFollowingModal">Followings: @UserProfile.Following</button>
-        <a class="mb-1 text-decoration-none text-black" href="@UserProfile.Blog"><strong>Website:</strong> @UserProfile.Blog</a>
+        <a class="mb-1 text-decoration-none" href="@(UserProfile.Blog.StartsWith("http") ? UserProfile.Blog : $"https://{UserProfile.Blog}")"><strong>Website:</strong> @UserProfile.Blog</a>
         <p class="mb-1"><strong>Company:</strong> @UserProfile.Company</p>
     </div>
 </div>
