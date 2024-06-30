@@ -1,7 +1,27 @@
 ﻿@rendermode InteractiveServer
 @using GPVBlazor.Models
 
-
+@if (ShowModal && Users != null)
+{
+    <div class="modal" tabindex="-1" style="display:block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@ModalTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => ShowModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <Virtualize Items="Users" Context="user">
+                        <a class="d-flex align-items-center gap-2 fw-bold" href="@UserListUrl(user)" @key="user.NodeId">
+                            <img src="@user.AvatarUrl" alt="Avatar" class="img-thumbnail rounded-circle mb-3" style="width: 60px; height: 60px;" />
+                            <div>@user.Login</div>
+                        </a>
+                    </Virtualize>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter] public bool ShowModal { get; set; }
@@ -15,27 +35,4 @@
     [Parameter] public ModalTitleEnum ModalTitle { get; set; }
 
     private string UserListUrl(User user) => $"/p/{user.Login}";
-}
-
-@if (ShowModal && Users != null)
-{
-    <div class="modal" tabindex="-1" style="display:block;">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@ModalTitle</h5>
-                    <button type="button" class="btn-close" @onclick="() => ShowModal = false"></button>
-                </div>
-                <div class="modal-body">
-                    @foreach (var user in Users)
-                    {
-                        <a class="d-flex align-items-center gap-2 fw-bold" href="@UserListUrl(user)">
-                            <img src="@user.AvatarUrl" alt="Avatar" class="img-thumbnail rounded-circle mb-3" style="width: 60px; height: 60px;" />
-                            <div>@user.Login</div>
-                        </a>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
 }

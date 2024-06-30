@@ -13,7 +13,7 @@
 
 @if (user is not null)
 {
-    <UserProfileDisplay UserProfile="@user"  token="@token"/>
+    <UserProfileDisplay UserProfile="@user" token="@token" />
 }
 else
 {
@@ -38,10 +38,9 @@ else
     <div>
         <h3 class="mb-4">Repositories</h3>
         <div class="row">
-            @foreach (var repo in repositories)
-            {
-                <RepositoryDisplay Repository="@repo" />
-            }
+            <Virtualize Items="repositories" Context="repo">
+                <RepositoryDisplay repository="repo" @key="repo.NodeId" />
+            </Virtualize>
         </div>
     </div>
 }
