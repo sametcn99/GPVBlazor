@@ -27,8 +27,8 @@
 @code {
     private string inputValue = string.Empty;
     private UserSearchResult? data;
-    private string selectedFilter = "All";
     private bool showResults = false;
+    private CancellationTokenSource debounceCts = new CancellationTokenSource();
 
     private async Task FetchData()
     {
@@ -45,9 +45,19 @@
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter")
+        // Cancel any existing debounce operation
+        debounceCts.Cancel();
+        debounceCts = new CancellationTokenSource();
+
+        try
         {
-            await SearchHandle(); // Added await
+            // Wait for the debounce delay to elapse
+            await Task.Delay(500, debounceCts.Token);
+            await SearchHandle();
+        }
+        catch (TaskCanceledException)
+        {
+            // If a new key press event comes in, the current delay will be cancelled
         }
     }
 
@@ -56,5 +66,4 @@
         showResults = true;
         await FetchData();
     }
-
 }
