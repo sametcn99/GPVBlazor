@@ -10,17 +10,24 @@
                     <h6 class="text-muted">@((repository.Archived) ? "Archived" : "")</h6>
                 </div>
                 <h6 class="card-subtitle mb-2 text-muted">@repository.Language</h6>
-                @if (repository.Homepage != "")
-                {
-                    <a href="@repository.Homepage" class="card-link text-decoration-none fw-bold">Homepage</a>
-                }
-                <a href="@repository.Url" class="card-link text-decoration-none fw-bold">GitHub</a>
-                <a href="@repository.CloneUrl" class="card-link text-decoration-none fw-bold">Clone URL</a>
-                <p class="card-text pt-2">@repository.Description</p>
+                <div class="d-flex flex-row flex-wrap gap-2">
+                    @if (repository.Homepage != "")
+                    {
+                        <a href="@repository.Homepage" class="fw-bold text-decoration-none bg-transparent border-0">Homepage</a>
+                    }
+                    <a href="@repository.Url" class="fw-bold text-decoration-none bg-transparent border-0">GitHub</a>
+                    <a href="@repository.CloneUrl" class="fw-bold text-decoration-none bg-transparent border-0">Clone URL</a>
+                    @if (repository?.Readme?.Content is not null)
+                    {
+                        <button class="fw-bold text-decoration-none bg-transparent border-0" @onclick="() => ShowModal = true">Readme</button>
+                        <ReadmeModal ShowModal="ShowModal" readme="repository?.Readme" />
+                    }
+                </div>
+                <p class="card-text pt-2">@repository?.Description</p>
             </div>
             <div class="card-footer flex-column d-flex">
-                <small class="text-muted">Created At: @repository.CreatedAt</small>
-                <small class="text-muted">Last Pushed: @repository.PushedAt</small>
+                <small class="text-muted">Created At: @repository?.CreatedAt</small>
+                <small class="text-muted">Last Pushed: @repository?.PushedAt</small>
             </div>
         </div>
     </div>
@@ -29,4 +36,10 @@
 @code {
     [Parameter]
     public Repository? repository { get; set; }
+    private bool ShowModal = false;
+
+    private void showModal()
+    {
+        ShowModal = true;
+    }
 }

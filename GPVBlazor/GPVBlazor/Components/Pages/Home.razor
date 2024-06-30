@@ -14,6 +14,7 @@
 <div class="d-flex flex-column gap-4 align-items-center">
     <input @bind="AuthToken" placeholder="Enter Auth Token" class="form-control" />
     <button class="btn btn-primary" @onclick="AddToken">Add Token</button>
+    <span class="text-muted fst-italic">Auth token is storing in local storage.</span>
 </div>
 
 @code {

@@ -30,6 +30,8 @@
 
         public int TotalOpenIssues => _repositories.Sum(repo => repo.OpenIssuesCount);
 
+        public int TotalReadmes => _repositories.Count(repo => repo?.Readme?.Content != null);
+
         public double AverageStarsPerRepository => Math.Round(_repositories.Average(repo => repo.StargazersCount), 2);
 
         public double AverageForksPerRepository => Math.Round(_repositories.Average(repo => repo.ForksCount), 2);

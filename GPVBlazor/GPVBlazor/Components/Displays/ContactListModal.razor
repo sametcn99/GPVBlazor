@@ -3,12 +3,12 @@
 
 @if (ShowModal && Users is not null)
 {
-    <div class="modal" tabindex="-1" style="display:block;">
-        <div class="modal-dialog">
+    <div class="modal" tabindex="-1" style="display:block;" role="dialog">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">@ModalTitle</h5>
-                    <button type="button" class="btn-close" @onclick="() => ShowModal = false"></button>
+                    <button type="button" class="btn-close" @onclick="() => ShowModal = false" data-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <Virtualize Items="Users" Context="user">

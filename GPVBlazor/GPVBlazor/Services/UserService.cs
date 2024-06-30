@@ -76,6 +76,7 @@ namespace GPVBlazor.Services
                 if (readmeInfo is not null)
                 {
                     repo.Readme = readmeInfo;
+
                 }
             }
             return repos;
@@ -100,6 +101,7 @@ namespace GPVBlazor.Services
                 {
                     var decodedBytes = Convert.FromBase64String(readmeText);
                     readmeInfo.Content = System.Text.Encoding.UTF8.GetString(decodedBytes);
+                    readmeInfo.Content = Markdig.Markdown.ToHtml(readmeInfo.Content);
                 }
                 return readmeInfo;
             }
