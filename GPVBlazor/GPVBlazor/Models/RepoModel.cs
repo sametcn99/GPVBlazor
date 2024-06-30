@@ -264,6 +264,8 @@ namespace GPVBlazor.Models
 
         [JsonPropertyName("security_and_analysis")]
         public SecurityAndAnalysis? SecurityAndAnalysis { get; set; }
+
+        public Readme? Readme { get; set; }
     }
 
     public class Owner : User { }

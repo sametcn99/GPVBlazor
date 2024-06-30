@@ -67,7 +67,60 @@ namespace GPVBlazor.Services
                 repos.AddRange(pageRepositories);
                 page++;
             }
+
+            // add readme content to each repo
+            foreach (var repo in repos)
+            {
+                if (repo.Name is null || token is null) return repos;
+                var readmeInfo = await FetchReadmeInfo(username, repo.Name, token);
+                if (readmeInfo is not null)
+                {
+                    repo.Readme = readmeInfo;
+                }
+            }
             return repos;
+        }
+
+        public async Task<Readme?> FetchReadmeInfo(string username, string repoName, string token)
+        {
+            var readmeRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{username}/{repoName}/readme");
+            readmeRequest.Headers.Add("User-Agent", "BlazorApp");
+            if (token is not null)
+            {
+                var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                readmeRequest.Headers.Authorization = authHeader;
+            }
+            var readmeResponse = await _httpClient.SendAsync(readmeRequest);
+            if (readmeResponse.IsSuccessStatusCode)
+            {
+                var readmeContent = await readmeResponse.Content.ReadAsStringAsync();
+                var readmeInfo = JsonSerializer.Deserialize<Readme>(readmeContent);
+                var readmeText = readmeInfo?.Content?.ToString();
+                if (readmeInfo != null && !string.IsNullOrEmpty(readmeText))
+                {
+                    var decodedBytes = Convert.FromBase64String(readmeText);
+                    readmeInfo.Content = System.Text.Encoding.UTF8.GetString(decodedBytes);
+                }
+                return readmeInfo;
+            }
+            return null;
+        }
+
+        public async Task<string> FetchReadmeText(string downloadUrl, string token)
+        {
+            var readmeTextRequest = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
+            readmeTextRequest.Headers.Add("User-Agent", "BlazorApp");
+            if (token is not null)
+            {
+                var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                readmeTextRequest.Headers.Authorization = authHeader;
+            }
+            var readmeTextResponse = await _httpClient.SendAsync(readmeTextRequest);
+            if (readmeTextResponse.IsSuccessStatusCode)
+            {
+                return await readmeTextResponse.Content.ReadAsStringAsync();
+            }
+            return string.Empty;
         }
     }
 }
