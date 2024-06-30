@@ -17,58 +17,58 @@ namespace GPVBlazor.Models
     public class UserSearchResultItem
     {
         [JsonPropertyName("login")]
-        public string Login { get; set; }
+        public string? Login { get; set; }
 
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
         [JsonPropertyName("node_id")]
-        public string NodeId { get; set; }
+        public string? NodeId { get; set; }
 
         [JsonPropertyName("avatar_url")]
-        public Uri AvatarUrl { get; set; }
+        public Uri? AvatarUrl { get; set; }
 
         [JsonPropertyName("gravatar_id")]
         public string? GravatarId { get; set; }
 
         [JsonPropertyName("url")]
-        public Uri Url { get; set; }
+        public Uri? Url { get; set; }
 
         [JsonPropertyName("html_url")]
-        public Uri HtmlUrl { get; set; }
+        public Uri? HtmlUrl { get; set; }
 
         [JsonPropertyName("followers_url")]
-        public Uri FollowersUrl { get; set; }
+        public Uri? FollowersUrl { get; set; }
 
         [JsonPropertyName("subscriptions_url")]
-        public Uri SubscriptionsUrl { get; set; }
+        public Uri? SubscriptionsUrl { get; set; }
 
         [JsonPropertyName("organizations_url")]
-        public Uri OrganizationsUrl { get; set; }
+        public Uri? OrganizationsUrl { get; set; }
 
         [JsonPropertyName("repos_url")]
-        public Uri ReposUrl { get; set; }
+        public Uri? ReposUrl { get; set; }
 
         [JsonPropertyName("received_events_url")]
-        public Uri ReceivedEventsUrl { get; set; }
+        public Uri? ReceivedEventsUrl { get; set; }
 
         [JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
         [JsonPropertyName("score")]
         public double Score { get; set; }
 
         [JsonPropertyName("following_url")]
-        public string FollowingUrl { get; set; }
+        public string? FollowingUrl { get; set; }
 
         [JsonPropertyName("gists_url")]
-        public string GistsUrl { get; set; }
+        public string? GistsUrl { get; set; }
 
         [JsonPropertyName("starred_url")]
-        public string StarredUrl { get; set; }
+        public string? StarredUrl { get; set; }
 
         [JsonPropertyName("events_url")]
-        public string EventsUrl { get; set; }
+        public string? EventsUrl { get; set; }
 
         [JsonPropertyName("public_repos")]
         public int PublicRepos { get; set; }
@@ -122,16 +122,16 @@ namespace GPVBlazor.Models
     public class SearchResultTextMatch
     {
         [JsonPropertyName("object_url")]
-        public string ObjectUrl { get; set; }
+        public string? ObjectUrl { get; set; }
 
         [JsonPropertyName("object_type")]
         public string? ObjectType { get; set; }
 
         [JsonPropertyName("property")]
-        public string Property { get; set; }
+        public string? Property { get; set; }
 
         [JsonPropertyName("fragment")]
-        public string Fragment { get; set; }
+        public string? Fragment { get; set; }
 
         [JsonPropertyName("matches")]
         public List<TextMatch> Matches { get; set; } = new();
@@ -140,7 +140,7 @@ namespace GPVBlazor.Models
     public class TextMatch
     {
         [JsonPropertyName("text")]
-        public string Text { get; set; }
+        public string? Text { get; set; }
 
         [JsonPropertyName("indices")]
         public List<int> Indices { get; set; } = new();

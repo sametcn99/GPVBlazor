@@ -1,10 +1,8 @@
 ﻿@rendermode InteractiveServer
 @using GPVBlazor.Models
-@using GPVBlazor.Services
-@using GPVBlazor.Services.Interfaces
-@inject IContactService ContactService
+@inject Services.Interfaces.IContactService ContactService
 
-@if (UserProfile == null) { return; }
+@if (UserProfile is null) { return; }
 
 <div class="card mb-3">
     <div class="card-body">
@@ -22,16 +20,16 @@
     <div class="card-footer d-flex gap-2 flex-wrap">
         <button class="btn btn-primary" @onclick="FetchAndShowFollowersModal">Followers: @UserProfile.Followers</button>
         <button class="btn btn-primary" @onclick="FetchAndShowFollowingModal">Followings: @UserProfile.Following</button>
-        <a class="mb-1 text-decoration-none" href="@(UserProfile.Blog.StartsWith("http") ? UserProfile.Blog : $"https://{UserProfile.Blog}")"><strong>Website:</strong> @UserProfile.Blog</a>
-        <p class="mb-1"><strong>Company:</strong> @UserProfile.Company</p>
+        <a class="mb-1 text-decoration-none" href="@(UserProfile?.Blog?.StartsWith("http") == true ? UserProfile.Blog : $"https://{UserProfile?.Blog}")"><strong>Website:</strong> @UserProfile?.Blog</a>
+        <p class="mb-1"><strong>Company:</strong> @UserProfile?.Company</p>
     </div>
 </div>
 
-@if (showFollowersModal == true)
+@if (showFollowersModal is true)
 {
     <ContactListModal ShowModal="showFollowersModal" Users="followers" ModalTitle="ContactListModal.ModalTitleEnum.Followers" />
 }
-@if (showFollowingModal == true)
+@if (showFollowingModal is true)
 {
     <ContactListModal ShowModal="showFollowingModal" Users="followings" ModalTitle="ContactListModal.ModalTitleEnum.Following" />
 }
@@ -49,12 +47,16 @@
 
     private async Task FetchAndShowFollowersModal()
     {
+        if (UserProfile?.Login is null) return; 
+        if (token is null) return;
         followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers", token);
         ToggleModalVisibility(showFollowers: true);
     }
 
     private async Task FetchAndShowFollowingModal()
     {
+        if (UserProfile?.Login is null) return;
+        if (token is null) return;
         followings = await ContactService.FetchModalData<User>(UserProfile.Login, "following", token);
         ToggleModalVisibility(showFollowing: true);
     }

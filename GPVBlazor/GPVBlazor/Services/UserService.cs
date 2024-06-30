@@ -23,7 +23,6 @@ namespace GPVBlazor.Services
                 var authHeader = new AuthenticationHeaderValue("Bearer", token);
                 userRequest.Headers.Authorization = authHeader;
             }
-
             var response = await _httpClient.SendAsync(userRequest);
             return response.IsSuccessStatusCode
                 ? JsonSerializer.Deserialize<User>(await response.Content.ReadAsStringAsync())
@@ -35,19 +34,15 @@ namespace GPVBlazor.Services
             var url = $"https://api.github.com/search/users?q={inputValue}";
             var userRequest = new HttpRequestMessage(HttpMethod.Get, url);
             userRequest.Headers.Add("User-Agent", "BlazorApp");
-
-
             var response = await _httpClient.SendAsync(userRequest);
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var users = JsonSerializer.Deserialize<UserSearchResult>(content);
-                return users;
+                if (users is not null) return users;
+                else return new UserSearchResult();
             }
-            else
-            {
-                return new UserSearchResult(); // Return an empty list instead of null to avoid null reference returns
-            }
+            else return new UserSearchResult();
         }
 
 

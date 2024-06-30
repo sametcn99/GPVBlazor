@@ -1,13 +1,6 @@
 ﻿@rendermode InteractiveServer
-@using System.Net.Http.Json
-@using Microsoft.AspNetCore.Components.Web
 @using GPVBlazor.Models
-@using GPVBlazor.Services
-@using GPVBlazor.Services.Interfaces
-@inject IUserService UserService
-@inject UserService UserService
-@inject IUserService UserService
-@inject IContactService ContactService
+@inject Services.Interfaces.IUserService UserService
 
 <div class="input-group mb-3">
     <input type="text" class="form-control" placeholder="Write user name..." @bind="inputValue" @bind:event="oninput" @onkeydown="HandleKeyPress">
@@ -19,9 +12,9 @@
         @if (data?.Items != null)
         {
             <Virtualize Items="@data.Items" Context="item">
-                <a class="search-item d-flex gap-2 text-black text-decoration-none" href="/p/@item.Login">
+                <a class="search-item d-flex gap-2 text-decoration-none py-1" href="/p/@item.Login">
                     <img src="@item.AvatarUrl" alt="@item.Login" style="height: 60px; width: 60px;" class="rounded-circle img-thumbnail" />
-                    <div class="d-flex flex-column gap-2 ">
+                    <div class="d-flex flex-column gap-1 ">
                         <span class="fs-4 fw-bold">@item.Login</span>
                         <span>@item.Type</span>
                     </div>
@@ -33,7 +26,7 @@
 
 @code {
     private string inputValue = string.Empty;
-    private UserSearchResult data;
+    private UserSearchResult? data;
     private string selectedFilter = "All";
     private bool showResults = false;
 
@@ -41,7 +34,7 @@
     {
         if (string.IsNullOrWhiteSpace(inputValue))
         {
-            data.Items.Clear();
+            data?.Items.Clear();
             return;
         }
         if (inputValue is not null)
@@ -50,8 +43,7 @@
         }
     }
 
-
-    private async Task HandleKeyPress(KeyboardEventArgs e) // Changed to async Task
+    private async Task HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
@@ -66,4 +58,3 @@
     }
 
 }
-

@@ -1,13 +1,11 @@
 ﻿@page "/p/{Username}"
 @rendermode InteractiveServer
-@using GPVBlazor.Models
-@using GPVBlazor.Components.Displays
-@using GPVBlazor.Services.Interfaces
-@inject IUserService UserService
-@inject IContactService ContactService
-@inject HttpClient Http
+@inject Services.Interfaces.IUserService UserService
+@inject Services.Interfaces.IContactService ContactService
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
+@using GPVBlazor.Models
+@using GPVBlazor.Components.Displays
 
 <PageTitle>@Username's Profile</PageTitle>
 
@@ -33,7 +31,7 @@ else
     </div>
 }
 
-@if (repositories?.Any() == true)
+@if (repositories?.Any() is true)
 {
     <div>
         <h3 class="mb-4">Repositories</h3>
@@ -55,7 +53,7 @@ else if (repositories is not null)
     private User? user;
     private List<Repository>? repositories;
     private RepositoryStats? stats;
-    string token;
+    string? token;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -66,16 +64,19 @@ else if (repositories is not null)
                 token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
                 if (token is null)
                 {
-                    JS.InvokeVoidAsync("alert", "You need to add a auth token in home page.");
+                    await JS.InvokeVoidAsync("alert", "You need to add a auth token in home page.");
                     NavigationManager.NavigateTo("/");
                 }
 
-                user = await UserService.FetchUserProfile(Username, token);
-                repositories = await UserService.FetchUserRepositories(Username, token) ?? new List<Repository>();
-
-                if (repositories.Any())
+                if (Username is not null && token is not null)
                 {
-                    stats = new RepositoryStats(repositories);
+                    user = await UserService.FetchUserProfile(Username, token);
+                    repositories = await UserService.FetchUserRepositories(Username, token) ?? new List<Repository>();
+                    if (repositories.Any())
+                    {
+                        stats = new RepositoryStats(repositories);
+                    }
+                    StateHasChanged();
                 }
             }
             catch (Exception ex)
@@ -89,7 +90,7 @@ else if (repositories is not null)
     protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrWhiteSpace(Username)) return;
-
+        if (string.IsNullOrWhiteSpace(token)) return;
 
         user = await UserService.FetchUserProfile(Username, token);
         repositories = await UserService.FetchUserRepositories(Username, token) ?? new List<Repository>();
