@@ -46,39 +46,52 @@ namespace GPVBlazor.Services
         }
 
 
-        public async Task<List<Repository>> FetchUserRepositories(string username, string token, int page = 1)
+        public async Task<List<Repository>> FetchUserRepositories(string username, string token, int count, int page = 1)
         {
             var repos = new List<Repository>();
-            while (true)
+            var tasks = new List<Task>();
+
+            // Calculate the number of pages to fetch based on the count
+            var pages = (int)Math.Ceiling(count / 100.0);
+
+            // Create tasks for each page request
+            var pageTasks = Enumerable.Range(page, pages).Select(async currentPage =>
             {
-                var reposRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/repos?per_page=100&page={page}");
+                var reposRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/repos?per_page=100&page={currentPage}");
                 reposRequest.Headers.Add("User-Agent", "BlazorApp");
-                if (token is not null)
+                if (!string.IsNullOrEmpty(token))
                 {
                     var authHeader = new AuthenticationHeaderValue("Bearer", token);
                     reposRequest.Headers.Authorization = authHeader;
                 }
-                var reposResponse = await _httpClient.SendAsync(reposRequest);
-                if (!reposResponse.IsSuccessStatusCode) break;
 
-                var pageRepositories = JsonSerializer.Deserialize<List<Repository>>(await reposResponse.Content.ReadAsStringAsync());
-                if (pageRepositories == null || pageRepositories.Count == 0) break;
+                var reposResponse = await _httpClient.SendAsync(reposRequest).ConfigureAwait(false);
+                if (!reposResponse.IsSuccessStatusCode) return new List<Repository>();
 
-                repos.AddRange(pageRepositories);
-                page++;
-            }
+                var pageRepositories = JsonSerializer.Deserialize<List<Repository>>(await reposResponse.Content.ReadAsStringAsync().ConfigureAwait(false));
+                return pageRepositories ?? new List<Repository>();
+            }).ToList();
 
-            // add readme content to each repo
-            foreach (var repo in repos)
-            {
-                if (repo.Name is null || token is null) return repos;
-                var readmeInfo = await FetchReadmeInfo(username, repo.Name, token);
-                if (readmeInfo is not null)
+            // Wait for all page requests to complete
+            var allRepos = await Task.WhenAll(pageTasks).ConfigureAwait(false);
+
+            // Flatten the results
+            repos.AddRange(allRepos.SelectMany(r => r));
+
+            // Fetch README content in parallel
+            var readmeTasks = repos
+                .Where(repo => repo.Name != null && !string.IsNullOrEmpty(token))
+                .Select(repo => FetchReadmeInfo(username, repo.Name, token).ContinueWith(readmeTask =>
                 {
-                    repo.Readme = readmeInfo;
+                    var readmeInfo = readmeTask.Result;
+                    if (readmeInfo != null)
+                    {
+                        repo.Readme = readmeInfo;
+                    }
+                })).ToList();
 
-                }
-            }
+            await Task.WhenAll(readmeTasks).ConfigureAwait(false);
+
             return repos;
         }
 

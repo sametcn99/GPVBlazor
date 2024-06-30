@@ -71,12 +71,17 @@ else if (repositories is not null)
                 if (Username is not null && token is not null)
                 {
                     user = await UserService.FetchUserProfile(Username, token);
-                    repositories = await UserService.FetchUserRepositories(Username, token) ?? new List<Repository>();
-                    if (repositories.Any())
+                    if (user is not null) StateHasChanged();
+
+                    if (user is not null && repositories is null)
                     {
-                        stats = new RepositoryStats(repositories);
+                        repositories = await UserService.FetchUserRepositories(Username, token, user.PublicRepos) ?? new List<Repository>();
+                        if (repositories.Any())
+                        {
+                            stats = new RepositoryStats(repositories);
+                            StateHasChanged();
+                        }
                     }
-                    StateHasChanged();
                 }
             }
             catch (Exception ex)
@@ -85,19 +90,4 @@ else if (repositories is not null)
             }
         }
     }
-
-
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     if (string.IsNullOrWhiteSpace(Username)) return;
-    //     if (string.IsNullOrWhiteSpace(token)) return;
-
-    //     user = await UserService.FetchUserProfile(Username, token);
-    //     repositories = await UserService.FetchUserRepositories(Username, token) ?? new List<Repository>();
-
-    //     if (repositories.Any())
-    //     {
-    //         stats = new RepositoryStats(repositories);
-    //     }
-    // }
 }
