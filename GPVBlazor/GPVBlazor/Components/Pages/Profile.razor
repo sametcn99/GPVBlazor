@@ -36,7 +36,7 @@ else
     <div>
         <h3 class="mb-4">Repositories</h3>
         <div class="row">
-            <Virtualize Items="repositories" Context="repo">
+            <Virtualize Items="repositories" Context="repo" OverscanCount="20">
                 <RepositoryDisplay repository="repo" @key="repo.NodeId" />
             </Virtualize>
         </div>
