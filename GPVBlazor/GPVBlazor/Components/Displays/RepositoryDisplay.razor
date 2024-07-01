@@ -2,33 +2,31 @@
 
 @if (repository is not null)
 {
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="d-flex gap-2 align-items-center flex-wrap">
-                    <h5 class="card-title">@repository.Name</h5>
-                    <h6 class="text-muted">@((repository.Archived) ? "Archived" : "")</h6>
-                </div>
-                <h6 class="card-subtitle mb-2 text-muted">@repository.Language</h6>
-                <div class="d-flex flex-row flex-wrap gap-2">
-                    @if (repository.Homepage != "")
-                    {
-                        <a href="@repository.Homepage" class="fw-bold text-decoration-none bg-transparent border-0">Homepage</a>
-                    }
-                    <a href="@repository.Url" class="fw-bold text-decoration-none bg-transparent border-0">GitHub</a>
-                    <a href="@repository.CloneUrl" class="fw-bold text-decoration-none bg-transparent border-0">Clone URL</a>
-                    @if (repository?.Readme?.Content is not null)
-                    {
-                        <button class="fw-bold text-decoration-none bg-transparent border-0" @onclick="() => ShowModal = true">Readme</button>
-                        <ReadmeModal ShowModal="ShowModal" readme="repository?.Readme" />
-                    }
-                </div>
-                <p class="card-text pt-2">@repository?.Description</p>
+    <div class="card h-100">
+        <div class="card-body">
+            <div class="d-flex gap-2 align-items-center flex-wrap h-1">
+                <h5 class="card-title">@repository.Name</h5>
+                <h6 class="text-muted">@((repository.Archived) ? "Archived" : "")</h6>
             </div>
-            <div class="card-footer flex-column d-flex">
-                <small class="text-muted">Created At: @repository?.CreatedAt</small>
-                <small class="text-muted">Last Pushed: @repository?.PushedAt</small>
+            <h6 class="card-subtitle mb-2 text-muted">@repository.Language</h6>
+            <div class="d-flex flex-row flex-wrap gap-2">
+                @if (repository.Homepage != "")
+                {
+                    <a href="@repository.Homepage" class="fw-bold text-decoration-none bg-transparent border-0">Homepage</a>
+                }
+                <a href="@repository.Url" class="fw-bold text-decoration-none bg-transparent border-0">GitHub</a>
+                <a href="@repository.CloneUrl" class="fw-bold text-decoration-none bg-transparent border-0">Clone URL</a>
+                @if (repository?.Readme?.Content is not null)
+                {
+                    <button class="fw-bold text-decoration-none bg-transparent border-0" @onclick="() => ShowModal = true">Readme</button>
+                    <ReadmeModal ShowModal="ShowModal" readme="repository?.Readme" />
+                }
             </div>
+            <p class="card-text pt-2">@repository?.Description</p>
+        </div>
+        <div class="card-footer flex-column d-flex">
+            <small class="text-muted">Created At: @repository?.CreatedAt</small>
+            <small class="text-muted">Last Pushed: @repository?.PushedAt</small>
         </div>
     </div>
 }

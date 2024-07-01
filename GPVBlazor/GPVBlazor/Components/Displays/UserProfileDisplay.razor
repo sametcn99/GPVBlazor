@@ -7,21 +7,22 @@
 <div class="card mb-3">
     <div class="card-body">
         <img src="@UserProfile.AvatarUrl" alt="Avatar" class="img-thumbnail rounded-circle mb-3 user-select-none pe-none" style="width: 200px; height: 200px;" />
-        <h2 class="mb-1 text-decoration-none fw-bold" href="@UserProfile.HtmlUrl">@UserProfile.Name</h2>
+        <h2 class="p-0 m-0 text-decoration-none fw-bold fs-1">@UserProfile.Name</h2>
+        <a class="mb-1" href="https://github.com/@UserProfile.Login"><strong></strong>@@@UserProfile.Login</a>
         <p class="mb-1">@UserProfile.Bio</p>
-        <p class="mb-1">@UserProfile.Email</p>
-        <p class="mb-1">@UserProfile.Location</p>
+        <a class="mb-1" href="mailto:@UserProfile.Email"><strong>Email: </strong>@UserProfile.Email</a>
+        <p class="mb-1"><strong>Location: </strong>@UserProfile.Location</p>
         <p class="mb-1"><strong>Public Repos:</strong> @UserProfile.PublicRepos</p>
         <p class="mb-1"><strong>Public Gists:</strong> @UserProfile.PublicGists</p>
         <p class="mb-1"><strong>Organizations:</strong> @UserProfile.Company</p>
+        <p class="mb-1"><strong>Website:</strong><a class="text-decoration-none" href="@(UserProfile?.Blog?.StartsWith("http") == true ? UserProfile.Blog : $"https://{UserProfile?.Blog}")" target="_blank">@UserProfile?.Blog</a></p>
+        <p class="mb-1"><strong>Company:</strong> @UserProfile?.Company</p>
         <p class="mb-1"><strong>Last Update:</strong> @UserProfile.UpdatedAt</p>
         <p class="mb-1"><strong>Member Since:</strong> @UserProfile.CreatedAt</p>
     </div>
     <div class="card-footer d-flex gap-2 flex-wrap">
-        <button class="btn btn-primary" @onclick="FetchAndShowFollowersModal">Followers: @UserProfile.Followers</button>
-        <button class="btn btn-primary" @onclick="FetchAndShowFollowingModal">Followings: @UserProfile.Following</button>
-        <a class="mb-1 text-decoration-none" href="@(UserProfile?.Blog?.StartsWith("http") == true ? UserProfile.Blog : $"https://{UserProfile?.Blog}")"><strong>Website:</strong> @UserProfile?.Blog</a>
-        <p class="mb-1"><strong>Company:</strong> @UserProfile?.Company</p>
+        <button class="btn btn-primary" @onclick="FetchAndShowFollowersModal">Followers: @UserProfile?.Followers</button>
+        <button class="btn btn-primary" @onclick="FetchAndShowFollowingModal">Followings: @UserProfile?.Following</button>
     </div>
 </div>
 

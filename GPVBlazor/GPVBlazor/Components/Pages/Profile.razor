@@ -37,7 +37,9 @@ else
         <h3 class="mb-4">Repositories</h3>
         <div class="row">
             <Virtualize Items="repositories" Context="repo" OverscanCount="20">
-                <RepositoryDisplay repository="repo" @key="repo.NodeId" />
+                <div class="col-md-4 mb-4">
+                    <RepositoryDisplay repository="repo" @key="repo.NodeId" />
+                </div>
             </Virtualize>
         </div>
     </div>

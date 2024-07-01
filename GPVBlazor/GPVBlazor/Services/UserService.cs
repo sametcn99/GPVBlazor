@@ -13,7 +13,6 @@ namespace GPVBlazor.Services
 
         public UserService(HttpClient httpClient, IMemoryCache memoryCache)
         {
-
             _httpClient = httpClient;
             _memoryCache = memoryCache;
         }
@@ -77,7 +76,7 @@ namespace GPVBlazor.Services
         public async Task<List<Repository>> FetchUserRepositories(string username, string token, int count, int page = 1)
         {
             // Define a unique cache key for this request
-            string cacheKey = $"UserRepositories-{username}-{page}-{count}";
+            string cacheKey = $"UserRepositories-{username}";
 
             // Attempt to get the repository list from cache
             if (_memoryCache.TryGetValue(cacheKey, out List<Repository>? cachedRepos))

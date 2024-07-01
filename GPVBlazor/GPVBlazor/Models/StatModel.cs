@@ -18,6 +18,10 @@
 
         public Repository? LastCreatedRepository => _repositories.MaxBy(repo => repo.CreatedAt);
 
+        public int TotalRepositories => _repositories.Count;
+
+        public int TotalArchivedRepositories => _repositories.Count(repo => repo.Archived);
+
         public int TotalTopics => _repositories.Sum(repo => repo.Topics?.Count ?? 0);
 
         public int TotalLanguages => UsedLanguages.Count;
