@@ -36,13 +36,13 @@
 
         public double AverageForksPerRepository => Math.Round(_repositories.Average(repo => repo.ForksCount), 2);
 
-        public List<string> TopTopics => _repositories
-            .SelectMany(repo => repo.Topics ?? new List<string>())
-            .GroupBy(topic => topic)
-            .OrderByDescending(group => group.Count())
-            .Take(10)
-            .Select(group => group.Key)
-            .ToList();
+        public Dictionary<string, int> TopTopics => _repositories
+           .SelectMany(repo => repo.Topics ?? new List<string>())
+           .GroupBy(topic => topic)
+           .OrderByDescending(group => group.Count())
+           .Take(10)
+           .ToDictionary(group => group.Key, group => group.Count());
+
 
         public Dictionary<int, int> RepositoriesByYear => _repositories
             .Where(repo => repo.CreatedAt.HasValue)
