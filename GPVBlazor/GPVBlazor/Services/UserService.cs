@@ -1,5 +1,6 @@
 ﻿using GPVBlazor.Models;
 using GPVBlazor.Services.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -8,14 +9,23 @@ namespace GPVBlazor.Services
     public class UserService : IUserService
     {
         private readonly HttpClient _httpClient;
+        private readonly IMemoryCache _memoryCache;
 
-        public UserService(HttpClient httpClient)
+        public UserService(HttpClient httpClient, IMemoryCache memoryCache)
         {
+
             _httpClient = httpClient;
+            _memoryCache = memoryCache;
         }
 
         public async Task<User?> FetchUserProfile(string username, string token)
         {
+            string cacheKey = $"UserProfile-{username}";
+            if (_memoryCache.TryGetValue(cacheKey, out User? cachedUser))
+            {
+                return cachedUser;
+            }
+
             var userRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}");
             userRequest.Headers.Add("User-Agent", "BlazorApp");
             if (token is not null)
@@ -24,13 +34,27 @@ namespace GPVBlazor.Services
                 userRequest.Headers.Authorization = authHeader;
             }
             var response = await _httpClient.SendAsync(userRequest);
-            return response.IsSuccessStatusCode
-                ? JsonSerializer.Deserialize<User>(await response.Content.ReadAsStringAsync())
-                : null;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var user = JsonSerializer.Deserialize<User>(content);
+                if (user is not null)
+                {
+                    _memoryCache.Set(cacheKey, user, TimeSpan.FromHours(1));
+                    return user;
+                }
+                else return null;
+            }
+            else return null;
         }
 
         public async Task<UserSearchResult> SearchUsers(string inputValue)
         {
+            string cacheKey = $"SearchUsers-{inputValue}";
+            if (_memoryCache.TryGetValue(cacheKey, out UserSearchResult? cachedUsers))
+            {
+                if (cachedUsers is not null) return cachedUsers;
+            }
             var url = $"https://api.github.com/search/users?q={inputValue}";
             var userRequest = new HttpRequestMessage(HttpMethod.Get, url);
             userRequest.Headers.Add("User-Agent", "BlazorApp");
@@ -39,7 +63,11 @@ namespace GPVBlazor.Services
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var users = JsonSerializer.Deserialize<UserSearchResult>(content);
-                if (users is not null) return users;
+                if (users is not null)
+                {
+                    _memoryCache.Set(cacheKey, users, TimeSpan.FromDays(1));
+                    return users;
+                }
                 else return new UserSearchResult();
             }
             else return new UserSearchResult();
@@ -48,8 +76,16 @@ namespace GPVBlazor.Services
 
         public async Task<List<Repository>> FetchUserRepositories(string username, string token, int count, int page = 1)
         {
+            // Define a unique cache key for this request
+            string cacheKey = $"UserRepositories-{username}-{page}-{count}";
+
+            // Attempt to get the repository list from cache
+            if (_memoryCache.TryGetValue(cacheKey, out List<Repository>? cachedRepos))
+            {
+                return cachedRepos ?? new List<Repository>();
+            }
+
             var repos = new List<Repository>();
-            var tasks = new List<Task>();
 
             // Calculate the number of pages to fetch based on the count
             var pages = (int)Math.Ceiling(count / 100.0);
@@ -57,41 +93,52 @@ namespace GPVBlazor.Services
             // Create tasks for each page request
             var pageTasks = Enumerable.Range(page, pages).Select(async currentPage =>
             {
-                var reposRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/repos?per_page=100&page={currentPage}");
-                reposRequest.Headers.Add("User-Agent", "BlazorApp");
-                if (!string.IsNullOrEmpty(token))
+                try
                 {
-                    var authHeader = new AuthenticationHeaderValue("Bearer", token);
-                    reposRequest.Headers.Authorization = authHeader;
+                    var reposRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/repos?per_page=100&page={currentPage}");
+                    reposRequest.Headers.Add("User-Agent", "BlazorApp");
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                        reposRequest.Headers.Authorization = authHeader;
+                    }
+
+                    var reposResponse = await _httpClient.SendAsync(reposRequest);
+                    if (!reposResponse.IsSuccessStatusCode) return new List<Repository>();
+
+                    var pageRepositories = JsonSerializer.Deserialize<List<Repository>>(await reposResponse.Content.ReadAsStringAsync());
+                    return pageRepositories ?? new List<Repository>();
                 }
-
-                var reposResponse = await _httpClient.SendAsync(reposRequest).ConfigureAwait(false);
-                if (!reposResponse.IsSuccessStatusCode) return new List<Repository>();
-
-                var pageRepositories = JsonSerializer.Deserialize<List<Repository>>(await reposResponse.Content.ReadAsStringAsync().ConfigureAwait(false));
-                return pageRepositories ?? new List<Repository>();
-            }).ToList();
+                catch
+                {
+                    // Log the error or handle it as needed
+                    return new List<Repository>();
+                }
+            });
 
             // Wait for all page requests to complete
-            var allRepos = await Task.WhenAll(pageTasks).ConfigureAwait(false);
+            var allRepos = await Task.WhenAll(pageTasks);
 
             // Flatten the results
             repos.AddRange(allRepos.SelectMany(r => r));
 
+
             // Fetch README content in parallel
             var readmeTasks = repos
                 .Where(repo => repo.Name != null && !string.IsNullOrEmpty(token))
-                .Select(repo => FetchReadmeInfo(username, repo.Name, token).ContinueWith(readmeTask =>
+                .Select(async repo =>
                 {
-                    var readmeInfo = readmeTask.Result;
+                    var readmeInfo = await FetchReadmeInfo(username, repo.Name!, token);
                     if (readmeInfo != null)
                     {
                         repo.Readme = readmeInfo;
                     }
-                })).ToList();
+                });
 
-            await Task.WhenAll(readmeTasks).ConfigureAwait(false);
+            await Task.WhenAll(readmeTasks);
 
+            // Cache the fetched repositories
+            _memoryCache.Set(cacheKey, repos, TimeSpan.FromHours(1));
             return repos;
         }
 
@@ -119,23 +166,6 @@ namespace GPVBlazor.Services
                 return readmeInfo;
             }
             return null;
-        }
-
-        public async Task<string> FetchReadmeText(string downloadUrl, string token)
-        {
-            var readmeTextRequest = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
-            readmeTextRequest.Headers.Add("User-Agent", "BlazorApp");
-            if (token is not null)
-            {
-                var authHeader = new AuthenticationHeaderValue("Bearer", token);
-                readmeTextRequest.Headers.Authorization = authHeader;
-            }
-            var readmeTextResponse = await _httpClient.SendAsync(readmeTextRequest);
-            if (readmeTextResponse.IsSuccessStatusCode)
-            {
-                return await readmeTextResponse.Content.ReadAsStringAsync();
-            }
-            return string.Empty;
         }
     }
 }

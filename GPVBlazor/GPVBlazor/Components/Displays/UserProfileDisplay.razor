@@ -29,7 +29,7 @@
 {
     <ContactListModal ShowModal="showFollowersModal" Users="followers" ModalTitle="ContactListModal.ModalTitleEnum.Followers" />
 }
-@if (showFollowingModal is true)
+else if (showFollowingModal is true)
 {
     <ContactListModal ShowModal="showFollowingModal" Users="followings" ModalTitle="ContactListModal.ModalTitleEnum.Following" />
 }
@@ -47,7 +47,7 @@
 
     private async Task FetchAndShowFollowersModal()
     {
-        if (UserProfile?.Login is null) return; 
+        if (UserProfile?.Login is null) return;
         if (token is null) return;
         followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers", token);
         ToggleModalVisibility(showFollowers: true);
