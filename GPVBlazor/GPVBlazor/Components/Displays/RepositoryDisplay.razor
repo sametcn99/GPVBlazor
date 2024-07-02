@@ -16,6 +16,12 @@
                 }
                 <a href="@repository.HtmlUrl" class="button is-small is-link is-inverted">GitHub</a>
                 <a href="@repository.CloneUrl" class="button is-small is-link is-inverted">Clone URL</a>
+                <button class="button is-small is-link is-inverted is-column-gap-1">
+                    @repository.StargazersCount
+                    <span class="icon">
+                        <i class="fas fa-star"></i>
+                    </span>
+                </button>
                 @if (repository?.Readme?.Content is not null)
                 {
                     <button class="button is-small is-link is-inverted" @onclick="() => ShowModal = true">Readme</button>
