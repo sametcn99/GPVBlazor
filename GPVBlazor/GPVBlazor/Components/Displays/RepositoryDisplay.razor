@@ -10,7 +10,7 @@
             </div>
             <h6 class="subtitle is-6 mb-2 has-text-grey">@repository.Language</h6>
             <div class="is-flex is-flex-direction-row is-flex-wrap-wrap" style="gap: 0.5rem;">
-                @if (repository.Homepage != "")
+                @if (!string.IsNullOrEmpty(repository.Homepage) && Uri.IsWellFormedUriString(repository.Homepage, UriKind.Absolute))
                 {
                     <a href="@repository.Homepage" class="button is-small is-link is-inverted">Homepage</a>
                 }

@@ -1,18 +1,8 @@
 using GPVBlazor.Components;
-using GPVBlazor.Services;
-using GPVBlazor.Services.Interfaces;
+using GPVBlazor.Services.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents();
-
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7261/") });
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IContactService, ContactService>();
+ServiceConfiguration.Configure(builder.Services);
 
 var app = builder.Build();
 

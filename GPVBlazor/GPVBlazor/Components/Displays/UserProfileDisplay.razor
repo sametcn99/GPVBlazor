@@ -15,10 +15,10 @@
         <a class="mb-1" href="https://github.com/@UserProfile.Login"><strong>@@@UserProfile.Login</strong></a>
         <p class="mb-1">@UserProfile.Bio</p>
         <p class="mb-1"><strong>Email: </strong><a href="mailto:@UserProfile.Email">@UserProfile.Email</a></p>
-        <p class="mb-1"><strong>Location: </strong>@UserProfile.Location</p>
-        <p class="mb-1"><strong>Public Repos: </strong>@UserProfile.PublicRepos</p>
-        <p class="mb-1"><strong>Public Gists: </strong>@UserProfile.PublicGists</p>
-        <p class="mb-1"><strong>Organizations: </strong>@UserProfile.Company</p>
+        <p class="mb-1"><strong>Location: </strong>@UserProfile?.Location</p>
+        <p class="mb-1"><strong>Public Repos: </strong>@UserProfile?.PublicRepos</p>
+        <p class="mb-1"><strong>Public Gists: </strong>@UserProfile?.PublicGists</p>
+        <p class="mb-1"><strong>Organizations: </strong>@UserProfile?.Company</p>
         <p class="mb-1"><strong>Website: </strong><a class="text-decoration-none" href="@(UserProfile?.Blog?.StartsWith("http") == true ? UserProfile.Blog : $"https://{UserProfile?.Blog}")" target="_blank">@UserProfile?.Blog</a></p>
         <p class="mb-1"><strong>Company: </strong>@UserProfile?.Company</p>
         <p class="mb-1"><strong>Last Update: </strong>@UserProfile?.UpdatedAt</p>

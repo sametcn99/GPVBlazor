@@ -12,18 +12,7 @@
             </header>
             <section class="modal-card-body">
                 <Virtualize Items="Users" Context="user">
-                    <a class="media" href="@UserListUrl(user)" @key="user.NodeId">
-                        <figure class="media-left">
-                            <p class="image is-48x48">
-                                <img class="is-rounded" src="@user.AvatarUrl" alt="Avatar" />
-                            </p>
-                        </figure>
-                        <div class="media-content">
-                            <div class="content">
-                                <p>@user.Login</p>
-                            </div>
-                        </div>
-                    </a>
+                  <UserListItem user="user" />
                 </Virtualize>
             </section>
         </div>

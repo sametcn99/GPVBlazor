@@ -1,0 +1,16 @@
+﻿@using GPVBlazor.Models
+
+<a class="media is-column-gap-1" href="/p/@user?.Login" @key="user?.NodeId" style="display: flex; align-items: center;">
+    <div class="image is-48x48 is-flex-shrink-0">
+        <img class="is-rounded" src="@user?.AvatarUrl" alt="Avatar" />
+    </div>
+    <div class="is-flex-grow-1">
+        <p class="title">@user?.Login</p>
+        <p class="subtitle">@user?.Type</p>
+    </div>
+</a>
+
+@code {
+    [Parameter]
+    public User? user { get; set; }
+}
