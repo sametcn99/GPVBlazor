@@ -3,31 +3,31 @@
 
 @if (ShowModal)
 {
-    <div class="modal" tabindex="-1" style="display:block;" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header d-flex flex-column align-items-start">
-                    <h5 class="modal-title">Readme</h5>
-                    <a class="text-muted" href="https://github.com/sindresorhus/github-markdown-css/blob/main/github-markdown-dark.css" target="_blank">Readme css source</a>
-                    <button type="button" class="btn-close" @onclick="() => ShowModal = false" data-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <article class="markdown-body p-2">
-                        @if (readme is not null && !string.IsNullOrWhiteSpace(readme.Content))
-                        {
-                            @((MarkupString)readme.Content)
-                        }
-                        else
-                        {
-                            <p>No readme found.</p>
-                        }
-                    </article>
-
-                </div>
-            </div>
+    <div class="modal is-active">
+        <div class="modal-background" @onclick="() => ShowModal = false"></div>
+        <div class="modal-card" role="document">
+            <header class="modal-card-head">
+                <p class="modal-card-title">
+                    Readme
+                </p>
+                <button class="delete is-large" aria-label="close" @onclick="() => ShowModal = false"></button>
+            </header>
+            <section class="modal-card-body">
+                <article class="content">
+                    @if (readme is not null && !string.IsNullOrWhiteSpace(readme.Content))
+                    {
+                        @((MarkupString)readme.Content)
+                    }
+                    else
+                    {
+                        <p>No readme found.</p>
+                    }
+                </article>
+            </section>
         </div>
     </div>
 }
+
 
 @code {
     [Parameter] public bool ShowModal { get; set; }

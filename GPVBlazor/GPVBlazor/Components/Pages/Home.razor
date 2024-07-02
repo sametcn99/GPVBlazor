@@ -4,18 +4,22 @@
 
 <PageTitle>GPV Dotnet</PageTitle>
 
-<h1>GitHub Profile Viewer Dotnet!</h1>
+<h1 class="title">GitHub Profile Viewer Dotnet!</h1>
 
 <i>Search for a GitHub user to view their profile</i>
-<div class="text-muted">It's a clone of githubprofileviewer.com built with .net</div>
+<div class="subtitle is-6">It's a clone of githubprofileviewer.com built with .net</div>
 
 <GPVBlazor.Components.Displays.SearchBarDisplay />
 
-<div class="d-flex flex-column gap-4 align-items-center">
-    <input @bind="AuthToken" placeholder="Enter Auth Token" class="form-control" />
-    <button class="btn btn-primary" @onclick="AddToken">Add Token</button>
-    <span class="text-muted fst-italic">Auth token is storing in local storage.</span>
+<div class="field has-addons">
+    <div class="control is-expanded">
+        <input @bind="AuthToken" placeholder="Enter Auth Token" class="input" />
+    </div>
+    <div class="control">
+        <button class="button is-primary" @onclick="AddToken">Add Token</button>
+    </div>
 </div>
+<p class="help is-italic">Auth token is storing in local storage.</p>
 
 @code {
     private string? AuthToken { get; set; } = string.Empty;

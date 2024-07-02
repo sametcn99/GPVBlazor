@@ -3,24 +3,32 @@
 
 @if (ShowModal && Users is not null)
 {
-    <div class="modal" tabindex="-1" style="display:block;" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@ModalTitle</h5>
-                    <button type="button" class="btn-close" @onclick="() => ShowModal = false" data-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <Virtualize Items="Users" Context="user">
-                        <a class="d-flex align-items-center gap-2 fw-bold" href="@UserListUrl(user)" @key="user.NodeId">
-                            <img src="@user.AvatarUrl" alt="Avatar" class="img-thumbnail rounded-circle mb-3" style="width: 60px; height: 60px;" />
-                            <div>@user.Login</div>
-                        </a>
-                    </Virtualize>
-                </div>
-            </div>
+    <div class="modal is-active">
+        <div class="modal-background" @onclick="() => ShowModal = false"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">@ModalTitle</p>
+                <button class="delete is-large" aria-label="close" @onclick="() => ShowModal = false"></button>
+            </header>
+            <section class="modal-card-body">
+                <Virtualize Items="Users" Context="user">
+                    <a class="media" href="@UserListUrl(user)" @key="user.NodeId">
+                        <figure class="media-left">
+                            <p class="image is-48x48">
+                                <img class="is-rounded" src="@user.AvatarUrl" alt="Avatar" />
+                            </p>
+                        </figure>
+                        <div class="media-content">
+                            <div class="content">
+                                <p>@user.Login</p>
+                            </div>
+                        </div>
+                    </a>
+                </Virtualize>
+            </section>
         </div>
     </div>
+
 }
 
 @code {

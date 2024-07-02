@@ -2,32 +2,32 @@
 
 @if (repository is not null)
 {
-    <div class="card h-100">
-        <div class="card-body">
-            <div class="d-flex gap-2 align-items-center flex-wrap h-1">
-                <h5 class="card-title">@repository.Name</h5>
-                <h6 class="text-muted">@((repository.Archived) ? "Archived" : "")</h6>
+    <div class="box h-100" style="min-height: 300px;">
+        <div>
+            <div class="is-flex is-align-items-center is-flex-wrap-wrap" style="gap: 0.5rem;">
+                <h5 class="title is-5">@repository.Name</h5>
+                <h6 class="subtitle is-6 has-text-grey">@((repository.Archived) ? "Archived" : "")</h6>
             </div>
-            <h6 class="card-subtitle mb-2 text-muted">@repository.Language</h6>
-            <div class="d-flex flex-row flex-wrap gap-2">
+            <h6 class="subtitle is-6 mb-2 has-text-grey">@repository.Language</h6>
+            <div class="is-flex is-flex-direction-row is-flex-wrap-wrap" style="gap: 0.5rem;">
                 @if (repository.Homepage != "")
                 {
-                    <a href="@repository.Homepage" class="fw-bold text-decoration-none bg-transparent border-0">Homepage</a>
+                    <a href="@repository.Homepage" class="button is-small is-link is-inverted">Homepage</a>
                 }
-                <a href="@repository.HtmlUrl" class="fw-bold text-decoration-none bg-transparent border-0">GitHub</a>
-                <a href="@repository.CloneUrl" class="fw-bold text-decoration-none bg-transparent border-0">Clone URL</a>
+                <a href="@repository.HtmlUrl" class="button is-small is-link is-inverted">GitHub</a>
+                <a href="@repository.CloneUrl" class="button is-small is-link is-inverted">Clone URL</a>
                 @if (repository?.Readme?.Content is not null)
                 {
-                    <button class="fw-bold text-decoration-none bg-transparent border-0" @onclick="() => ShowModal = true">Readme</button>
+                    <button class="button is-small is-link is-inverted" @onclick="() => ShowModal = true">Readme</button>
                     <ReadmeModal ShowModal="ShowModal" readme="repository?.Readme" />
                 }
             </div>
-            <p class="card-text pt-2">@repository?.Description</p>
+            <p class="pt-2">@repository?.Description</p>
         </div>
-        <div class="card-footer flex-column d-flex">
-            <small class="text-muted">Created At: @repository?.CreatedAt</small>
-            <small class="text-muted">Last Pushed: @repository?.PushedAt</small>
-        </div>
+        <footer class="is-flex is-flex-direction-column">
+            <small class="has-text-grey">Created At: @repository?.CreatedAt</small>
+            <small class="has-text-grey">Last Pushed: @repository?.PushedAt</small>
+        </footer>
     </div>
 }
 

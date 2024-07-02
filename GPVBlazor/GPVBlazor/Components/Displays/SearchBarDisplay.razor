@@ -2,9 +2,13 @@
 @using GPVBlazor.Models
 @inject Services.Interfaces.IUserService UserService
 
-<div class="input-group mb-3">
-    <input type="text" class="form-control" placeholder="Write user name..." @bind="inputValue" @bind:event="oninput" @onkeydown="HandleKeyPress">
-    <button class="btn btn-outline-secondary" type="button" @onclick="SearchHandle">Search User</button>
+<div class="field has-addons mb-3">
+    <div class="control is-expanded">
+        <input class="input" type="text" placeholder="Write user name..." @bind="inputValue" @bind:event="oninput" @onkeydown="HandleKeyPress">
+    </div>
+    <div class="control">
+        <button class="button is-info" type="button" @onclick="SearchHandle">Search User</button>
+    </div>
 </div>
 
 <div class="search-results" style="@(showResults ? "display: block;" : "display: none;")">
@@ -12,17 +16,20 @@
         @if (data?.Items != null)
         {
             <Virtualize Items="@data.Items" Context="item">
-                <a class="search-item d-flex gap-2 text-decoration-none py-1" href="/p/@item.Login">
-                    <img src="@item.AvatarUrl" alt="@item.Login" style="height: 60px; width: 60px;" class="rounded-circle img-thumbnail" />
-                    <div class="d-flex flex-column gap-1 ">
-                        <span class="fs-4 fw-bold">@item.Login</span>
-                        <span>@item.Type</span>
+                <a class="box" href="/p/@item.Login" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                    <figure class="image is-48x48">
+                        <img src="@item.AvatarUrl" alt="@item.Login" class="is-rounded" />
+                    </figure>
+                    <div>
+                        <p class="title is-4">@item.Login</p>
+                        <p class="subtitle is-6">@item.Type</p>
                     </div>
                 </a>
             </Virtualize>
         }
     </div>
 </div>
+
 
 @code {
     private string inputValue = string.Empty;

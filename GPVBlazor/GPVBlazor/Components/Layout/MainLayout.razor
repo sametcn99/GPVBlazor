@@ -1,27 +1,20 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components
 
 <div class="page">
- 
     <main>
-     <div class="px-4 d-flex justify-content-between fs-4 flex-wrap pt-2">
-            <NavLink class="nav-link btn px-2" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-          <div class="d-flex gap-2 flex-wrap">
-                <NavLink class="nav-link btn px-2" href="/p/sametcn99" Match="NavLinkMatch.All">
-                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> sametcn99
-                </NavLink>
-                <a href="https://sametcc.me/GPVBlazor" target="_blank" class="btn fs-5">Source Code</a>
-          </div>
-        </div>
-        <article class="content px-4">
+        <GPVBlazor.Components.Displays.NavbarDisplay />
+
+        <article class="content">
             @Body
         </article>
     </main>
 </div>
+
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
