@@ -4,13 +4,20 @@
 {
     <div class="box h-100" style="min-height: 300px;">
         <div>
-            <h5 class="title is-5 is-flex is-flex-wrap-wrap is-column-gap-1">
-                @repository.Name <span class="subtitle is-6 has-text-grey">@((repository.Archived) ? "Archived" : "")</span>
-                <span class="subtitle is-6 has-text-grey">@((repository.IsTemplate) ? "Template" : "")</span>
-            </h5>
+           <div>
+                <h5 class="title is-5 py-0 my-0">
+                    @repository.Name
 
-            <h6 class="subtitle is-6 mb-2 has-text-grey">@repository.Language</h6>
-            <div class="is-flex is-flex-direction-row is-flex-wrap-wrap" style="gap: 0.5rem;">
+                </h5>
+                <h6 class="title is-6 is-flex is-flex-wrap-wrap is-column-gap-1 my-0">
+                    <span class="subtitle is-6 has-text-grey">@repository.Language</span>
+                    <span class="subtitle is-6 has-text-grey">@((repository.Archived) ? "Archived" : "")</span>
+                    <span class="subtitle is-6 has-text-grey">@((repository.IsTemplate) ? "Template" : "")</span>
+                    <span class="subtitle is-6 has-text-grey">@((repository.Fork) ? "Forked" : "")</span>
+                </h6>
+           </div>
+
+            <div class="is-flex is-flex-direction-row is-flex-wrap-wrap is-column-gap-1" >
                 @if (!string.IsNullOrEmpty(repository.Homepage) && Uri.IsWellFormedUriString(repository.Homepage, UriKind.Absolute))
                 {
                     <a href="@repository.Homepage" class="button is-small is-link is-inverted" target="_blank">Homepage</a>
