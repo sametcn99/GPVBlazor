@@ -1,0 +1,197 @@
+﻿@using GPVBlazor.Models
+
+<section class="field is-grouped is-grouped-multiline">
+    <div class="control is-expanded">
+        <input type="text" value="@searchQuery" @oninput="OnSearchQueryChanged" class="input" placeholder="Search...">
+    </div>
+    <div class="control">
+        <div class="select is-fullwidth">
+            <select @onchange="HandleSortChange">
+                <option value="">Sort By</option>
+                <option value="Updated Descending">Updated Descending</option>
+                <option value="Updated Ascending">Updated Ascending</option>
+                <option value="Created Descending">Created Descending</option>
+                <option value="Created Ascending">Created Ascending</option>
+                <option value="Stars Descending">Stars Descending</option>
+                <option value="Stars Ascending">Stars Ascending</option>
+            </select>
+        </div>
+    </div>
+    <div class="control">
+        <div class="select is-fullwidth">
+            <select @onchange="HandleTopicChange">
+                <option value="">Topics</option>
+                @foreach (var topic in Topics)
+                {
+                    <option value="@topic">@topic</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="control">
+        <div class="select is-fullwidth">
+            <select @onchange="HandleLanguageChange">
+                <option value="">Languages</option>
+                @foreach (var language in Languages)
+                {
+                    <option value="@language">@language</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="control">
+        <div class="select is-fullwidth">
+            <select @onchange="HandleLicenseChange">
+                <option value="">Licenses</option>
+                @foreach (var license in Licenses)
+                {
+                    <option value="@license">@license</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="control">
+        <button class="button is-light" @onclick="ResetFilters">Reset Filters</button>
+    </div>
+
+</section>
+
+@code {
+    [Parameter]
+    public List<Repository>? Repositories { get; set; }
+
+    public List<Repository>? _Repositories { get; set; }
+
+    [Parameter]
+    public EventCallback<List<Repository>> OnFilteredRepositoriesChanged { get; set; }
+
+    private List<Repository>? FilteredRepositories { get; set; }
+
+    private List<string> Topics { get; set; } = new();
+    private List<string> Languages { get; set; } = new();
+    private List<string> Licenses { get; set; } = new();
+
+    private string searchQuery = string.Empty;
+    private string selectedVisibility = string.Empty;
+    private string selectedSort = string.Empty;
+    private string selectedTopic = string.Empty;
+    private string selectedLanguage = string.Empty;
+    private string selectedLicense = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        if (Repositories == null) return;
+
+        Topics = Repositories.SelectMany(r => r.Topics ?? new List<string>())
+                             .Distinct()
+                             .ToList();
+
+        Languages = Repositories.Select(r => r.Language ?? string.Empty)
+                                .Distinct()
+                                .ToList();
+
+        Licenses = Repositories.Where(r => r.License != null)
+                               .Select(r => r.License!.Name ?? string.Empty)
+                               .Distinct()
+                               .ToList();
+
+        _Repositories = Repositories;
+    }
+
+    private void OnSearchQueryChanged(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void HandleVisibilityChange(ChangeEventArgs e)
+    {
+        selectedVisibility = e.Value?.ToString() ?? "All";
+        ApplyFilters();
+    }
+
+    private void HandleSortChange(ChangeEventArgs e)
+    {
+        selectedSort = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void HandleTopicChange(ChangeEventArgs e)
+    {
+        selectedTopic = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void HandleLanguageChange(ChangeEventArgs e)
+    {
+        selectedLanguage = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void HandleLicenseChange(ChangeEventArgs e)
+    {
+        selectedLicense = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void ApplyFilters(bool reset = false)
+    {
+        if (reset)
+        {
+            FilteredRepositories = _Repositories;
+        }
+        else
+        {
+            IEnumerable<Repository> query = Repositories ?? Enumerable.Empty<Repository>();
+            IEnumerable<Repository> AllRepos = _Repositories ?? Enumerable.Empty<Repository>();
+
+            query = AllRepos.Where(r => (r.Name != null && r.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) || (r.Description != null && r.Description.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)));
+
+            if (!string.IsNullOrWhiteSpace(selectedTopic)) query = query.Where(r => r.Topics != null && r.Topics.Contains(selectedTopic));
+
+            if (!string.IsNullOrWhiteSpace(selectedLanguage)) query = query.Where(r => r.Language == selectedLanguage);
+
+            if (!string.IsNullOrWhiteSpace(selectedLicense)) query = query.Where(r => r.License != null && r.License.Name == selectedLicense);
+
+            switch (selectedSort)
+            {
+                case "Updated Descending":
+                    query = query.OrderByDescending(r => r.UpdatedAt);
+                    break;
+                case "Updated Ascending":
+                    query = query.OrderBy(r => r.UpdatedAt);
+                    break;
+                case "Created Descending":
+                    query = query.OrderByDescending(r => r.CreatedAt);
+                    break;
+                case "Created Ascending":
+                    query = query.OrderBy(r => r.CreatedAt);
+                    break;
+                case "Stars Descending":
+                    query = query.OrderByDescending(r => r.StargazersCount);
+                    break;
+                case "Stars Ascending":
+                    query = query.OrderBy(r => r.StargazersCount);
+                    break;
+            }
+
+            FilteredRepositories = query.ToList();
+        }
+
+        OnFilteredRepositoriesChanged.InvokeAsync(FilteredRepositories);
+        StateHasChanged();
+    }
+
+
+    private void ResetFilters()
+    {
+        searchQuery = string.Empty;
+        selectedVisibility = string.Empty;
+        selectedSort = string.Empty;
+        selectedTopic = string.Empty;
+        selectedLanguage = string.Empty;
+        selectedLicense = string.Empty;
+        ApplyFilters(true);
+        StateHasChanged();
+    }
+}

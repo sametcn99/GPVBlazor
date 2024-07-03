@@ -15,9 +15,7 @@
 }
 else
 {
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
+  <LoadingDisplay />
 }
 
 @if (stats is not null && repositories is not null)
@@ -26,15 +24,14 @@ else
 }
 else
 {
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
+    <LoadingDisplay />
 }
 
-@if (repositories?.Any() is true)
+@if (repositories is not null)
 {
     <div class="box">
         <h3>Repositories</h3>
+        <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories" OnFilteredRepositoriesChanged="UpdateFilteredRepositories" />
         <div class="columns is-multiline">
             <Virtualize Items="repositories" Context="repo" OverscanCount="100">
                 <div class="column is-4">
@@ -44,10 +41,6 @@ else
         </div>
     </div>
 
-}
-else if (repositories is not null)
-{
-    <p>No repositories found.</p>
 }
 
 @code {
@@ -92,5 +85,14 @@ else if (repositories is not null)
                 throw new Exception("An error occurred", ex);
             }
         }
+    }
+
+      private void UpdateFilteredRepositories(List<Repository> filteredRepositories)
+    {
+        // Update the repositories list with the filtered repositories
+        repositories = filteredRepositories;
+
+        // Refresh the UI
+        StateHasChanged();
     }
 }

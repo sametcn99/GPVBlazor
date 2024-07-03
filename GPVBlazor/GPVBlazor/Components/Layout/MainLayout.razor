@@ -1,14 +1,10 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components
 
-<div class="px-4 py-2">
+<article class="content">
     <GPVBlazor.Components.Displays.NavbarDisplay />
-    <main>
-        <article class="content">
-            @Body
-        </article>
-    </main>
-</div>
+    @Body
+</article>
 
 
 <div id="blazor-error-ui">
