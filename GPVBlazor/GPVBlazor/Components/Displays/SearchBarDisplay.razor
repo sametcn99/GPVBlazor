@@ -39,15 +39,8 @@
 
     private async Task FetchData()
     {
-        if (string.IsNullOrWhiteSpace(inputValue))
-        {
-            data?.Items.Clear();
-            return;
-        }
-        if (inputValue is not null)
-        {
-            data = await UserService.SearchUsers(inputValue);
-        }
+        if (string.IsNullOrWhiteSpace(inputValue)) { data?.Items.Clear(); return; }
+        if (inputValue is not null) data = await UserService.SearchUsers(inputValue);
     }
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
@@ -68,9 +61,5 @@
         }
     }
 
-    private async Task SearchHandle()
-    {
-        showResults = true;
-        await FetchData();
-    }
+    private async Task SearchHandle() { showResults = true; await FetchData(); }
 }

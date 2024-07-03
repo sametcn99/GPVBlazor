@@ -8,11 +8,11 @@ namespace GPVBlazor.Services.Configuration
             services.AddRazorComponents()
                 .AddInteractiveServerComponents()
                 .AddInteractiveWebAssemblyComponents();
-
             services.AddMemoryCache();
             services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7261/") });
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IContactService, ContactService>();
+            services.AddScoped<IRepositoryFilterService, RepositoryFilterService>();
         }
     }
 }

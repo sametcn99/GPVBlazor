@@ -12,7 +12,7 @@
             </header>
             <section class="modal-card-body">
                 <Virtualize Items="Users" Context="user">
-                  <UserListItem user="user" />
+                    <UserListItem user="user" />
                 </Virtualize>
             </section>
         </div>
@@ -23,11 +23,7 @@
 @code {
     [Parameter] public bool ShowModal { get; set; }
     [Parameter] public List<User>? Users { get; set; }
-    public enum ModalTitleEnum
-    {
-        Followers,
-        Following
-    }
+    public enum ModalTitleEnum { Followers, Following }
 
     [Parameter] public ModalTitleEnum ModalTitle { get; set; }
 

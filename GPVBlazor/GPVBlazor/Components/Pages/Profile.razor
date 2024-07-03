@@ -15,7 +15,7 @@
 }
 else
 {
-  <LoadingDisplay />
+    <LoadingDisplay />
 }
 
 @if (stats is not null && repositories is not null)
@@ -54,7 +54,6 @@ else
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {
             try
             {
                 token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
@@ -84,15 +83,11 @@ else
             {
                 throw new Exception("An error occurred", ex);
             }
-        }
     }
 
-      private void UpdateFilteredRepositories(List<Repository> filteredRepositories)
+    private void UpdateFilteredRepositories(List<Repository> filteredRepositories)
     {
-        // Update the repositories list with the filtered repositories
         repositories = filteredRepositories;
-
-        // Refresh the UI
         StateHasChanged();
     }
 }

@@ -14,7 +14,6 @@ public class ContactService : IContactService
     public async Task<List<T>> FetchModalData<T>(string username, string endpoint, string token, int page = 1)
     {
         var collection = new List<T>();
-
         while (true)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/{endpoint}?per_page=100&page={page}");

@@ -5,7 +5,6 @@
         <NavLink href="/" Match="NavLinkMatch.All">
             <span class=" button is-primary">Home</span>
         </NavLink>
-
         <!-- Navbar burger -->
         <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="@isMenuActive.ToString()" @onclick="ToggleNavbar">
             <span aria-hidden="true"></span>
@@ -18,7 +17,6 @@
         <div class="navbar-start">
             <!-- Additional navbar items can go here -->
         </div>
-
         <div class="navbar-end">
             <div class="navbar-item">
                 <NavLink class="button is-primary" href="/p/sametcn99" Match="NavLinkMatch.All">
@@ -34,14 +32,6 @@
 
 @code {
     private bool isMenuActive = false;
-
-    private void ToggleNavbar()
-    {
-        isMenuActive = !isMenuActive;
-    }
-
-    private string GetNavbarMenuClass()
-    {
-        return "navbar-menu" + (isMenuActive ? " is-active" : "");
-    }
+    private void ToggleNavbar() => isMenuActive = !isMenuActive;
+    private string GetNavbarMenuClass() { return "navbar-menu" + (isMenuActive ? " is-active" : ""); }
 }

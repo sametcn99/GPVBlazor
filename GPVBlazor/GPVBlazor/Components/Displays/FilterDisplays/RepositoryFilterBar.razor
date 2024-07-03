@@ -68,10 +68,6 @@
             </select>
         </div>
     </div>
-    <div class="control">
-        <button class="button is-light" @onclick="ResetFilters">Reset Filters</button>
-    </div>
-
 </section>
 
 @code {
@@ -102,95 +98,32 @@
     protected override void OnInitialized()
     {
         if (Repositories == null) return;
-
-        Topics = Repositories.SelectMany(r => r.Topics ?? new List<string>())
-                             .Distinct()
-                             .ToList();
-
-        Languages = Repositories.Select(r => r.Language ?? string.Empty)
-                                .Distinct()
-                                .ToList();
-
-        Licenses = Repositories.Where(r => r.License != null)
-                               .Select(r => r.License!.Name ?? string.Empty)
-                               .Distinct()
-                               .ToList();
-
+        Topics = Repositories.SelectMany(r => r.Topics ?? new List<string>()).Distinct().ToList();
+        Languages = Repositories.Select(r => r.Language ?? string.Empty).Distinct().ToList();
+        Licenses = Repositories.Where(r => r.License != null).Select(r => r.License!.Name ?? string.Empty).Distinct().ToList();
         _Repositories = Repositories;
     }
 
-    private void OnSearchQueryChanged(ChangeEventArgs e)
-    {
-        searchQuery = e.Value?.ToString() ?? string.Empty;
-        ApplyFilters();
-    }
+    private void OnSearchQueryChanged(ChangeEventArgs e) { searchQuery = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
+    private void HandleVisibilityChange(ChangeEventArgs e) { selectedVisibility = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
+    private void HandleSortChange(ChangeEventArgs e) { selectedSort = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
+    private void HandleTopicChange(ChangeEventArgs e) { selectedTopic = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
+    private void HandleLanguageChange(ChangeEventArgs e) { selectedLanguage = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
+    private void HandleLicenseChange(ChangeEventArgs e) { selectedLicense = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
+    private void HandleArchivedChange(ChangeEventArgs e) { includeArchived = e.Value != null ? (bool)e.Value : true; ApplyFilters(); }
+    private void HandleForkedChange(ChangeEventArgs e) { includeForked = e.Value != null ? (bool)e.Value : true; ApplyFilters(); }
+    private void HandleTemplatesChange(ChangeEventArgs e) { includeTemplates = e.Value != null ? (bool)e.Value : true; ApplyFilters(); }
 
-    private void HandleVisibilityChange(ChangeEventArgs e)
+    private void ApplyFilters()
     {
-        selectedVisibility = e.Value?.ToString() ?? "All";
-        ApplyFilters();
-    }
-
-    private void HandleSortChange(ChangeEventArgs e)
-    {
-        selectedSort = e.Value?.ToString() ?? string.Empty;
-        ApplyFilters();
-    }
-
-    private void HandleTopicChange(ChangeEventArgs e)
-    {
-        selectedTopic = e.Value?.ToString() ?? string.Empty;
-        ApplyFilters();
-    }
-
-    private void HandleLanguageChange(ChangeEventArgs e)
-    {
-        selectedLanguage = e.Value?.ToString() ?? string.Empty;
-        ApplyFilters();
-    }
-
-    private void HandleLicenseChange(ChangeEventArgs e)
-    {
-        selectedLicense = e.Value?.ToString() ?? string.Empty;
-        ApplyFilters();
-    }
-
-    private void HandleArchivedChange(ChangeEventArgs e)
-    {
-        includeArchived = (bool)e.Value;
-        ApplyFilters();
-    }
-
-    private void HandleForkedChange(ChangeEventArgs e)
-    {
-        includeForked = (bool)e.Value;
-        ApplyFilters();
-    }
-
-    private void HandleTemplatesChange(ChangeEventArgs e)
-    {
-        includeTemplates = (bool)e.Value;
-        ApplyFilters();
-    }
-
-
-    private void ApplyFilters(bool reset = false)
-    {
-        if (reset)
-        {
-            FilteredRepositories = _Repositories;
-        }
-        else
-        {
+    
             IEnumerable<Repository> query = Repositories ?? Enumerable.Empty<Repository>();
             IEnumerable<Repository> AllRepos = _Repositories ?? Enumerable.Empty<Repository>();
 
             query = AllRepos.Where(r => (r.Name != null && r.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) || (r.Description != null && r.Description.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)));
 
             if (!string.IsNullOrWhiteSpace(selectedTopic)) query = query.Where(r => r.Topics != null && r.Topics.Contains(selectedTopic));
-
             if (!string.IsNullOrWhiteSpace(selectedLanguage)) query = query.Where(r => r.Language == selectedLanguage);
-
             if (!string.IsNullOrWhiteSpace(selectedLicense)) query = query.Where(r => r.License != null && r.License.Name == selectedLicense);
             if (!includeArchived) query = query.Where(r => !r.Archived);
             if (!includeForked) query = query.Where(r => !r.Fork);
@@ -219,22 +152,8 @@
             }
 
             FilteredRepositories = query.ToList();
-        }
 
         OnFilteredRepositoriesChanged.InvokeAsync(FilteredRepositories);
-        StateHasChanged();
-    }
-
-
-    private void ResetFilters()
-    {
-        searchQuery = string.Empty;
-        selectedVisibility = string.Empty;
-        selectedSort = string.Empty;
-        selectedTopic = string.Empty;
-        selectedLanguage = string.Empty;
-        selectedLicense = string.Empty;
-        ApplyFilters(true);
         StateHasChanged();
     }
 }

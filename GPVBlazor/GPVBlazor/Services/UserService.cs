@@ -20,10 +20,7 @@ namespace GPVBlazor.Services
         public async Task<User?> FetchUserProfile(string username, string token)
         {
             string cacheKey = $"UserProfile-{username}";
-            if (_memoryCache.TryGetValue(cacheKey, out User? cachedUser))
-            {
-                return cachedUser;
-            }
+            if (_memoryCache.TryGetValue(cacheKey, out User? cachedUser)) return cachedUser;
 
             var userRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}");
             userRequest.Headers.Add("User-Agent", "BlazorApp");
@@ -50,10 +47,7 @@ namespace GPVBlazor.Services
         public async Task<UserSearchResult> SearchUsers(string inputValue)
         {
             string cacheKey = $"SearchUsers-{inputValue}";
-            if (_memoryCache.TryGetValue(cacheKey, out UserSearchResult? cachedUsers))
-            {
-                if (cachedUsers is not null) return cachedUsers;
-            }
+            if (_memoryCache.TryGetValue(cacheKey, out UserSearchResult? cachedUsers)) if (cachedUsers is not null) return cachedUsers;
             var url = $"https://api.github.com/search/users?q={inputValue}";
             var userRequest = new HttpRequestMessage(HttpMethod.Get, url);
             userRequest.Headers.Add("User-Agent", "BlazorApp");
@@ -72,17 +66,13 @@ namespace GPVBlazor.Services
             else return new UserSearchResult();
         }
 
-
         public async Task<List<Repository>> FetchUserRepositories(string username, string token, int count, int page = 1)
         {
             // Define a unique cache key for this request
             string cacheKey = $"UserRepositories-{username}";
 
             // Attempt to get the repository list from cache
-            if (_memoryCache.TryGetValue(cacheKey, out List<Repository>? cachedRepos))
-            {
-                return cachedRepos ?? new List<Repository>();
-            }
+            if (_memoryCache.TryGetValue(cacheKey, out List<Repository>? cachedRepos)) return cachedRepos ?? new List<Repository>();
 
             var repos = new List<Repository>();
 
@@ -128,10 +118,7 @@ namespace GPVBlazor.Services
                 .Select(async repo =>
                 {
                     var readmeInfo = await FetchReadmeInfo(username, repo.Name!, token);
-                    if (readmeInfo != null)
-                    {
-                        repo.Readme = readmeInfo;
-                    }
+                    if (readmeInfo != null) repo.Readme = readmeInfo;
                 });
 
             await Task.WhenAll(readmeTasks);
