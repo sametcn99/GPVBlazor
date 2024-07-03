@@ -4,18 +4,19 @@
 {
     <div class="box h-100" style="min-height: 300px;">
         <div>
-            <div class="is-flex is-align-items-center is-flex-wrap-wrap" style="gap: 0.5rem;">
-                <h5 class="title is-5">@repository.Name</h5>
-                <h6 class="subtitle is-6 has-text-grey">@((repository.Archived) ? "Archived" : "")</h6>
-            </div>
+            <h5 class="title is-5 is-flex is-flex-wrap-wrap is-column-gap-1">
+                @repository.Name <span class="subtitle is-6 has-text-grey">@((repository.Archived) ? "Archived" : "")</span>
+                <span class="subtitle is-6 has-text-grey">@((repository.IsTemplate) ? "Template" : "")</span>
+            </h5>
+
             <h6 class="subtitle is-6 mb-2 has-text-grey">@repository.Language</h6>
             <div class="is-flex is-flex-direction-row is-flex-wrap-wrap" style="gap: 0.5rem;">
                 @if (!string.IsNullOrEmpty(repository.Homepage) && Uri.IsWellFormedUriString(repository.Homepage, UriKind.Absolute))
                 {
-                    <a href="@repository.Homepage" class="button is-small is-link is-inverted">Homepage</a>
+                    <a href="@repository.Homepage" class="button is-small is-link is-inverted" target="_blank">Homepage</a>
                 }
-                <a href="@repository.HtmlUrl" class="button is-small is-link is-inverted">GitHub</a>
-                <a href="@repository.CloneUrl" class="button is-small is-link is-inverted">Clone URL</a>
+                <a href="@repository.HtmlUrl" class="button is-small is-link is-inverted" target="_blank">GitHub</a>
+                <a href="@repository.CloneUrl" class="button is-small is-link is-inverted" target="_blank">Clone URL</a>
                 <button class="button is-small is-link is-inverted is-column-gap-1">
                     @repository.StargazersCount
                     <span class="icon">
@@ -44,7 +45,6 @@
                     }
                 </div>
             }
-
         </footer>
     </div>
 }
