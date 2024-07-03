@@ -32,7 +32,19 @@
         </div>
         <footer class="is-flex is-flex-direction-column">
             <small class="has-text-grey">Created At: @repository?.CreatedAt</small>
-            <small class="has-text-grey">Last Pushed: @repository?.PushedAt</small>
+            <small class="has-text-grey mb-3">Last Pushed: @repository?.PushedAt</small>
+            @if (repository?.Topics != null)
+            {
+                <div class="columns is-multiline">
+                    @foreach (var topic in repository.Topics)
+                    {
+                        <div class="column is-narrow p-1">
+                            <small class="tag is-dark">@topic</small>
+                        </div>
+                    }
+                </div>
+            }
+
         </footer>
     </div>
 }
