@@ -40,35 +40,33 @@
 
         public double AverageForksPerRepository => Math.Round(_repositories.Average(repo => repo.ForksCount), 2);
 
-        public Dictionary<string, int> TopTopics => _repositories
-           .SelectMany(repo => repo.Topics ?? new List<string>())
-           .GroupBy(topic => topic)
-           .OrderByDescending(group => group.Count())
-           .Take(10)
-           .ToDictionary(group => group.Key, group => group.Count());
-
-
-        public Dictionary<int, int> RepositoriesByYear => _repositories
+        public Dictionary<string, int> RepositoriesByYear => _repositories
             .Where(repo => repo.CreatedAt.HasValue)
-            .GroupBy(repo => repo.CreatedAt!.Value.Year)
+            .GroupBy(repo => repo.CreatedAt!.Value.Year.ToString())
+            .OrderBy(group => group.Key)
             .ToDictionary(group => group.Key, group => group.Count());
 
-        public Dictionary<int, int> RepositoriesUpdatedByYear => _repositories
-            .Where(repo => repo.UpdatedAt.HasValue)
-            .GroupBy(repo => repo.UpdatedAt!.Value.Year)
+        public Dictionary<string, int> TopTopics => _repositories
+            .SelectMany(repo => repo.Topics ?? new List<string>())
+            .GroupBy(topic => topic)
+            .OrderByDescending(group => group.Count())
+            .Take(10)
             .ToDictionary(group => group.Key, group => group.Count());
 
         public Dictionary<string, int> UsedLanguages => _repositories
             .Where(repo => repo.Language != null)
             .GroupBy(repo => repo.Language!)
+            .Take(10)
             .ToDictionary(group => group.Key!, group => group.Count());
 
         public Dictionary<string, int> UsedLicenses => _repositories
             .Where(repo => repo.License != null)
             .GroupBy(repo => repo.License!.Name)
+            .Take(10)
             .ToDictionary(group => group.Key!, group => group.Count());
 
         public Dictionary<string, int> StarsPerRepository => _repositories
+            .Take(10)
             .ToDictionary(repo => repo.Name!, repo => repo.StargazersCount);
     }
 }

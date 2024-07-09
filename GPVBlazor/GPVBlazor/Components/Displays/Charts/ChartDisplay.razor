@@ -1,0 +1,47 @@
+﻿@using GPVBlazor.Models
+@using System.Text.Json
+@inject IJSRuntime JS
+
+<div class="box">
+    <canvas id="@_canvasId">
+    </canvas>
+</div>
+
+@code {
+    public enum ChartTypes { pie, doughnut, bar, line, bubble, polarArea, radar, scatter }
+
+    [Parameter]
+    public Dictionary<string, int>? Data { get; set; }
+
+    [Parameter]
+    public ChartTypes ChartType { get; set; }
+
+    private readonly string _canvasId = $"canvas-{Guid.NewGuid()}";
+    private IJSObjectReference? _module;
+    private ChartModel? _chartModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var backgroundColors = GenerateRandomColors(Data?.Count ?? 0);
+
+        _chartModel = new ChartModel
+            {
+                chartId = _canvasId,
+                label = "Count: ",
+                type = ChartType.ToString(),
+                labels = Data?.Keys.ToArray() ?? Array.Empty<string>(),
+                datasets = new[] { new ChartModel.ChartDataset { label = "Count", data = Data?.Values.ToArray() ?? Array.Empty<int>(), backgroundColor = backgroundColors, } }
+            };
+
+        _module = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Displays/Charts/ChartDisplay.razor.js");
+
+        var chartModelJSON = JsonSerializer.Serialize(_chartModel);
+        await _module.InvokeVoidAsync("PieChart.createPieChart", chartModelJSON);
+    }
+
+    private static string[] GenerateRandomColors(int count)
+    {
+        var random = new Random();
+        return Enumerable.Range(0, count).Select(_ => $"#{random.Next(0x1000000):X6}").ToArray();
+    }
+}
