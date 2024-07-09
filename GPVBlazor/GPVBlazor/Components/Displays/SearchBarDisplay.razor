@@ -16,7 +16,7 @@
         @if (data?.Items != null)
         {
             <Virtualize Items="@data.Items" Context="item">
-                <a class="box" href="/@item.Login" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <a class="box" href="/p/@item.Login" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
                     <figure class="image is-48x48">
                         <img src="@item.AvatarUrl" alt="@item.Login" class="is-rounded" />
                     </figure>
