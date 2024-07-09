@@ -27,5 +27,5 @@
 
     [Parameter] public ModalTitleEnum ModalTitle { get; set; }
 
-    private string UserListUrl(User user) => $"/p/{user.Login}";
+    private string UserListUrl(User user) => $"/{user.Login}";
 }
