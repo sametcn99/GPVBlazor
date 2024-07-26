@@ -16,67 +16,67 @@
                     </div>
                 }
                 <div class="column is-4">
-                    <p><strong>Number of Public Repositories:</strong> @UserStats.TotalRepositories</p>
+                    <strong>Number of Public Repositories:</strong> @UserStats.TotalRepositories
                 </div>
                 <div class="column is-4">
-                    <p><strong>Number of Public Gists:</strong> @user?.PublicGists</p>
+                    <strong>Number of Public Gists:</strong> @user?.PublicGists
                 </div>
                 <div class="column is-4">
-                    <p><strong>Total Archived Repositories:</strong> @UserStats.TotalArchivedRepositories</p>
+                    <strong>Total Archived Repositories:</strong> @UserStats.TotalArchivedRepositories
                 </div>
                 <div class="column is-4">
-                    <p><strong>Total Languages:</strong> @UserStats.TotalLanguages</p>
+                    <strong>Total Languages:</strong> @UserStats.TotalLanguages
                 </div>
                 <div class="column is-4">
-                    <p><strong>Total Stars:</strong> @UserStats.TotalStars</p>
+                    <strong>Total Stars:</strong> @UserStats.TotalStars
                 </div>
                 <div class="column is-4">
-                    <p><strong>Total Topics:</strong> @UserStats.TotalTopics</p>
+                    <strong>Total Topics:</strong> @UserStats.TotalTopics
                 </div>
                 <div class="column is-4">
-                    <p><strong>Total Forks:</strong> @UserStats.TotalForks</p>
+                    <strong>Total Forks:</strong> @UserStats.TotalForks
                 </div>
                 <div class="column is-4">
-                    <p><strong>Number of Readme Added Repositories:</strong> @UserStats.TotalReadmes</p>
+                    <strong>Number of Readme Added Repositories:</strong> @UserStats.TotalReadmes
                 </div>
                 <div class="column is-4">
-                    <p><strong>Total Open Issues:</strong> @UserStats.TotalOpenIssues</p>
+                    <strong>Total Open Issues:</strong> @UserStats.TotalOpenIssues
                 </div>
                 <div class="column is-4">
-                    <p><strong>Average Stars per Repository:</strong> @UserStats.AverageStarsPerRepository</p>
+                    <strong>Average Stars per Repository:</strong> @UserStats.AverageStarsPerRepository
                 </div>
                 <div class="column is-4">
-                    <p><strong>Average Forks per Repository:</strong> @UserStats.AverageForksPerRepository</p>
+                    <strong>Average Forks per Repository:</strong> @UserStats.AverageForksPerRepository
                 </div>
                 <div class="column is-4">
-                    <p><strong>Most Starred Repository:</strong><RepositoryDisplay repository="@UserStats.MostStarred" /></p>
+                    <RepositoryDisplay repository="@UserStats.MostStarred" Title="Most Starred Repository" />
                 </div>
                 <div class="column is-4">
-                    <p><strong>Latest Updated Repository:</strong> <RepositoryDisplay repository="@UserStats.LatestUpdatedRepository" /></p>
+                    <RepositoryDisplay repository="@UserStats.LatestUpdatedRepository" Title="Latest Updated Repository" />
                 </div>
                 <div class="column is-4">
-                    <p><strong>Last Created Repository:</strong> <RepositoryDisplay repository="@UserStats.LastCreatedRepository" /></p>
+                    <RepositoryDisplay repository="@UserStats.LastCreatedRepository" Title="Last Created Repository" />
                 </div>
                 <div class="column is-4">
-                    <p><strong>Oldest Repository:</strong> <RepositoryDisplay repository="@UserStats.OldestRepository" /></p>
+                    <RepositoryDisplay repository="@UserStats.OldestRepository" Title="Oldest Repository" />
                 </div>
                 <div class="column is-4">
-                    <p><strong>Longest Update Period Repository:</strong> <RepositoryDisplay repository="@UserStats.LongestUpdatePeriod" /></p>
+                    <RepositoryDisplay repository="@UserStats.LongestUpdatePeriod" Title="Longest Update Period Repository" />
                 </div>
                 <div class="column is-4">
-                    <ChartDisplay Data="@UserStats.TopTopics" ChartType="@Charts.ChartDisplay.ChartTypes.pie" />
+                    <ChartDisplay Data="@UserStats.TopTopics" ChartType="@Charts.ChartDisplay.ChartTypes.pie" Title="Top Topics" />
                 </div>
                 <div class="column is-4">
-                    <ChartDisplay Data="@UserStats.StarsPerRepository" ChartType="@Charts.ChartDisplay.ChartTypes.pie" />
+                    <ChartDisplay Data="@UserStats.StarsPerRepository" ChartType="@Charts.ChartDisplay.ChartTypes.pie" Title="Stars per Repository" />
                 </div>
                 <div class="column is-4">
-                    <ChartDisplay Data="@UserStats.UsedLanguages" ChartType="@Charts.ChartDisplay.ChartTypes.pie" />
+                    <ChartDisplay Data="@UserStats.UsedLanguages" ChartType="@Charts.ChartDisplay.ChartTypes.pie" Title="Top Used Languages" />
                 </div>
                 <div class="column is-4">
-                    <ChartDisplay Data="@UserStats.UsedLicenses" ChartType="@Charts.ChartDisplay.ChartTypes.pie" />
+                    <ChartDisplay Data="@UserStats.UsedLicenses" ChartType="@Charts.ChartDisplay.ChartTypes.pie" Title="Top Used Licenses" />
                 </div>
                 <div class="column is-4">
-                    <ChartDisplay Data="@UserStats.RepositoriesByYear" ChartType="@Charts.ChartDisplay.ChartTypes.pie" />
+                    <ChartDisplay Data="@UserStats.RepositoriesByYear" ChartType="@Charts.ChartDisplay.ChartTypes.pie" Title="Repositories by Year" />
                 </div>
             </div>
         </div>

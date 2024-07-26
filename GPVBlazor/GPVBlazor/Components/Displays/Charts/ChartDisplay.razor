@@ -2,9 +2,12 @@
 @using System.Text.Json
 @inject IJSRuntime JS
 
-<div class="box">
-    <canvas id="@_canvasId">
-    </canvas>
+<div class="box" style="height: 100%">
+    <h3 class="">@Title</h3>
+    <div class="">
+        <canvas id="@_canvasId">
+        </canvas>
+    </div>
 </div>
 
 @code {
@@ -12,6 +15,9 @@
 
     [Parameter]
     public Dictionary<string, int>? Data { get; set; }
+
+    [Parameter]
+    public String Title { get; set; } = "";
 
     [Parameter]
     public ChartTypes ChartType { get; set; }

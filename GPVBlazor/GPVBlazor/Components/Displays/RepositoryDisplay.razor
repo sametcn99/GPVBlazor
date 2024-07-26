@@ -2,9 +2,10 @@
 
 @if (repository is not null)
 {
-    <div class="box h-100" style="min-height: 300px;">
+    <div class="box is-flex is-flex-direction-column is-justify-content-space-between" style="height: 100%">
         <div>
-           <div>
+            <h3>@Title</h3>
+            <div>
                 <h5 class="title is-5 py-0 my-0">
                     @repository.Name
 
@@ -15,9 +16,8 @@
                     <span class="subtitle is-6 has-text-grey">@((repository.IsTemplate) ? "Template" : "")</span>
                     <span class="subtitle is-6 has-text-grey">@((repository.Fork) ? "Forked" : "")</span>
                 </h6>
-           </div>
-
-            <div class="is-flex is-flex-direction-row is-flex-wrap-wrap is-column-gap-1" >
+            </div>
+            <div class="is-flex is-flex-direction-row is-flex-wrap-wrap is-column-gap-1 is-row-gap-1">
                 @if (!string.IsNullOrEmpty(repository.Homepage) && Uri.IsWellFormedUriString(repository.Homepage, UriKind.Absolute))
                 {
                     <a href="@repository.Homepage" class="button is-small is-link is-inverted" target="_blank">Homepage</a>
@@ -36,14 +36,14 @@
                     <ReadmeModal ShowModal="ShowModal" readme="repository?.Readme" />
                 }
             </div>
-            <p class="pt-2">@repository?.Description</p>
+            <p class="pt-2 truncate">@repository?.Description</p>
         </div>
         <footer class="is-flex is-flex-direction-column">
             <small class="has-text-grey">Created At: @repository?.CreatedAt</small>
             <small class="has-text-grey mb-3">Last Pushed: @repository?.PushedAt</small>
             @if (repository?.Topics != null)
             {
-                <div class="columns is-multiline">
+                <div class="is-flex is-flex-wrap-wrap">
                     @foreach (var topic in repository.Topics)
                     {
                         <div class="column is-narrow p-1">
@@ -59,6 +59,10 @@
 @code {
     [Parameter]
     public Repository? repository { get; set; }
+
+    [Parameter]
+    public String Title { get; set; } = "";
+
     private bool ShowModal = false;
     private void showModal() { ShowModal = true; }
 }
