@@ -30,7 +30,7 @@ else
 @if (repositories is not null)
 {
     <div class="box">
-        <h3>Repositories</h3>
+        <h3>Repositories <span class="has-text-weight-light">@repositories.Count</span></h3>
         <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories" OnFilteredRepositoriesChanged="UpdateFilteredRepositories" />
         <div class="columns is-multiline">
             <Virtualize Items="repositories" Context="repo" OverscanCount="100">
