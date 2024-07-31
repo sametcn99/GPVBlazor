@@ -13,6 +13,8 @@ namespace GPVBlazor.Services.Configuration
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IRepositoryFilterService, RepositoryFilterService>();
+            services.AddHttpClient<AuthService>();
+            services.AddScoped<IAuthService, AuthService>();
         }
     }
 }

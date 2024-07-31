@@ -1,0 +1,62 @@
+﻿<section class="section" id="features">
+    <div class="container">
+        <h1 class="title is-3 has-text-centered">Features</h1>
+        <div class="columns is-multiline">
+            @foreach (var feature in featureTexts)
+            {
+                <div class="column is-one-third">
+                    <div class="card" style="height:100%;">
+                        <div class="card-content">
+                            <div class="content">
+                                <h2 class="title is-4">@feature.Header</h2>
+                                <p>@feature.Span</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    private List<FeatureText> featureTexts = new List<FeatureText>
+    {
+        new FeatureText
+        {
+            Header = "Effortless Navigation",
+            Span = "Github Profile Viewer ensures effortless navigation through GitHub profiles. Whether you're a seasoned open-source enthusiast or a curious observer, the user-friendly interface simplifies the exploration process."
+        },
+        new FeatureText
+        {
+            Header = "Detailed Repository Insights",
+            Span = "Gain in-depth insights into repositories, including names and descriptions. Explore the coding projects that define a developer's journey, all presented in a clear and organized manner."
+        },
+        new FeatureText
+        {
+            Header = "Explore Connections",
+            Span = "Efficiently explore a user's network by checking their followers and those they follow. Identify key contributors in the open-source community and broaden your connections effortlessly."
+        },
+        new FeatureText
+        {
+            Header = "Star History",
+            Span = "While not offering a detailed commit history, Github Profile Viewer showcases the star history of repositories. Understand which projects have garnered attention and appreciation, providing insights into a developer's impact on the GitHub community."
+        },
+        new FeatureText
+        {
+            Header = "Created with .NET 8 and Blazor",
+            Span =  "Github Profile Viewer is built with .NET 8 and Blazor, ensuring a seamless and performant user experience. The powerful combination of these technologies guarantees a robust and reliable"
+        },
+        new FeatureText
+        {
+            Header = "Responsive Design with Bulma",
+            Span = "The integration of bulma.io guarantees a responsive design, allowing you to explore GitHub profiles across various devices. Whether on desktop or mobile, the experience remains smooth and consistent."
+        }
+    };
+
+    public class FeatureText
+    {
+        public string Header { get; set; } = "";
+        public string Span { get; set; } = "";
+    }
+}

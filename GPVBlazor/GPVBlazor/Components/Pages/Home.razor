@@ -1,43 +1,62 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
-
+@inject Services.Interfaces.IAuthService AuthService
 <PageTitle>GPV Dotnet</PageTitle>
 
-<h1 class="title">GitHub Profile Viewer Dotnet!</h1>
-
-<i>Search for a GitHub user to view their profile</i>
-<div class="subtitle is-6">It's a clone of githubprofileviewer.com built with .net</div>
-
-<div class="is-flex is-flex-direction-column is-gap-2">
+<main class="is-flex is-flex-direction-column is-gap-2 is-align-items-center">
+    <h1 class="title is-size-1">GitHub Profile Viewer</h1>
+    <p>
+        Explore GitHub and Gist profiles effortlessly, utilizing the GitHub REST API to retrieve comprehensive information.
+    </p>
+    <a href="https://chromewebstore.google.com/detail/gpv-opener/abgechjdbcnlcdcmhkaakobeoimjgkmb" target="_blank">
+        <img src="/icons/chrome-extension-white.png"
+             alt="GitHub Profile Viewer"
+             style="width:10rem; border-radius:1rem;" />
+    </a>
     <GPVBlazor.Components.Displays.SearchBarDisplay />
-
     <div class="field has-addons">
         <div class="control is-expanded">
-            <input @bind="AuthToken" placeholder="Enter Auth Token" class="input" />
+            <input @bind="AuthToken" placeholder="Enter Auth Token" class="input" @oninput="HandleInputChange" />
         </div>
         <div class="control">
             <button class="button is-primary" @onclick="AddToken">Add Token</button>
         </div>
     </div>
     <p class="help is-italic">Auth token is storing in local storage.</p>
-</div>
+
+    <FeaturesDisplay />
+</main>
 
 @code {
-    private string? AuthToken { get; set; } = string.Empty;
+    private string? AuthToken { get; set; }
 
     private async Task AddToken()
     {
         if (!string.IsNullOrWhiteSpace(AuthToken))
         {
+            bool isValid = await AuthService.IsTokenValidAsync(AuthToken);
+            if (!isValid)
+            {
+                await JS.InvokeAsync<object>("alert", "Invalid token");
+                return;
+            }
             await JS.InvokeVoidAsync("localStorage.setItem", "authToken", AuthToken);
             await JS.InvokeAsync<object>("alert", "Token added successfully");
         }
     }
 
+    private void HandleInputChange(ChangeEventArgs e)
+    {
+        AuthToken = e.Value.ToString();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        AuthToken = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-        StateHasChanged();
+        if (firstRender)
+        {
+            AuthToken = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+            StateHasChanged();
+        }
     }
 }
