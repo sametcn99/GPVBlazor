@@ -2,7 +2,6 @@
     static createPieChart(chartModelJSON) {
         try {
             const chartData = JSON.parse(chartModelJSON);
-            console.log('Parsed chart data:', chartData);
 
             if (!this.validateChartData(chartData)) {
                 console.error('Invalid chart data:', chartData);
@@ -51,8 +50,6 @@
                     }
                 }
             });
-
-            console.log('Chart created:', chart);
         } catch (error) {
             console.error('Error creating pie chart:', error);
         }
@@ -85,7 +82,6 @@
                 return false;
             }
         }
-        console.log('Chart data is valid');
         return true;
     }
 }
