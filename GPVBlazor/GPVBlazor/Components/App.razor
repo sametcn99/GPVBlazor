@@ -4,12 +4,37 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="keywords" content="github profile viewer, github stats, github profile, readme stats">
+    <meta name="creator" content="sametcn99">
+    <meta name="publisher" content="sametcn99">
+    <meta name="robots" content="index, follow">
     <base href="/" />
+    <meta property="og:title" content="Github Profile Viewer">
+    <meta property="og:description" content="Explore GitHub and Gist profile statistics effortlessly, utilizing the GitHub REST API to retrieve comprehensive information.">
+    <meta property="og:image" content="icons/icon48.png">
+    <meta property="og:url" content="https://githubprofileviewer.com">
+    <meta property="og:site_name" content="Github Profile Viewer">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="Github Profile Viewer">
+    <meta name="twitter:creator" content="sametcn99">
+    <meta name="twitter:title" content="Github Profile Viewer">
+    <meta name="twitter:description" content="Explore GitHub and Gist profile statistics effortlessly, utilizing the GitHub REST API to retrieve comprehensive information.">
+    <meta name="twitter:image" content="icons/icon48.png">
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="GPVBlazor.styles.css" />
     <link rel="stylesheet" href="bulma.min.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" type="image/png" href="icons/icon48.png" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N9EB4H11MT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-N9EB4H11MT');
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js" integrity="sha512-L0Shl7nXXzIlBSUUPpxrokqq4ojqgZFQczTYlGjzONGTDAcLremjwaWv5A+EDLnxhQzY5xUZPWLOLqYRkY0Cbw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <HeadOutlet />
 </head>
