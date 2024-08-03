@@ -66,7 +66,9 @@
             .ToDictionary(group => group.Key!, group => group.Count());
 
         public Dictionary<string, int> StarsPerRepository => _repositories
-            .Take(10)
-            .ToDictionary(repo => repo.Name!, repo => repo.StargazersCount);
+           .Where(repo => !string.IsNullOrEmpty(repo.Name))
+           .OrderByDescending(repo => repo.StargazersCount)
+           .Take(10)
+           .ToDictionary(repo => repo.Name!, repo => repo.StargazersCount);
     }
 }
