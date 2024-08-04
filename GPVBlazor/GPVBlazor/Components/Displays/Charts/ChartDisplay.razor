@@ -3,7 +3,17 @@
 @inject IJSRuntime JS
 
 <div class="box" style="height: 100%">
-    <h3 class="">@Title</h3>
+    <div class="is-flex is-justify-content-space-between	">
+        <p class="title">@Title</p>
+      <div class="select">
+            <select @onchange="OnChange">
+                @foreach (var chartType in Enum.GetValues(typeof(ChartTypes)))
+                {
+                    <option value="@chartType">@chartType</option>
+                }
+            </select>
+      </div>
+    </div>
     <div class="">
         <canvas id="@_canvasId">
         </canvas>
@@ -11,7 +21,7 @@
 </div>
 
 @code {
-    public enum ChartTypes { pie, doughnut, bar, line, bubble, polarArea, radar, scatter }
+    public enum ChartTypes { pie, doughnut, bar, line, polarArea, radar }
 
     [Parameter]
     public Dictionary<string, int>? Data { get; set; }
@@ -19,7 +29,6 @@
     [Parameter]
     public String Title { get; set; } = "";
 
-    [Parameter]
     public ChartTypes ChartType { get; set; }
 
     private readonly string _canvasId = $"canvas-{Guid.NewGuid()}";
@@ -49,5 +58,13 @@
     {
         var random = new Random();
         return Enumerable.Range(0, count).Select(_ => $"#{random.Next(0x1000000):X6}").ToArray();
+    }
+
+    private async Task OnChange(ChangeEventArgs e)
+    {
+        ChartType = Enum.Parse<ChartTypes>(e.Value.ToString());
+        _chartModel!.type = ChartType.ToString();
+        var chartModelJSON = JsonSerializer.Serialize(_chartModel);
+        await _module!.InvokeVoidAsync("PieChart.createPieChart", chartModelJSON);
     }
 }

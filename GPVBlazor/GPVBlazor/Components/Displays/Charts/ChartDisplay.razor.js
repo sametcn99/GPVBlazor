@@ -3,16 +3,16 @@
         try {
             const chartData = JSON.parse(chartModelJSON);
 
-            if (!this.validateChartData(chartData)) {
-                console.error('Invalid chart data:', chartData);
-                return;
-            }
+            if (!this.validateChartData(chartData)) throw new Error('Invalid chart data');
 
             const ctx = document.getElementById(chartData.chartId);
             if (!ctx) {
                 console.error(`Element with id ${chartData.chartId} not found.`);
                 return;
             }
+
+            const existingChart = Chart.getChart(ctx);
+            if (existingChart) existingChart.destroy();
 
             const chart = new Chart(ctx, {
                 type: chartData.type,
@@ -32,7 +32,7 @@
                     plugins: {
                         legend: {
                             display: true,
-                            position: 'right',
+                            position: 'bottom',
                             labels: {
                                 boxWidth: 20,
                                 padding: 10
@@ -50,6 +50,8 @@
                     }
                 }
             });
+            chart.id = chartData.chartId;
+            console.log('Pie chart created:', chart);
         } catch (error) {
             console.error('Error creating pie chart:', error);
         }
