@@ -111,9 +111,14 @@ namespace GPVBlazor.Services
             // Flatten the results
             repos.AddRange(allRepos.SelectMany(r => r));
 
+            // Cache the fetched repositories
+            _memoryCache.Set(cacheKey, repos, TimeSpan.FromHours(1));
+            return repos;
+        }
 
-            // Fetch README content in parallel
-            var readmeTasks = repos
+        public async Task<List<Repository>> FetchReadmes(string username, string token, List<Repository> repositories)
+        {
+            var readmeTasks = repositories
                 .Where(repo => repo.Name != null && !string.IsNullOrEmpty(token))
                 .Select(async repo =>
                 {
@@ -123,9 +128,7 @@ namespace GPVBlazor.Services
 
             await Task.WhenAll(readmeTasks);
 
-            // Cache the fetched repositories
-            _memoryCache.Set(cacheKey, repos, TimeSpan.FromHours(1));
-            return repos;
+            return repositories;
         }
 
         public async Task<Readme?> FetchReadmeInfo(string username, string repoName, string token)

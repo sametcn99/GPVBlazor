@@ -74,6 +74,8 @@ else
                         {
                             stats = new RepositoryStats(repositories);
                             StateHasChanged();
+                            repositories = await UserService.FetchReadmes(Username, token, repositories);
+                            StateHasChanged();
                         }
                     }
                 }
