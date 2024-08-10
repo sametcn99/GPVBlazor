@@ -4,7 +4,10 @@
 {
     <div class="box is-flex is-flex-direction-column is-justify-content-space-between" style="height: 100%">
         <div>
-            <p class="title">@Title</p>
+           @if(!string.IsNullOrEmpty(Title))
+            {
+                <p class="title is-4">@Title</p>
+            }
             <div>
                 <p class="title is-5 py-0 my-0">
                     @repository.Name

@@ -116,45 +116,46 @@ namespace GPVBlazor.Services
             return repos;
         }
 
-        public async Task<List<Repository>> FetchReadmes(string username, string token, List<Repository> repositories)
+        public async Task<List<Readme>> FetchReadmes(string username, string token, List<Repository> repositories)
         {
-            var readmeTasks = repositories
-                .Where(repo => repo.Name != null && !string.IsNullOrEmpty(token))
-                .Select(async repo =>
-                {
-                    var readmeInfo = await FetchReadmeInfo(username, repo.Name!, token);
-                    if (readmeInfo != null) repo.Readme = readmeInfo;
-                });
-
-            await Task.WhenAll(readmeTasks);
-
-            return repositories;
-        }
-
-        public async Task<Readme?> FetchReadmeInfo(string username, string repoName, string token)
-        {
-            var readmeRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{username}/{repoName}/readme");
-            readmeRequest.Headers.Add("User-Agent", "BlazorApp");
-            if (token is not null)
+            var readmes = new List<Readme>();
+            var readmeTasks = repositories.Select(async repo =>
             {
-                var authHeader = new AuthenticationHeaderValue("Bearer", token);
-                readmeRequest.Headers.Authorization = authHeader;
-            }
-            var readmeResponse = await _httpClient.SendAsync(readmeRequest);
-            if (readmeResponse.IsSuccessStatusCode)
-            {
-                var readmeContent = await readmeResponse.Content.ReadAsStringAsync();
-                var readmeInfo = JsonSerializer.Deserialize<Readme>(readmeContent);
-                var readmeText = readmeInfo?.Content?.ToString();
-                if (readmeInfo != null && !string.IsNullOrEmpty(readmeText))
+                try
                 {
-                    var decodedBytes = Convert.FromBase64String(readmeText);
-                    readmeInfo.Content = System.Text.Encoding.UTF8.GetString(decodedBytes);
-                    readmeInfo.Content = Markdig.Markdown.ToHtml(readmeInfo.Content);
+                    var readmeRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{username}/{repo.Name}/readme");
+                    readmeRequest.Headers.Add("User-Agent", "BlazorApp");
+                    if (token is not null)
+                    {
+                        var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                        readmeRequest.Headers.Authorization = authHeader;
+                    }
+                    var readmeResponse = await _httpClient.SendAsync(readmeRequest);
+                    if (readmeResponse.IsSuccessStatusCode)
+                    {
+                        var readmeContent = await readmeResponse.Content.ReadAsStringAsync();
+                        var readmeInfo = JsonSerializer.Deserialize<Readme>(readmeContent);
+                        var readmeText = readmeInfo?.Content?.ToString();
+                        if (readmeInfo != null && !string.IsNullOrEmpty(readmeText))
+                        {
+                            var decodedBytes = Convert.FromBase64String(readmeText);
+                            readmeInfo.Content = System.Text.Encoding.UTF8.GetString(decodedBytes);
+                            readmeInfo.Content = Markdig.Markdown.ToHtml(readmeInfo.Content);
+                        }
+                        return readmeInfo;
+                    }
+                    return null;
                 }
-                return readmeInfo;
-            }
-            return null;
+                catch
+                {
+                    // Log the error or handle it as needed
+                    return null;
+                }
+            });
+
+            var allReadmes = await Task.WhenAll(readmeTasks);
+            readmes.AddRange(allReadmes.Where(r => r is not null)!);
+            return readmes;
         }
     }
 }
