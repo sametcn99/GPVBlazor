@@ -116,46 +116,44 @@ namespace GPVBlazor.Services
             return repos;
         }
 
-        public async Task<List<Readme>> FetchReadmes(string username, string token, List<Repository> repositories)
+        public async Task<List<Repository>> FetchReadmes(string username, string token, List<Repository> repositories)
         {
-            var readmes = new List<Readme>();
             var readmeTasks = repositories.Select(async repo =>
             {
                 try
                 {
                     var readmeRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/repos/{username}/{repo.Name}/readme");
                     readmeRequest.Headers.Add("User-Agent", "BlazorApp");
-                    if (token is not null)
+                    if (!string.IsNullOrEmpty(token))
                     {
                         var authHeader = new AuthenticationHeaderValue("Bearer", token);
                         readmeRequest.Headers.Authorization = authHeader;
                     }
+
                     var readmeResponse = await _httpClient.SendAsync(readmeRequest);
-                    if (readmeResponse.IsSuccessStatusCode)
+                    if (!readmeResponse.IsSuccessStatusCode) return repo;
+
+                    var readmeContent = await readmeResponse.Content.ReadAsStringAsync();
+                    var readme = JsonSerializer.Deserialize<Readme>(readmeContent);
+                    if (readme is not null)
                     {
-                        var readmeContent = await readmeResponse.Content.ReadAsStringAsync();
-                        var readmeInfo = JsonSerializer.Deserialize<Readme>(readmeContent);
-                        var readmeText = readmeInfo?.Content?.ToString();
-                        if (readmeInfo != null && !string.IsNullOrEmpty(readmeText))
-                        {
-                            var decodedBytes = Convert.FromBase64String(readmeText);
-                            readmeInfo.Content = System.Text.Encoding.UTF8.GetString(decodedBytes);
-                            readmeInfo.Content = Markdig.Markdown.ToHtml(readmeInfo.Content);
-                        }
-                        return readmeInfo;
+                        repo.Readme = readme;
                     }
-                    return null;
+                    else
+                    {
+                        repo.Readme = null;
+                    }
+                    return repo;
                 }
                 catch
                 {
                     // Log the error or handle it as needed
-                    return null;
+                    return repo;
                 }
             });
 
-            var allReadmes = await Task.WhenAll(readmeTasks);
-            readmes.AddRange(allReadmes.Where(r => r is not null)!);
-            return readmes;
+            var results = await Task.WhenAll(readmeTasks);
+            return results.ToList();
         }
     }
 }

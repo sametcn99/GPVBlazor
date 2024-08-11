@@ -74,19 +74,8 @@ else
                         {
                             stats = new RepositoryStats(repositories);
                             StateHasChanged();
-                            var readmes = await UserService.FetchReadmes(Username, token, repositories);
-                            if (readmes is not null)
-                            {
-                             foreach(var repo in repositories)
-                             {
-                                var readme = readmes.FirstOrDefault(r => r.Name == repo.Name);
-                                if (readme is not null)
-                                {
-                                    repo.Readme = readme;
-                                }
-                             }
-                             StateHasChanged();
-                            }
+                            repositories = await UserService.FetchReadmes(Username, token, repositories);
+                            StateHasChanged();
                         }
                     }
                 }
