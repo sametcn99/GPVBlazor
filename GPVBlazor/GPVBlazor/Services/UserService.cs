@@ -135,8 +135,11 @@ namespace GPVBlazor.Services
 
                     var readmeContent = await readmeResponse.Content.ReadAsStringAsync();
                     var readme = JsonSerializer.Deserialize<Readme>(readmeContent);
-                    if (readme is not null)
+                    if (readme is not null && readme.Content is not null)
                     {
+                        var decodedBytes = Convert.FromBase64String(readme.Content);
+                        readme.Content = System.Text.Encoding.UTF8.GetString(decodedBytes);
+                        readme.Content = Markdig.Markdown.ToHtml(readme.Content);
                         repo.Readme = readme;
                     }
                     else
