@@ -5,14 +5,14 @@
 <div class="box" style="height: 100%">
     <div class="is-flex is-justify-content-space-between	">
         <p class="title">@Title</p>
-      <div class="select">
+        <div class="select">
             <select @onchange="OnChange">
                 @foreach (var chartType in Enum.GetValues(typeof(ChartTypes)))
                 {
                     <option value="@chartType">@chartType</option>
                 }
             </select>
-      </div>
+        </div>
     </div>
     <div class="">
         <canvas id="@_canvasId">
@@ -40,16 +40,16 @@
         var backgroundColors = GenerateRandomColors(Data?.Count ?? 0);
 
         _chartModel = new ChartModel
-            {
-                chartId = _canvasId,
-                label = "Count: ",
-                type = ChartType.ToString(),
-                labels = Data?.Keys.ToArray() ?? Array.Empty<string>(),
-                datasets = new[] { new ChartModel.ChartDataset { label = "Count", data = Data?.Values.ToArray() ?? Array.Empty<int>(), backgroundColor = backgroundColors, } }
-            };
+        {
+            chartId = _canvasId,
+            label = "Count: ",
+            type = ChartType.ToString(),
+            labels = Data?.Keys.ToArray() ?? Array.Empty<string>(),
+            datasets = new[] { new ChartModel.ChartDataset { label = "Count", data = Data?.Values.ToArray() ?? Array.Empty<int>(),
+backgroundColor = backgroundColors, } }
+        };
 
-        _module = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Displays/Charts/ChartDisplay.razor.js");
-
+        _module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/ChartDisplay.js");
         var chartModelJSON = JsonSerializer.Serialize(_chartModel);
         await _module.InvokeVoidAsync("PieChart.createPieChart", chartModelJSON);
     }
