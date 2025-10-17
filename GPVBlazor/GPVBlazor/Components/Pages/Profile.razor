@@ -21,7 +21,7 @@
 
     @if (stats is not null && repositories is not null)
     {
-        <UserStatisticsDisplay UserStats="@stats" Repositories="@repositories" User="@user" />
+        <UserStatisticsDisplay UserStats="@stats" Repositories="@repositories" User="@user" Token="@token" />
     }
     else if (user is not null)
     {
@@ -43,7 +43,7 @@
             <div class="columns is-multiline mt-4">
                 <Virtualize Items="repositories" Context="repo" OverscanCount="150">
                     <div class="column is-4">
-                        <RepositoryDisplay repository="repo" @key="repo.NodeId" />
+                        <RepositoryDisplay repository="repo" Token="@token" @key="repo.NodeId" />
                     </div>
                 </Virtualize>
             </div>

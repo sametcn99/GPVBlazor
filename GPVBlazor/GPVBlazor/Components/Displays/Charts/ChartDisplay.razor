@@ -6,10 +6,10 @@
     <div class="is-flex is-justify-content-space-between	">
         <p class="title">@Title</p>
         <div class="select">
-            <select @onchange="OnChange">
+            <select @onchange="OnChange" value="@ChartType">
                 @foreach (var chartType in Enum.GetValues(typeof(ChartTypes)))
                 {
-                    <option value="@chartType">@chartType</option>
+                    <option value="@chartType" selected="@(chartType.Equals(ChartType))">@chartType</option>
                 }
             </select>
         </div>
@@ -29,6 +29,9 @@
     [Parameter]
     public String Title { get; set; } = "";
 
+    [Parameter]
+    public ChartTypes? InitialChartType { get; set; }
+
     public ChartTypes ChartType { get; set; }
 
     private readonly string _canvasId = $"canvas-{Guid.NewGuid()}";
@@ -37,6 +40,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Set initial chart type from parameter or default to pie
+        ChartType = InitialChartType ?? ChartTypes.pie;
+        
         var backgroundColors = GenerateRandomColors(Data?.Count ?? 0);
 
         _chartModel = new ChartModel
@@ -62,9 +68,12 @@ backgroundColor = backgroundColors, } }
 
     private async Task OnChange(ChangeEventArgs e)
     {
-        ChartType = Enum.Parse<ChartTypes>(e.Value.ToString());
-        _chartModel!.type = ChartType.ToString();
-        var chartModelJSON = JsonSerializer.Serialize(_chartModel);
-        await _module!.InvokeVoidAsync("PieChart.createPieChart", chartModelJSON);
+        if (e.Value?.ToString() is string value && Enum.TryParse<ChartTypes>(value, out var chartType))
+        {
+            ChartType = chartType;
+            _chartModel!.type = ChartType.ToString();
+            var chartModelJSON = JsonSerializer.Serialize(_chartModel);
+            await _module!.InvokeVoidAsync("PieChart.createPieChart", chartModelJSON);
+        }
     }
 }

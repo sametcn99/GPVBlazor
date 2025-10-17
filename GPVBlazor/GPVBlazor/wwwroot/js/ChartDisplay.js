@@ -11,20 +11,50 @@
                 return;
             }
 
+            // Add chart container class for CSS targeting
+            const canvasParent = ctx.parentElement;
+            if (canvasParent) {
+                canvasParent.classList.add('chart-container');
+            }
+
             const existingChart = Chart.getChart(ctx);
             if (existingChart) existingChart.destroy();
+
+            // Configure dataset based on chart type
+            const datasets = chartData.datasets.map(dataset => {
+                // Line chart specific configuration
+                if (chartData.type === 'line') {
+                    return {
+                        label: chartData.label,
+                        data: dataset.data,
+                        borderColor: '#ffffff',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 4,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#000000',
+                        pointBorderWidth: 3
+                    };
+                }
+
+                // Default configuration for other chart types
+                return {
+                    label: chartData.label,
+                    data: dataset.data,
+                    backgroundColor: dataset.backgroundColor,
+                    borderWidth: 1,
+                    hoverOffset: 4
+                };
+            });
 
             const chart = new Chart(ctx, {
                 type: chartData.type,
                 data: {
                     labels: chartData.labels,
-                    datasets: chartData.datasets.map(dataset => ({
-                        label: chartData.label,
-                        data: dataset.data,
-                        backgroundColor: dataset.backgroundColor,
-                        borderWidth: 1,
-                        hoverOffset: 4
-                    }))
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
@@ -39,19 +69,32 @@
                             }
                         }
                     },
-                    animations: {
-                        tension: {
-                            duration: 1000,
-                            easing: 'linear',
-                            from: 1,
-                            to: 0,
-                            loop: true
+                    scales: chartData.type === 'line' ? {
+                        y: {
+                            beginAtZero: true
                         }
+                    } : {},
+                    animations: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
                     }
                 }
             });
             chart.id = chartData.chartId;
-            console.log('Pie chart created:', chart);
+            
+            // Force white color for line charts after creation
+            if (chartData.type === 'line') {
+                setTimeout(() => {
+                    chart.data.datasets.forEach(dataset => {
+                        dataset.borderColor = '#ffffff';
+                        dataset.pointBackgroundColor = '#ffffff';
+                        dataset.pointBorderColor = '#000000';
+                    });
+                    chart.update('none');
+                }, 100);
+            }
+            
+            console.log('Chart created:', chart);
         } catch (error) {
             console.error('Error creating pie chart:', error);
         }

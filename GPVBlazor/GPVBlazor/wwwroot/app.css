@@ -387,3 +387,23 @@ h1:focus {
 .justify-content-center {
     justify-content: center !important;
 }
+
+/* Chart.js Line Chart Override Styles */
+canvas {
+    filter: none !important;
+}
+
+/* Force white lines for line charts */
+.chart-container canvas {
+    --chart-line-color: #ffffff !important;
+}
+
+/* Custom CSS for Chart.js line elements */
+@media screen {
+    canvas {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-crisp-edges;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+    }
+}

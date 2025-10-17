@@ -1,0 +1,114 @@
+@rendermode InteractiveServer
+@using GPVBlazor.Models
+@using GPVBlazor.Services.Interfaces
+@using GPVBlazor.Components.Displays.Charts
+@inject IUserService UserService
+
+@if (ShowModal)
+{
+    <div class="modal is-active">
+        <div class="modal-background" @onclick="() => ShowModal = false"></div>
+        <div class="modal-card" role="document" style="width: 90%; max-width: 900px;">
+            <header class="modal-card-head">
+                <p class="modal-card-title">
+                    <span class="icon">
+                        <i class="fas fa-star"></i>
+                    </span>
+                    Star History - @Repository?.Name
+                </p>
+                <button class="delete is-large" aria-label="close" @onclick="() => ShowModal = false"></button>
+            </header>
+            <section class="modal-card-body">
+                @if (IsLoading)
+                {
+                    <div class="has-text-centered">
+                        <span class="icon is-large">
+                            <i class="fas fa-spinner fa-pulse"></i>
+                        </span>
+                        <p>Loading star history...</p>
+                    </div>
+                }
+                else if (StarHistory?.MonthlyData.Any() == true)
+                {
+                    <div style="height: 400px;">
+                        <ChartDisplay 
+                            Data="StarHistory.MonthlyData" 
+                            Title="Stars over time" InitialChartType="ChartDisplay.ChartTypes.line"/>
+                    </div>
+                    <div class="mt-4">
+                        <div class="level">
+                            <div class="level-item has-text-centered">
+                                <div>
+                                    <p class="heading">Total Stars</p>
+                                    <p class="title">@Repository?.StargazersCount</p>
+                                </div>
+                            </div>
+                            <div class="level-item has-text-centered">
+                                <div>
+                                    <p class="heading">First Star</p>
+                                    <p class="title is-size-6">@(StarHistory.Points.FirstOrDefault()?.StarredAt.ToString("MMM yyyy") ?? "N/A")</p>
+                                </div>
+                            </div>
+                            <div class="level-item has-text-centered">
+                                <div>
+                                    <p class="heading">Latest Star</p>
+                                    <p class="title is-size-6">@(StarHistory.Points.LastOrDefault()?.StarredAt.ToString("MMM yyyy") ?? "N/A")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="has-text-centered">
+                        <span class="icon is-large has-text-grey-light">
+                            <i class="fas fa-star"></i>
+                        </span>
+                        <p class="has-text-grey">No star history data available or repository has no stars.</p>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool ShowModal { get; set; }
+    [Parameter] public Repository? Repository { get; set; }
+    [Parameter] public string? Token { get; set; }
+
+    private bool IsLoading = false;
+    private StarHistory? StarHistory;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ShowModal && Repository != null && StarHistory == null)
+        {
+            await LoadStarHistory();
+        }
+    }
+
+    private async Task LoadStarHistory()
+    {
+        if (Repository?.Owner?.Login == null || Repository?.Name == null)
+            return;
+
+        IsLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            StarHistory = await UserService.FetchStarHistory(Repository.Owner.Login, Repository.Name, Token ?? "");
+        }
+        catch (Exception ex)
+        {
+            // Handle error silently for now
+            Console.WriteLine($"Error loading star history: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+}

@@ -125,19 +125,19 @@
             </h3>
             <div class="columns is-multiline">
                 <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.MostStarred" Title="🌟 Most Starred" />
+                    <RepositoryDisplay repository="@UserStats.MostStarred" Title="🌟 Most Starred" Token="@Token" />
                 </div>
                 <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.LatestUpdatedRepository" Title="🔄 Latest Updated" />
+                    <RepositoryDisplay repository="@UserStats.LatestUpdatedRepository" Title="🔄 Latest Updated" Token="@Token" />
                 </div>
                 <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.LastCreatedRepository" Title="🆕 Recently Created" />
+                    <RepositoryDisplay repository="@UserStats.LastCreatedRepository" Title="🆕 Recently Created" Token="@Token" />
                 </div>
                 <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.OldestRepository" Title="🏛️ Oldest Repository" />
+                    <RepositoryDisplay repository="@UserStats.OldestRepository" Title="🏛️ Oldest Repository" Token="@Token" />
                 </div>
                 <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.LongestUpdatePeriod" Title="⏱️ Longest Update Period" />
+                    <RepositoryDisplay repository="@UserStats.LongestUpdatePeriod" Title="⏱️ Longest Update Period" Token="@Token" />
                 </div>
             </div>
 
@@ -175,4 +175,5 @@
     [Parameter] public RepositoryStats? UserStats { get; set; }
     [Parameter] public List<Repository>? Repositories { get; set; }
     [Parameter] public User? user { get; set; }
+    [Parameter] public string? Token { get; set; }
 }

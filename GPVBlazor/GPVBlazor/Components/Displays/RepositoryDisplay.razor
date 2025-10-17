@@ -73,12 +73,12 @@
                     </span>
                     <span>Clone</span>
                 </a>
-                <span class="button is-warning is-light is-rounded">
+                <button class="button is-warning is-light is-rounded" @onclick="() => ShowStarHistoryModal = true">
                     <span class="icon">
                         <i class="fas fa-star"></i>
                     </span>
                     <span>@repository.StargazersCount</span>
-                </span>
+                </button>
                 @if (repository?.Readme?.Content is not null)
                 {
                     <button class="button is-success is-light is-rounded" @onclick="() => ShowModal = true">
@@ -89,6 +89,7 @@
                     </button>
                     <ReadmeModal ShowModal="ShowModal" readme="repository?.Readme" />
                 }
+                <StarHistoryModal ShowModal="ShowStarHistoryModal" Repository="repository" Token="@Token" />
             </div>
             @if (!string.IsNullOrEmpty(repository?.Description))
             {
@@ -146,6 +147,10 @@
     [Parameter]
     public String Title { get; set; } = "";
 
+    [Parameter]
+    public String? Token { get; set; }
+
     private bool ShowModal = false;
+    private bool ShowStarHistoryModal = false;
     private void showModal() { ShowModal = true; }
 }

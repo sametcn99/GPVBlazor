@@ -158,5 +158,78 @@ namespace GPVBlazor.Services
             var results = await Task.WhenAll(readmeTasks);
             return results.ToList();
         }
+
+        public async Task<StarHistory> FetchStarHistory(string owner, string repo, string token)
+        {
+            string cacheKey = $"StarHistory-{owner}-{repo}";
+            if (_memoryCache.TryGetValue(cacheKey, out StarHistory? cachedHistory))
+                return cachedHistory ?? new StarHistory();
+
+            try
+            {
+                var starHistory = new StarHistory();
+                var stargazers = new List<StarHistoryPoint>();
+                int page = 1;
+                const int perPage = 100;
+
+                // Fetch stargazers with timestamps (this requires a different endpoint)
+                while (true)
+                {
+                    var stargazersRequest = new HttpRequestMessage(HttpMethod.Get,
+                        $"https://api.github.com/repos/{owner}/{repo}/stargazers?per_page={perPage}&page={page}");
+                    stargazersRequest.Headers.Add("User-Agent", "BlazorApp");
+                    stargazersRequest.Headers.Add("Accept", "application/vnd.github.v3.star+json");
+
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                        stargazersRequest.Headers.Authorization = authHeader;
+                    }
+
+                    var response = await _httpClient.SendAsync(stargazersRequest);
+                    if (!response.IsSuccessStatusCode) break;
+
+                    var content = await response.Content.ReadAsStringAsync();
+                    var pageStargazers = JsonSerializer.Deserialize<List<StarHistoryPoint>>(content);
+
+                    if (pageStargazers == null || pageStargazers.Count == 0) break;
+
+                    stargazers.AddRange(pageStargazers);
+
+                    // If we got less than perPage results, we're done
+                    if (pageStargazers.Count < perPage) break;
+
+                    page++;
+
+                    // Limit to prevent too many API calls (adjust as needed)
+                    if (page > 10) break;
+                }
+
+                starHistory.Points = stargazers.OrderBy(s => s.StarredAt).ToList();
+
+                // Group by month for chart display
+                var monthlyData = starHistory.Points
+                    .GroupBy(s => new { s.StarredAt.Year, s.StarredAt.Month })
+                    .Select(g => new
+                    {
+                        Date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"),
+                        Count = g.Count()
+                    })
+                    .OrderBy(x => x.Date)
+                    .ToDictionary(x => x.Date, x => x.Count);
+
+                starHistory.MonthlyData = monthlyData;
+
+                // Cache for 6 hours
+                _memoryCache.Set(cacheKey, starHistory, TimeSpan.FromHours(6));
+                return starHistory;
+            }
+            catch (Exception ex)
+            {
+                // Log error and return empty history
+                Console.WriteLine($"Error fetching star history: {ex.Message}");
+                return new StarHistory();
+            }
+        }
     }
 }
