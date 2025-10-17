@@ -1,5 +1,5 @@
 ﻿@page "/p/{Username}"
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject Services.Interfaces.IUserService UserService
 @inject Services.Interfaces.IContactService ContactService
 @inject IJSRuntime JS
@@ -58,41 +58,70 @@
     private List<Repository>? repositories;
     private RepositoryStats? stats;
     string? token;
+    private bool isLoading = true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
+        {
             try
             {
                 token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-                if (token is null)
+                
+                if (string.IsNullOrWhiteSpace(token))
                 {
                     await JS.InvokeVoidAsync("alert", "You need to add a auth token in home page.");
                     NavigationManager.NavigateTo("/");
+                    return;
                 }
 
-                if (Username is not null && token is not null)
+                if (!string.IsNullOrWhiteSpace(Username))
                 {
-                    user = await UserService.FetchUserProfile(Username, token);
-                    if (user is not null) StateHasChanged();
-
-                    if (user is not null && repositories is null)
-                    {
-                        repositories = await UserService.FetchUserRepositories(Username, token, user.PublicRepos) ?? new List<Repository>();
-                        if (repositories.Any())
-                        {
-                            stats = new RepositoryStats(repositories);
-                            StateHasChanged();
-                            repositories = await UserService.FetchReadmes(Username, token, repositories);
-                            StateHasChanged();
-                        }
-                    }
+                    await LoadUserData();
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred", ex);
+                Console.WriteLine($"Error in OnAfterRenderAsync: {ex.Message}");
+                await JS.InvokeVoidAsync("alert", "An error occurred while loading the profile. Please try again.");
+                NavigationManager.NavigateTo("/");
             }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task LoadUserData()
+    {
+        if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(token))
+            return;
+
+        try
+        {
+            user = await UserService.FetchUserProfile(Username, token);
+            StateHasChanged();
+
+            if (user is not null)
+            {
+                repositories = await UserService.FetchUserRepositories(Username, token, user.PublicRepos) ?? new List<Repository>();
+                
+                if (repositories.Any())
+                {
+                    stats = new RepositoryStats(repositories);
+                    StateHasChanged();
+                    repositories = await UserService.FetchReadmes(Username, token, repositories);
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user data: {ex.Message}");
+            throw;
+        }
     }
 
     private void UpdateFilteredRepositories(List<Repository> filteredRepositories)
