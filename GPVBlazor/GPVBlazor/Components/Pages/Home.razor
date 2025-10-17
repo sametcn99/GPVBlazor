@@ -40,11 +40,8 @@
                     <p class="mb-4">Add your GitHub personal access token to unlock full API capabilities</p>
                     <div class="field has-addons">
                         <div class="control is-expanded">
-                            <input @bind="AuthToken" 
-                                   placeholder="Enter your GitHub Auth Token" 
-                                   class="input is-medium" 
-                                   type="password"
-                                   @oninput="HandleInputChange" />
+                            <input @bind="AuthToken" placeholder="Enter your GitHub Auth Token" class="input is-medium"
+                                type="password" @oninput="HandleInputChange" />
                         </div>
                         <div class="control">
                             <button class="button is-primary is-medium" @onclick="AddToken">
@@ -60,6 +57,14 @@
                             <i class="fas fa-info-circle"></i>
                         </span>
                         Your token is securely stored in your browser's local storage
+                    </p>
+                    <p class="has-text-centered mt-3">
+                        <a class="button is-link is-light is-small" @onclick="OpenPATModal">
+                            <span class="icon is-small">
+                                <i class="fas fa-question-circle"></i>
+                            </span>
+                            <span>What is a Personal Access Token?</span>
+                        </a>
                     </p>
                 </div>
             </div>
@@ -81,8 +86,12 @@
 <!-- Features Section -->
 <FeaturesDisplay />
 
+<!-- Personal Access Token Modal -->
+<GPVBlazor.Components.Displays.PersonalAccessTokenModal IsActive="@showPATModal" IsActiveChanged="@OnPATModalChanged" />
+
 @code {
     private string? AuthToken { get; set; }
+    private bool showPATModal = false;
 
     private async Task AddToken()
     {
@@ -102,6 +111,17 @@
     private void HandleInputChange(ChangeEventArgs e)
     {
         AuthToken = e.Value?.ToString();
+    }
+
+    private void OpenPATModal()
+    {
+        showPATModal = true;
+    }
+
+    private async Task OnPATModalChanged(bool isActive)
+    {
+        showPATModal = isActive;
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

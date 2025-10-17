@@ -1,0 +1,210 @@
+@inject IJSRuntime JS
+
+<div class="modal @(IsActive ? "is-active" : "")" id="patModal">
+    <div class="modal-background" @onclick="CloseModal"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">
+                <span class="icon">
+                    <i class="fab fa-github"></i>
+                </span>
+                What is a Personal Access Token?
+            </p>
+            <button class="delete" aria-label="close" @onclick="CloseModal"></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="content">
+                <h4 class="title is-5">
+                    <span class="icon has-text-info">
+                        <i class="fas fa-question-circle"></i>
+                    </span>
+                    What is a Personal Access Token (PAT)?
+                </h4>
+                <p>
+                    A Personal Access Token is a special authentication key that provides secure access to GitHub's API.
+                    This token acts on behalf of your GitHub account to authenticate API requests.
+                </p>
+
+                <h4 class="title is-5 mt-5">
+                    <span class="icon has-text-primary">
+                        <i class="fas fa-rocket"></i>
+                    </span>
+                    Why is it Required in This Application?
+                </h4>
+                <div class="notification is-info is-dark">
+                    <ul>
+                        <li><strong>Higher API Limits:</strong> 60 requests per hour without token, 5,000 requests per
+                            hour with token</li>
+                        <li><strong>Private Repositories:</strong> Access to private repositories (with appropriate
+                            permissions)</li>
+                        <li><strong>Detailed Information:</strong> More comprehensive data about user profiles and
+                            repositories</li>
+                        <li><strong>Gist Access:</strong> Ability to access private gists</li>
+                    </ul>
+                </div>
+
+                <h4 class="title is-5 mt-5">
+                    <span class="icon has-text-success">
+                        <i class="fas fa-cog"></i>
+                    </span>
+                    How to Create a Token?
+                </h4>
+                <div class="steps">
+                    <div class="step-item">
+                        <div class="step-marker">1</div>
+                        <div class="step-details">
+                            <p class="step-title">Sign in to GitHub</p>
+                            <p>Log in to your GitHub account and click on your profile picture in the top right corner.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-marker">2</div>
+                        <div class="step-details">
+                            <p class="step-title">Go to Settings</p>
+                            <p>Click on <strong>"Settings"</strong> from the dropdown menu.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-marker">3</div>
+                        <div class="step-details">
+                            <p class="step-title">Developer Settings</p>
+                            <p>Navigate to <strong>"Developer settings"</strong> at the bottom of the left sidebar.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-marker">4</div>
+                        <div class="step-details">
+                            <p class="step-title">Personal Access Tokens</p>
+                            <p>Click on <strong>"Personal access tokens"</strong> → <strong>"Tokens (classic)"</strong>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-marker">5</div>
+                        <div class="step-details">
+                            <p class="step-title">Generate New Token</p>
+                            <p>Click the <strong>"Generate new token"</strong> → <strong>"Generate new token
+                                    (classic)"</strong> button.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-marker">6</div>
+                        <div class="step-details">
+                            <p class="step-title">Select Permissions</p>
+                            <p>Recommended permissions for this application:</p>
+                            <div class="tags mt-2">
+                                <span class="tag is-success">public_repo</span>
+                                <span class="tag is-success">read:user</span>
+                                <span class="tag is-success">user:email</span>
+                                <span class="tag is-success">gist</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification is-warning mt-5">
+                    <h5 class="title is-6">
+                        <span class="icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </span>
+                        Important Security Warnings
+                    </h5>
+                    <ul>
+                        <li><strong>Keep Token Secret:</strong> Never share your token with anyone</li>
+                        <li><strong>Secure Storage:</strong> Token is only stored in your browser's local storage</li>
+                        <li><strong>Minimum Permissions:</strong> Only grant necessary permissions</li>
+                        <li><strong>Regular Renewal:</strong> Renew tokens regularly</li>
+                        <li><strong>Suspicious Activity:</strong> Revoke the token if you notice unusual activity</li>
+                    </ul>
+                </div>
+
+                <div class="notification is-danger mt-5">
+                    <h5 class="title is-6">
+                        <span class="icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </span>
+                        Data Security
+                    </h5>
+                    <p>
+                        This application <strong>runs entirely in your browser</strong> and your token is never sent to
+                        any server.
+                        All API requests are made directly to GitHub and your data is only processed in your browser.
+                    </p>
+                </div>
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            <div class="buttons">
+                <button class="button is-primary" @onclick="OpenGitHubTokenPage">
+                    <span class="icon">
+                        <i class="fab fa-github"></i>
+                    </span>
+                    <span>Create Token on GitHub</span>
+                </button>
+                <button class="button" @onclick="CloseModal">Close</button>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<style>
+    .steps {
+        counter-reset: step-counter;
+    }
+
+    .step-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background-color: #1d1d1d;
+        border-radius: 8px;
+        border-left: 4px solid #3273dc;
+    }
+
+    .step-marker {
+        background-color: #3273dc;
+        color: white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .step-details {
+        flex: 1;
+    }
+
+    .step-title {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+    }
+
+    .modal-card {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+</style>
+
+@code {
+    [Parameter] public bool IsActive { get; set; }
+    [Parameter] public EventCallback<bool> IsActiveChanged { get; set; }
+
+    private async Task CloseModal()
+    {
+        IsActive = false;
+        await IsActiveChanged.InvokeAsync(IsActive);
+    }
+
+    private async Task OpenGitHubTokenPage()
+    {
+        await JS.InvokeVoidAsync("window.open", "https://github.com/settings/tokens/new", "_blank");
+    }
+}
