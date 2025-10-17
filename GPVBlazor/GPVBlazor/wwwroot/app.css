@@ -2,6 +2,17 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+/* Global container max-width */
+.container {
+    max-width: 1216px !important;
+}
+
+@media screen and (min-width: 1216px) {
+    .container:not(.is-max) {
+        max-width: 1216px !important;
+    }
+}
+
 a, .btn-link, .btn {
     color: #dee2e6;
     -webkit-text-decoration: none;
@@ -65,4 +76,21 @@ h1:focus {
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.modal-card-head {
+    box-shadow: none !important;
+}
+
+.modal-card-title {
+    box-shadow: none !important;
+}
+
+.card {
+  --bulma-card-shadow: 0 !important;
+}
+
+.box {
+  --bulma-box-shadow: 0 !important;
+  border: #202020 1px solid !important;
 }
