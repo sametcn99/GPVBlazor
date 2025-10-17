@@ -1,5 +1,6 @@
 using GPVBlazor.Components;
 using GPVBlazor.Services.Configuration;
+using GPVBlazor.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 ServiceConfiguration.Configure(builder.Services);
@@ -23,6 +24,9 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+// Map SEO endpoints
+app.MapSitemapEndpoints();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

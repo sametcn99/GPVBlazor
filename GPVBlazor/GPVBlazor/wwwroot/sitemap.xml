@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    
+    <!-- Home Page -->
+    <url>
+        <loc>https://gpv.sametcc.me/</loc>
+        <lastmod>2025-10-17</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    
+    <!-- Profile Pages - Dynamic Routes -->
+    <!-- Note: Profile pages are dynamic (/p/{username}), so you may want to 
+         generate this sitemap dynamically or add specific popular profiles -->
+    
+</urlset>

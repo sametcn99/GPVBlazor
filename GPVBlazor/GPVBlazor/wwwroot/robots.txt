@@ -1,0 +1,14 @@
+# robots.txt for GitHub Profile Viewer
+
+User-agent: *
+Allow: /
+Allow: /p/*
+
+# Sitemap
+Sitemap: https://gpv.sametcc.me/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow private or sensitive paths
+Disallow: /Error
