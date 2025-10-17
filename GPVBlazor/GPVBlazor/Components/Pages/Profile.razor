@@ -41,7 +41,7 @@
             <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories"
                 OnFilteredRepositoriesChanged="UpdateFilteredRepositories" />
             <div class="columns is-multiline mt-4">
-                <Virtualize Items="repositories" Context="repo" OverscanCount="100">
+                <Virtualize Items="repositories" Context="repo" OverscanCount="150">
                     <div class="column is-4">
                         <RepositoryDisplay repository="repo" @key="repo.NodeId" />
                     </div>
