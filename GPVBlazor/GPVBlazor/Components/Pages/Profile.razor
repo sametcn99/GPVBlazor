@@ -38,7 +38,8 @@
                 <span>Repositories</span>
                 <span class="tag is-primary is-light is-medium ml-3">@repositories.Count</span>
             </h2>
-            <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories" OnFilteredRepositoriesChanged="UpdateFilteredRepositories" />
+            <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories"
+                OnFilteredRepositoriesChanged="UpdateFilteredRepositories" />
             <div class="columns is-multiline mt-4">
                 <Virtualize Items="repositories" Context="repo" OverscanCount="100">
                     <div class="column is-4">

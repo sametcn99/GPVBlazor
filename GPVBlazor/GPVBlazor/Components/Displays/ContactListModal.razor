@@ -4,7 +4,7 @@
 @if (ShowModal && Users is not null)
 {
     <div class="modal is-active">
-        <div class="modal-background" @onclick="() => ShowModal = false"></div>
+        <div class="modal-background" @onclick="CloseModal"></div>
         <div class="modal-card">
             <header class="modal-card-head">
                 <p class="modal-card-title">
@@ -21,7 +21,7 @@
                     <span>@ModalTitle</span>
                     <span class="tag ml-2">@Users.Count</span>
                 </p>
-                <button class="delete is-large" aria-label="close" @onclick="() => ShowModal = false"></button>
+                <button class="delete is-large" aria-label="close" @onclick="CloseModal"></button>
             </header>
             <section class="modal-card-body">
                 @if (Users.Any())
@@ -48,9 +48,16 @@
 @code {
     [Parameter] public bool ShowModal { get; set; }
     [Parameter] public List<User>? Users { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
     public enum ModalTitleEnum { Followers, Following }
 
     [Parameter] public ModalTitleEnum ModalTitle { get; set; }
 
     private string UserListUrl(User user) => $"/p/{user.Login}";
+
+    private async Task CloseModal()
+    {
+        ShowModal = false;
+        await OnClose.InvokeAsync();
+    }
 }

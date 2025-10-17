@@ -7,7 +7,8 @@
     <div class="media">
         <figure class="media-left">
             <p class="image is-128x128">
-                <img src="@UserProfile.AvatarUrl" alt="Avatar" class="is-rounded" style="object-fit: cover; width: 128px; height: 128px; border: 3px solid var(--accent-color);" />
+                <img src="@UserProfile.AvatarUrl" alt="Avatar" class="is-rounded"
+                    style="object-fit: cover; width: 128px; height: 128px; border: 3px solid var(--accent-color);" />
             </p>
         </figure>
         <div class="media-content">
@@ -30,7 +31,7 @@
                         @UserProfile.Bio
                     </p>
                 }
-                
+
                 <div class="columns is-multiline is-mobile">
                     @if (!string.IsNullOrEmpty(UserProfile.Email))
                     {
@@ -73,7 +74,8 @@
                                     <i class="fas fa-link"></i>
                                 </span>
                                 <span>
-                                    <a href="@(UserProfile.Blog.StartsWith("http") ? UserProfile.Blog : $"https://{UserProfile.Blog}")" target="_blank">
+                                    <a href="@(UserProfile.Blog.StartsWith("http") ? UserProfile.Blog : $"https://{UserProfile.Blog}")"
+                                        target="_blank">
                                         @UserProfile.Blog
                                     </a>
                                 </span>
@@ -117,22 +119,44 @@
             </div>
         </div>
     </div>
-    
+
     <footer class="mt-4">
         <div class="buttons">
-            <button class="button is-primary is-rounded" @onclick="FetchAndShowFollowersModal">
+            <button class="button is-primary is-rounded" @onclick="FetchAndShowFollowersModal"
+                disabled="@isLoadingFollowers">
                 <span class="icon">
-                    <i class="fas fa-user-friends"></i>
+                    @if (isLoadingFollowers)
+                    {
+                        <i class="fas fa-spinner fa-pulse"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-user-friends"></i>
+                    }
                 </span>
-                <span>Followers</span>
-                <span class="tag is-light ml-2">@UserProfile.Followers</span>
+                <span>@(isLoadingFollowers ? "Loading..." : "Followers")</span>
+                @if (!isLoadingFollowers)
+                {
+                    <span class="tag is-light ml-2">@UserProfile.Followers</span>
+                }
             </button>
-            <button class="button is-info is-rounded" @onclick="FetchAndShowFollowingModal">
+            <button class="button is-info is-rounded" @onclick="FetchAndShowFollowingModal"
+                disabled="@isLoadingFollowing">
                 <span class="icon">
-                    <i class="fas fa-users"></i>
+                    @if (isLoadingFollowing)
+                    {
+                        <i class="fas fa-spinner fa-pulse"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-users"></i>
+                    }
                 </span>
-                <span>Following</span>
-                <span class="tag is-light ml-2">@UserProfile.Following</span>
+                <span>@(isLoadingFollowing ? "Loading..." : "Following")</span>
+                @if (!isLoadingFollowing)
+                {
+                    <span class="tag is-light ml-2">@UserProfile.Following</span>
+                }
             </button>
         </div>
     </footer>
@@ -141,11 +165,13 @@
 
 @if (showFollowersModal is true)
 {
-    <ContactListModal ShowModal="showFollowersModal" Users="followers" ModalTitle="ContactListModal.ModalTitleEnum.Followers" />
+    <ContactListModal ShowModal="showFollowersModal" Users="followers"
+        ModalTitle="ContactListModal.ModalTitleEnum.Followers" OnClose="ToggleModal" />
 }
 else if (showFollowingModal is true)
 {
-    <ContactListModal ShowModal="showFollowingModal" Users="followings" ModalTitle="ContactListModal.ModalTitleEnum.Following" />
+    <ContactListModal ShowModal="showFollowingModal" Users="followings"
+        ModalTitle="ContactListModal.ModalTitleEnum.Following" OnClose="ToggleModal" />
 }
 
 @code {
@@ -154,16 +180,22 @@ else if (showFollowingModal is true)
 
     private List<User>? followers;
     private bool showFollowersModal = false;
+    private bool isLoadingFollowers = false;
 
     private List<User>? followings;
     private bool showFollowingModal = false;
+    private bool isLoadingFollowing = false;
 
 
     private async Task FetchAndShowFollowersModal()
     {
         if (UserProfile?.Login is null) return;
         if (token is null) return;
+
+        isLoadingFollowers = true;
         followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers", token);
+        isLoadingFollowers = false;
+
         ToggleModalVisibility(showFollowers: true);
     }
 
@@ -171,7 +203,11 @@ else if (showFollowingModal is true)
     {
         if (UserProfile?.Login is null) return;
         if (token is null) return;
+
+        isLoadingFollowing = true;
         followings = await ContactService.FetchModalData<User>(UserProfile.Login, "following", token);
+        isLoadingFollowing = false;
+
         ToggleModalVisibility(showFollowing: true);
     }
 
@@ -179,5 +215,11 @@ else if (showFollowingModal is true)
     {
         showFollowersModal = showFollowers;
         showFollowingModal = showFollowing;
+    }
+
+    private void ToggleModal()
+    {
+        showFollowersModal = false;
+        showFollowingModal = false;
     }
 }
