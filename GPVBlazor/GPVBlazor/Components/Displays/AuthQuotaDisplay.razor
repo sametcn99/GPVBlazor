@@ -1,0 +1,73 @@
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject Services.Interfaces.IAuthService AuthService
+
+<div class="box has-text-left">
+    <h3 class="title is-5">
+        <span class="icon">
+            <i class="fas fa-tachometer-alt"></i>
+        </span>
+        <span>API Usage</span>
+    </h3>
+
+    @if (loading)
+    {
+        <p>Loading...</p>
+    }
+    else if (rateInfo is null)
+    {
+        <p class="has-text-grey">No auth token found or failed to fetch rate limit.</p>
+    }
+    else
+    {
+        <div class="columns is-mobile is-multiline">
+            <div class="column is-half">
+                <p class="heading">Core Remaining</p>
+                <p class="title is-4">@rateInfo.Resources.Core.Remaining / @rateInfo.Resources.Core.Limit</p>
+            </div>
+            <div class="column is-half">
+                <p class="heading">Search Remaining</p>
+                <p class="title is-4">@rateInfo.Resources.Search.Remaining / @rateInfo.Resources.Search.Limit</p>
+            </div>
+            <div class="column is-full">
+                <p class="is-size-7 has-text-grey">Reset: @resetTime</p>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private GPVBlazor.Models.RateLimitInfo? rateInfo;
+    private bool loading = true;
+    private string resetTime = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Read token from localStorage
+        try
+        {
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                loading = false;
+                return;
+            }
+
+            rateInfo = await AuthService.GetRateLimitAsync(token);
+            if (rateInfo?.Resources?.Core?.Reset != 0)
+            {
+                var resetUnix = rateInfo.Resources.Core.Reset;
+                var dt = DateTimeOffset.FromUnixTimeSeconds(resetUnix).ToLocalTime();
+                resetTime = dt.ToString("g");
+            }
+        }
+        catch
+        {
+            // ignore errors, show null state
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}
