@@ -1,30 +1,47 @@
 ﻿@rendermode InteractiveServer
 
-<nav class="navbar" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-        <NavLink href="/" Match="NavLinkMatch.All">
-            <span class=" button is-primary">Home</span>
-        </NavLink>
-        <!-- Navbar burger -->
-        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="@isMenuActive.ToString()" @onclick="ToggleNavbar">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-        </a>
-    </div>
-
-    <div id="navbarBasicExample" class="@GetNavbarMenuClass()">
-        <div class="navbar-start">
-            <!-- Additional navbar items can go here -->
+<nav class="navbar container px-4" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <NavLink href="/" Match="NavLinkMatch.All" class="navbar-item">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fab fa-github"></i>
+                    </span>
+                    <span class="has-text-weight-bold is-size-5">GitHub Profile Viewer</span>
+                </span>
+            </NavLink>
+            <!-- Navbar burger -->
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="@isMenuActive.ToString()"
+                @onclick="ToggleNavbar">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
         </div>
-        <div class="navbar-end">
-            <div class="navbar-item">
-                <NavLink class="button is-primary" href="/p/sametcn99" Match="NavLinkMatch.All">
-                    <span>sametcn99</span>
-                </NavLink>
+
+        <div id="navbarBasicExample" class="@GetNavbarMenuClass()">
+            <div class="navbar-start">
+                <!-- Additional navbar items can go here -->
             </div>
-            <div class="navbar-item">
-                <a href="https://sametcc.me/repo/GPVBlazor" target="_blank" class="button is-info">Source Code</a>
+            <div class="navbar-end">
+                <div class="navbar-item has-background-transparent">
+                    <NavLink class="button is-rounded" href="/p/sametcn99" Match="NavLinkMatch.All">
+                        <span class="icon">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <span>sametcn99</span>
+                    </NavLink>
+                </div>
+                <div class="navbar-item has-background-transparent">
+                    <NavLink class="button is-rounded" href="https://sametcc.me/repo/GPVBlazor" target="_blank"
+                        Match="NavLinkMatch.All">
+                        <span class="icon">
+                            <i class="fas fa-code"></i>
+                        </span>
+                        <span>Source Code</span>
+                    </NavLink>
+                </div>
             </div>
         </div>
     </div>

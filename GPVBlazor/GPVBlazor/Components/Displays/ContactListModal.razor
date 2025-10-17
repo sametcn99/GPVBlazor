@@ -7,13 +7,38 @@
         <div class="modal-background" @onclick="() => ShowModal = false"></div>
         <div class="modal-card">
             <header class="modal-card-head">
-                <p class="modal-card-title">@ModalTitle</p>
+                <p class="modal-card-title">
+                    <span class="icon">
+                        @if (ModalTitle == ModalTitleEnum.Followers)
+                        {
+                            <i class="fas fa-user-friends"></i>
+                        }
+                        else
+                        {
+                            <i class="fas fa-users"></i>
+                        }
+                    </span>
+                    <span>@ModalTitle</span>
+                    <span class="tag ml-2">@Users.Count</span>
+                </p>
                 <button class="delete is-large" aria-label="close" @onclick="() => ShowModal = false"></button>
             </header>
             <section class="modal-card-body">
-                <Virtualize Items="Users" Context="user">
-                    <UserListItem user="user" />
-                </Virtualize>
+                @if (Users.Any())
+                {
+                    <Virtualize Items="Users" Context="user">
+                        <UserListItem user="user" />
+                    </Virtualize>
+                }
+                else
+                {
+                    <div class="notification is-info">
+                        <span class="icon">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                        No @ModalTitle.ToString().ToLower() found
+                    </div>
+                }
             </section>
         </div>
     </div>

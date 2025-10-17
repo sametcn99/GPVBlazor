@@ -1,13 +1,21 @@
 ﻿@using GPVBlazor.Models
 
-<a class="media is-column-gap-1" href="/p/@user?.Login" @key="user?.NodeId" style="display: flex; align-items: center;">
-    <div class="image is-48x48 is-flex-shrink-0">
-        <img class="is-rounded" src="@user?.AvatarUrl" alt="Avatar" />
+<a class="box mb-3" href="/p/@user?.Login" @key="user?.NodeId" style="display: flex; align-items: center; text-decoration: none; transition: all 0.3s ease;">
+    <div class="image is-64x64 is-flex-shrink-0">
+        <img class="is-rounded" src="@user?.AvatarUrl" alt="Avatar" style="border: 2px solid var(--accent-color);" />
     </div>
-    <div class="is-flex-grow-1">
-        <p class="title">@user?.Login</p>
-        <p class="subtitle">@user?.Type</p>
+    <div class="ml-4 is-flex-grow-1">
+        <p class="title is-5 mb-1">@user?.Login</p>
+        <p class="subtitle is-6 has-text-grey">
+            <span class="icon is-small">
+                <i class="fas fa-tag"></i>
+            </span>
+            @user?.Type
+        </p>
     </div>
+    <span class="icon has-text-grey-light">
+        <i class="fas fa-chevron-right"></i>
+    </span>
 </a>
 
 @code {

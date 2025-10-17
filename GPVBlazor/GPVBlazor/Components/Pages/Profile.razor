@@ -9,38 +9,46 @@
 
 <PageTitle>@Username's Profile</PageTitle>
 
-@if (user is not null)
-{
-    <UserProfileDisplay UserProfile="@user" token="@token" />
-}
-else
-{
-    <LoadingDisplay />
-}
+<div class="container mt-5">
+    @if (user is not null)
+    {
+        <UserProfileDisplay UserProfile="@user" token="@token" />
+    }
+    else
+    {
+        <LoadingDisplay />
+    }
 
-@if (stats is not null && repositories is not null)
-{
-    <UserStatisticsDisplay UserStats="@stats" Repositories="@repositories" User="@user" />
-}
-else
-{
-    <LoadingDisplay />
-}
+    @if (stats is not null && repositories is not null)
+    {
+        <UserStatisticsDisplay UserStats="@stats" Repositories="@repositories" User="@user" />
+    }
+    else if (user is not null)
+    {
+        <LoadingDisplay />
+    }
 
-@if (repositories is not null)
-{
-    <div class="box">
-        <h3>Repositories <span class="has-text-weight-light">@repositories.Count</span></h3>
-        <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories" OnFilteredRepositoriesChanged="UpdateFilteredRepositories" />
-        <div class="columns is-multiline">
-            <Virtualize Items="repositories" Context="repo" OverscanCount="100">
-                <div class="column is-4">
-                    <RepositoryDisplay repository="repo" @key="repo.NodeId" />
-                </div>
-            </Virtualize>
+    @if (repositories is not null)
+    {
+        <div class="box fade-in-up">
+            <h2 class="title is-3 mb-4">
+                <span class="icon has-text-primary">
+                    <i class="fas fa-folder"></i>
+                </span>
+                <span>Repositories</span>
+                <span class="tag is-primary is-light is-medium ml-3">@repositories.Count</span>
+            </h2>
+            <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories" OnFilteredRepositoriesChanged="UpdateFilteredRepositories" />
+            <div class="columns is-multiline mt-4">
+                <Virtualize Items="repositories" Context="repo" OverscanCount="100">
+                    <div class="column is-4">
+                        <RepositoryDisplay repository="repo" @key="repo.NodeId" />
+                    </div>
+                </Virtualize>
+            </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 @code {
     [Parameter]

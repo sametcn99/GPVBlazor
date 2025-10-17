@@ -4,24 +4,71 @@
 @inject Services.Interfaces.IAuthService AuthService
 <PageTitle>GitHub Profile Viewer</PageTitle>
 
-<main class="is-flex is-flex-direction-column is-gap-2 is-align-items-center">
-    <h1 class="title is-size-1">GitHub Profile Viewer</h1>
-    <p>
-        Explore GitHub and Gist profiles effortlessly, utilizing the GitHub REST API to retrieve comprehensive information.
-    </p>
-    <GPVBlazor.Components.Displays.SearchBarDisplay />
-    <div class="field has-addons">
-        <div class="control is-expanded">
-            <input @bind="AuthToken" placeholder="Enter Auth Token" class="input" @oninput="HandleInputChange" />
-        </div>
-        <div class="control">
-            <button class="button is-primary" @onclick="AddToken">Add Token</button>
+<!-- Hero Section -->
+<section class="hero is-medium">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <h1 class="title is-size-1 is-size-3-mobile has-text-weight-bold fade-in-up">
+                <span class="icon is-large">
+                    <i class="fab fa-github fa-2x"></i>
+                </span>
+                <br />
+                GitHub Profile Viewer
+            </h1>
+            <p class="subtitle is-size-4 is-size-5-mobile mt-3 fade-in-up" style="animation-delay: 0.2s;">
+                Explore GitHub and Gist profiles effortlessly with comprehensive insights
+            </p>
+            <div class="buttons is-centered mt-5 fade-in-up" style="animation-delay: 0.4s;">
+                <GPVBlazor.Components.Displays.SearchBarDisplay />
+            </div>
         </div>
     </div>
-    <p class="help is-italic">Auth token is storing in local storage.</p>
+</section>
 
-    <FeaturesDisplay />
-</main>
+<!-- Auth Token Section -->
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-8-tablet is-6-desktop">
+                <div class="box has-text-centered">
+                    <h2 class="title is-4">
+                        <span class="icon">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <span>Authentication</span>
+                    </h2>
+                    <p class="mb-4">Add your GitHub personal access token to unlock full API capabilities</p>
+                    <div class="field has-addons">
+                        <div class="control is-expanded">
+                            <input @bind="AuthToken" 
+                                   placeholder="Enter your GitHub Auth Token" 
+                                   class="input is-medium" 
+                                   type="password"
+                                   @oninput="HandleInputChange" />
+                        </div>
+                        <div class="control">
+                            <button class="button is-primary is-medium" @onclick="AddToken">
+                                <span class="icon">
+                                    <i class="fas fa-plus"></i>
+                                </span>
+                                <span>Add Token</span>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="help has-text-centered mt-3">
+                        <span class="icon is-small">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                        Your token is securely stored in your browser's local storage
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<FeaturesDisplay />
 
 @code {
     private string? AuthToken { get; set; }
@@ -33,17 +80,17 @@
             bool isValid = await AuthService.IsTokenValidAsync(AuthToken);
             if (!isValid)
             {
-                await JS.InvokeAsync<object>("alert", "Invalid token");
+                await JS.InvokeAsync<object>("alert", "Invalid token. Please check your GitHub personal access token.");
                 return;
             }
             await JS.InvokeVoidAsync("localStorage.setItem", "authToken", AuthToken);
-            await JS.InvokeAsync<object>("alert", "Token added successfully");
+            await JS.InvokeAsync<object>("alert", "✓ Token added successfully!");
         }
     }
 
     private void HandleInputChange(ChangeEventArgs e)
     {
-        AuthToken = e.Value.ToString();
+        AuthToken = e.Value?.ToString();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

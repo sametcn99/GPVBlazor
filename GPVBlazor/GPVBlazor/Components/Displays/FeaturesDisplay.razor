@@ -1,15 +1,30 @@
 ﻿<section class="section" id="features">
     <div class="container">
-        <h1 class="title is-3 has-text-centered">Features</h1>
+        <div class="has-text-centered mb-6">
+            <h2 class="title is-2 has-text-weight-bold">
+                <span class="icon is-large">
+                    <i class="fas fa-star"></i>
+                </span>
+                <span>Features</span>
+            </h2>
+            <p class="subtitle is-5 has-text-grey">Powerful tools to explore GitHub profiles</p>
+        </div>
         <div class="columns is-multiline">
             @foreach (var feature in featureTexts)
             {
                 <div class="column is-one-third">
-                    <div class="card" style="height:100%;">
+                    <div class="card fade-in-up" style="height:100%;">
                         <div class="card-content">
+                            <div class="media mb-3">
+                                <div class="media-left">
+                                    <span class="icon is-large has-text-primary">
+                                        <i class="@feature.Icon fa-2x"></i>
+                                    </span>
+                                </div>
+                            </div>
                             <div class="content">
-                                <h2 class="title is-4">@feature.Header</h2>
-                                <p>@feature.Span</p>
+                                <h3 class="title is-4">@feature.Header</h3>
+                                <p class="has-text-grey">@feature.Span</p>
                             </div>
                         </div>
                     </div>
@@ -24,38 +39,45 @@
     {
         new FeatureText
         {
+            Icon = "fas fa-compass",
             Header = "Effortless Navigation",
             Span = "Github Profile Viewer ensures effortless navigation through GitHub profiles. Whether you're a seasoned open-source enthusiast or a curious observer, the user-friendly interface simplifies the exploration process."
         },
         new FeatureText
         {
+            Icon = "fas fa-code-branch",
             Header = "Detailed Repository Insights",
             Span = "Gain in-depth insights into repositories, including names and descriptions. Explore the coding projects that define a developer's journey, all presented in a clear and organized manner."
         },
         new FeatureText
         {
+            Icon = "fas fa-users",
             Header = "Explore Connections",
             Span = "Efficiently explore a user's network by checking their followers and those they follow. Identify key contributors in the open-source community and broaden your connections effortlessly."
         },
         new FeatureText
         {
+            Icon = "fas fa-chart-line",
             Header = "Star History",
             Span = "While not offering a detailed commit history, Github Profile Viewer showcases the star history of repositories. Understand which projects have garnered attention and appreciation, providing insights into a developer's impact on the GitHub community."
         },
         new FeatureText
         {
-            Header = "Created with .NET 8 and Blazor",
-            Span =  "Github Profile Viewer is built with .NET 8 and Blazor, ensuring a seamless and performant user experience. The powerful combination of these technologies guarantees a robust and reliable"
+            Icon = "fas fa-bolt",
+            Header = "Built with .NET & Blazor",
+            Span = "Github Profile Viewer is built with .NET 8 and Blazor, ensuring a seamless and performant user experience. The powerful combination of these technologies guarantees a robust and reliable platform."
         },
         new FeatureText
         {
-            Header = "Responsive Design with Bulma",
-            Span = "The integration of bulma.io guarantees a responsive design, allowing you to explore GitHub profiles across various devices. Whether on desktop or mobile, the experience remains smooth and consistent."
+            Icon = "fas fa-mobile-alt",
+            Header = "Responsive Design",
+            Span = "The integration of Bulma CSS guarantees a responsive design, allowing you to explore GitHub profiles across various devices. Whether on desktop or mobile, the experience remains smooth and consistent."
         }
     };
 
     public class FeatureText
     {
+        public string Icon { get; set; } = "";
         public string Header { get; set; } = "";
         public string Span { get; set; } = "";
     }
