@@ -36,17 +36,99 @@
                     <i class="fas fa-folder"></i>
                 </span>
                 <span>Repositories</span>
-                <span class="tag is-primary is-light is-medium ml-3">@repositories.Count</span>
+                <span class="tag is-primary is-light is-medium ml-3">@FilteredCount</span>
             </h2>
             <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories"
-                OnFilteredRepositoriesChanged="UpdateFilteredRepositories" />
-            <div class="columns is-multiline mt-4">
-                <Virtualize Items="repositories" Context="repo" OverscanCount="150">
-                    <div class="column is-4">
-                        <RepositoryDisplay repository="repo" Token="@token" @key="repo.NodeId" />
-                    </div>
-                </Virtualize>
-            </div>
+                                                                              OnFilteredRepositoriesChanged="UpdateFilteredRepositories"
+                                                                              PageSize="pageSize"
+                                                                              OnPageSizeChanged="HandlePageSizeChanged" />
+
+            @if (pagedRepositories.Any())
+            {
+                <div class="columns is-multiline mt-4">
+                    @foreach (var repo in pagedRepositories)
+                    {
+                        <div class="column is-4">
+                            <RepositoryDisplay repository="repo" Token="@token" @key="repo.NodeId" />
+                        </div>
+                    }
+                </div>
+
+                @if (TotalPages > 1)
+                {
+                    <nav class="pagination is-rounded is-small is-centered mt-5" role="navigation" aria-label="Pagination Navigation">
+                        <ul class="pagination-list is-flex is-align-items-center is-justify-content-center">
+                            <li>
+                                <button class="pagination-link icon-only"
+                                        title="First page"
+                                        aria-label="Go to first page"
+                                        @onclick="GoToFirst"
+                                        disabled="@(!CanGoPrevious)">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="pagination-link icon-only"
+                                        title="Previous page"
+                                        aria-label="Go to previous page"
+                                        @onclick="PreviousPage"
+                                        disabled="@(!CanGoPrevious)">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                </button>
+                            </li>
+                            @foreach (var item in PaginationItems)
+                            {
+                                <li>
+                                    @if (item.IsPage)
+                                    {
+                                        <button class="@GetPageButtonClass(item.PageNumber)"
+                                                aria-label="@GetPageAriaLabel(item.PageNumber)"
+                                                aria-current="@GetAriaCurrent(item.PageNumber)"
+                                                @onclick="@(() => GoToPage(item.PageNumber))"
+                                                disabled="@(item.PageNumber == currentPage)">
+                                            @item.PageNumber
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                                    }
+                                </li>
+                            }
+                            <li>
+                                <button class="pagination-link icon-only"
+                                        title="Next page"
+                                        aria-label="Go to next page"
+                                        @onclick="NextPage"
+                                        disabled="@(!CanGoNext)">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="pagination-link icon-only"
+                                        title="Last page"
+                                        aria-label="Go to last page"
+                                        @onclick="GoToLast"
+                                        disabled="@(!CanGoNext)">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </span>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <p class="has-text-centered has-text-grey mt-4">No repositories match the current filters.</p>
+            }
         </div>
     }
 </div>
@@ -56,9 +138,13 @@
     public string? Username { get; set; }
     private User? user;
     private List<Repository>? repositories;
+    private List<Repository> filteredRepositories = new();
+    private List<Repository> pagedRepositories = new();
     private RepositoryStats? stats;
     string? token;
     private bool isLoading = true;
+    private int currentPage = 1;
+    private int pageSize = 6;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -107,12 +193,17 @@
             if (user is not null)
             {
                 repositories = await UserService.FetchUserRepositories(Username, token, user.PublicRepos) ?? new List<Repository>();
-                
+                filteredRepositories = repositories.ToList();
+                currentPage = 1;
+                UpdatePagination();
+
                 if (repositories.Any())
                 {
                     stats = new RepositoryStats(repositories);
                     StateHasChanged();
                     repositories = await UserService.FetchReadmes(Username, token, repositories);
+                    filteredRepositories = repositories.ToList();
+                    UpdatePagination();
                     StateHasChanged();
                 }
             }
@@ -126,7 +217,203 @@
 
     private void UpdateFilteredRepositories(List<Repository> filteredRepositories)
     {
-        repositories = filteredRepositories;
+        this.filteredRepositories = filteredRepositories ?? new List<Repository>();
+        currentPage = 1;
+        UpdatePagination();
+    }
+
+    private void UpdatePagination()
+    {
+        if (filteredRepositories == null || filteredRepositories.Count == 0)
+        {
+            pagedRepositories = new List<Repository>();
+            currentPage = 1;
+            StateHasChanged();
+            return;
+        }
+
+        var totalPages = TotalPages;
+        if (totalPages == 0)
+        {
+            pagedRepositories = new List<Repository>();
+            currentPage = 1;
+            StateHasChanged();
+            return;
+        }
+
+        if (currentPage > totalPages)
+        {
+            currentPage = totalPages;
+        }
+
+        if (currentPage < 1)
+        {
+            currentPage = 1;
+        }
+
+        var effectivePageSize = Math.Max(pageSize, 1);
+        var skip = (currentPage - 1) * effectivePageSize;
+        pagedRepositories = filteredRepositories.Skip(skip).Take(effectivePageSize).ToList();
         StateHasChanged();
+    }
+
+    private int TotalPages
+    {
+        get
+        {
+            if (filteredRepositories?.Count > 0)
+            {
+                var effectivePageSize = Math.Max(pageSize, 1);
+                return (int)Math.Ceiling((double)filteredRepositories.Count / effectivePageSize);
+            }
+
+            return 0;
+        }
+    }
+
+    private int FilteredCount => filteredRepositories?.Count ?? 0;
+    private bool CanGoPrevious => currentPage > 1;
+    private bool CanGoNext => currentPage < TotalPages;
+    private bool CanJumpToFirst => CanGoPrevious;
+    private bool CanJumpToLast => CanGoNext;
+
+    private IEnumerable<PaginationItem> PaginationItems
+    {
+        get
+        {
+            var totalPages = TotalPages;
+            if (totalPages == 0)
+            {
+                return Enumerable.Empty<PaginationItem>();
+            }
+
+            var items = new List<PaginationItem>();
+
+            if (totalPages <= 7)
+            {
+                for (var page = 1; page <= totalPages; page++)
+                {
+                    items.Add(new PaginationItem(page));
+                }
+
+                return items;
+            }
+
+            items.Add(new PaginationItem(1));
+
+            int start;
+            int end;
+
+            if (currentPage <= 4)
+            {
+                start = 2;
+                end = 4;
+            }
+            else if (currentPage >= totalPages - 3)
+            {
+                start = totalPages - 3;
+                end = totalPages - 1;
+            }
+            else
+            {
+                start = currentPage - 1;
+                end = currentPage + 1;
+            }
+
+            start = Math.Max(2, start);
+            end = Math.Min(totalPages - 1, end);
+
+            if (start > 2)
+            {
+                items.Add(PaginationItem.Ellipsis());
+            }
+
+            for (var page = start; page <= end; page++)
+            {
+                if (page > 1 && page < totalPages)
+                {
+                    items.Add(new PaginationItem(page));
+                }
+            }
+
+            if (end < totalPages - 1)
+            {
+                items.Add(PaginationItem.Ellipsis());
+            }
+
+            items.Add(new PaginationItem(totalPages));
+
+            return items;
+        }
+    }
+
+    private void GoToPage(int pageNumber)
+    {
+        if (pageNumber < 1 || pageNumber > TotalPages || pageNumber == currentPage) return;
+        currentPage = pageNumber;
+        UpdatePagination();
+    }
+
+    private void PreviousPage()
+    {
+        if (!CanGoPrevious) return;
+        currentPage--;
+        UpdatePagination();
+    }
+
+    private void NextPage()
+    {
+        if (!CanGoNext) return;
+        currentPage++;
+        UpdatePagination();
+    }
+
+    private void GoToFirst()
+    {
+        if (!CanGoPrevious) return;
+        currentPage = 1;
+        UpdatePagination();
+    }
+
+    private void GoToLast()
+    {
+        if (!CanGoNext) return;
+        currentPage = TotalPages;
+        UpdatePagination();
+    }
+
+    private string GetPageButtonClass(int pageNumber)
+    {
+        return pageNumber == currentPage
+            ? "pagination-link is-current"
+            : "pagination-link";
+    }
+
+    private void HandlePageSizeChanged(int newSize)
+    {
+        if (newSize <= 0) return;
+        if (pageSize == newSize) return;
+
+        pageSize = newSize;
+        currentPage = 1;
+        UpdatePagination();
+    }
+
+    private string? GetAriaCurrent(int pageNumber) => pageNumber == currentPage ? "page" : null;
+    private string GetPageAriaLabel(int pageNumber) => pageNumber == currentPage ? $"Current page, page {pageNumber}" : $"Go to page {pageNumber}";
+
+    private readonly record struct PaginationItem
+    {
+        public PaginationItem(int pageNumber, bool isEllipsis = false)
+        {
+            PageNumber = pageNumber;
+            IsEllipsis = isEllipsis;
+        }
+
+        public bool IsPage => !IsEllipsis;
+        public bool IsEllipsis { get; }
+        public int PageNumber { get; }
+
+        public static PaginationItem Ellipsis() => new(0, true);
     }
 }

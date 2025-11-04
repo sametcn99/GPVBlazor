@@ -4,13 +4,13 @@
 @if (ShowModal)
 {
     <div class="modal is-active">
-        <div class="modal-background" @onclick="() => ShowModal = false"></div>
+        <div class="modal-background" @onclick="CloseModalAsync"></div>
         <div class="modal-card" role="document">
             <header class="modal-card-head">
                 <p class="modal-card-title">
                     Readme
                 </p>
-                <button class="delete is-large" aria-label="close" @onclick="() => ShowModal = false"></button>
+                <button class="delete is-large" aria-label="close" @onclick="CloseModalAsync"></button>
             </header>
             <section class="modal-card-body">
                 <article class="content">
@@ -32,4 +32,17 @@
 @code {
     [Parameter] public bool ShowModal { get; set; }
     [Parameter] public Readme? readme { get; set; }
+    [Parameter] public EventCallback<bool> ShowModalChanged { get; set; }
+
+    private async Task CloseModalAsync()
+    {
+        if (!ShowModal)
+        {
+            return;
+        }
+
+        ShowModal = false;
+        await ShowModalChanged.InvokeAsync(false);
+        await InvokeAsync(StateHasChanged);
+    }
 }

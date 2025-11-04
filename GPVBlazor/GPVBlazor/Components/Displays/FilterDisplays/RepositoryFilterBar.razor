@@ -3,143 +3,175 @@
 @inject IRepositoryFilterService filterService
 
 <section class="box mb-4" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
-    <h3 class="title is-5 mb-4">
-        <span class="icon has-text-primary">
-            <i class="fas fa-filter"></i>
-        </span>
-        <span>Filter Repositories</span>
-    </h3>
-    
-    <div class="field">
-        <label class="label">Search</label>
-        <div class="control has-icons-left">
-            <input type="text" 
-                   value="@searchQuery" 
-                   @oninput="OnSearchQueryChanged" 
-                   class="input" 
-                   placeholder="Search repositories...">
-            <span class="icon is-left">
-                <i class="fas fa-search"></i>
+    <div class="is-flex is-align-items-center is-justify-content-space-between mb-4">
+        <h3 class="title is-5 mb-0">
+            <span class="icon has-text-primary">
+                <i class="fas fa-filter"></i>
             </span>
-        </div>
+            <span>Filter Repositories</span>
+        </h3>
+        <button type="button"
+                class="button is-small is-light"
+                @onclick="ToggleCollapse">
+            <span class="icon">
+                <i class="fas @(isCollapsed ? "fa-chevron-down" : "fa-chevron-up")"></i>
+            </span>
+            <span>@(isCollapsed ? "Show Filters" : "Hide Filters")</span>
+        </button>
     </div>
 
-    <div class="columns is-multiline">
-        <div class="column is-4">
-            <div class="field">
-                <label class="label">Sort By</label>
-                <div class="control has-icons-left">
-                    <div class="select is-fullwidth">
-                        <select @onchange="HandleSortChange">
-                            <option value="">Default</option>
-                            <option value="Updated Descending">🔄 Recently Updated</option>
-                            <option value="Updated Ascending">🔄 Least Updated</option>
-                            <option value="Created Descending">🆕 Newest First</option>
-                            <option value="Created Ascending">🕐 Oldest First</option>
-                            <option value="Stars Descending">⭐ Most Stars</option>
-                            <option value="Stars Ascending">⭐ Least Stars</option>
-                        </select>
-                    </div>
-                    <span class="icon is-left">
-                        <i class="fas fa-sort"></i>
-                    </span>
-                </div>
+    @if (!isCollapsed)
+    {
+        <div class="field">
+            <label class="label">Search</label>
+            <div class="control has-icons-left">
+                <input type="text"
+                       value="@searchQuery"
+                       @oninput="OnSearchQueryChanged"
+                       class="input"
+                       placeholder="Search repositories...">
+                <span class="icon is-left">
+                    <i class="fas fa-search"></i>
+                </span>
             </div>
         </div>
 
-        <div class="column is-4">
-            <div class="field">
-                <label class="label">Language</label>
-                <div class="control has-icons-left">
-                    <div class="select is-fullwidth">
-                        <select @onchange="HandleLanguageChange">
-                            <option value="">All Languages</option>
-                            @foreach (var language in Languages)
-                            {
-                                <option value="@language">@language</option>
-                            }
-                        </select>
-                    </div>
-                    <span class="icon is-left">
-                        <i class="fas fa-code"></i>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="column is-4">
-            <div class="field">
-                <label class="label">Topic</label>
-                <div class="control has-icons-left">
-                    <div class="select is-fullwidth">
-                        <select @onchange="HandleTopicChange">
-                            <option value="">All Topics</option>
-                            @foreach (var topic in Topics)
-                            {
-                                <option value="@topic">@topic</option>
-                            }
-                        </select>
-                    </div>
-                    <span class="icon is-left">
-                        <i class="fas fa-tag"></i>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="column is-4">
-            <div class="field">
-                <label class="label">License</label>
-                <div class="control has-icons-left">
-                    <div class="select is-fullwidth">
-                        <select @onchange="HandleLicenseChange">
-                            <option value="">All Licenses</option>
-                            @foreach (var license in Licenses)
-                            {
-                                <option value="@license">@license</option>
-                            }
-                        </select>
-                    </div>
-                    <span class="icon is-left">
-                        <i class="fas fa-certificate"></i>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="column is-8">
-            <label class="label">Filter Options</label>
-            <div class="field is-grouped is-grouped-multiline">
-                <div class="control">
-                    <label class="checkbox">
-                        <input type="checkbox" @onchange="HandleArchivedChange" checked="@includeArchived">
-                        <span class="icon is-small">
-                            <i class="fas fa-archive"></i>
+        <div class="columns is-multiline">
+            <div class="column is-4">
+                <div class="field">
+                    <label class="label">Sort By</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select @onchange="HandleSortChange">
+                                <option value="">Default</option>
+                                <option value="Updated Descending">🔄 Recently Updated</option>
+                                <option value="Updated Ascending">🔄 Least Updated</option>
+                                <option value="Created Descending">🆕 Newest First</option>
+                                <option value="Created Ascending">🕐 Oldest First</option>
+                                <option value="Stars Descending">⭐ Most Stars</option>
+                                <option value="Stars Ascending">⭐ Least Stars</option>
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-sort"></i>
                         </span>
-                        Include Archived
-                    </label>
+                    </div>
                 </div>
-                <div class="control">
-                    <label class="checkbox">
-                        <input type="checkbox" @onchange="HandleForkedChange" checked="@includeForked">
-                        <span class="icon is-small">
-                            <i class="fas fa-code-branch"></i>
+            </div>
+
+            <div class="column is-4">
+                <div class="field">
+                    <label class="label">Language</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select @onchange="HandleLanguageChange">
+                                <option value="">All Languages</option>
+                                @foreach (var language in Languages)
+                                {
+                                    <option value="@language">@language</option>
+                                }
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-code"></i>
                         </span>
-                        Include Forked
-                    </label>
+                    </div>
                 </div>
-                <div class="control">
-                    <label class="checkbox">
-                        <input type="checkbox" @onchange="HandleTemplatesChange" checked="@includeTemplates">
-                        <span class="icon is-small">
-                            <i class="fas fa-copy"></i>
+            </div>
+
+            <div class="column is-4">
+                <div class="field">
+                    <label class="label">Topic</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select @onchange="HandleTopicChange">
+                                <option value="">All Topics</option>
+                                @foreach (var topic in Topics)
+                                {
+                                    <option value="@topic">@topic</option>
+                                }
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-tag"></i>
                         </span>
-                        Include Templates
-                    </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-4">
+                <div class="field">
+                    <label class="label">License</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select @onchange="HandleLicenseChange">
+                                <option value="">All Licenses</option>
+                                @foreach (var license in Licenses)
+                                {
+                                    <option value="@license">@license</option>
+                                }
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-certificate"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-8">
+                <label class="label">Filter Options</label>
+                <div class="field is-grouped is-grouped-multiline">
+                    <div class="control">
+                        <label class="checkbox">
+                            <input type="checkbox" @onchange="HandleArchivedChange" checked="@includeArchived">
+                            <span class="icon is-small">
+                                <i class="fas fa-archive"></i>
+                            </span>
+                            Include Archived
+                        </label>
+                    </div>
+                    <div class="control">
+                        <label class="checkbox">
+                            <input type="checkbox" @onchange="HandleForkedChange" checked="@includeForked">
+                            <span class="icon is-small">
+                                <i class="fas fa-code-branch"></i>
+                            </span>
+                            Include Forked
+                        </label>
+                    </div>
+                    <div class="control">
+                        <label class="checkbox">
+                            <input type="checkbox" @onchange="HandleTemplatesChange" checked="@includeTemplates">
+                            <span class="icon is-small">
+                                <i class="fas fa-copy"></i>
+                            </span>
+                            Include Templates
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-4">
+                <div class="field">
+                    <label class="label">Items Per Page</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select value="@selectedPageSize" @onchange="HandlePageSizeChange">
+                                @foreach (var option in pageSizeOptions)
+                                {
+                                    <option value="@option">@option</option>
+                                }
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-layer-group"></i>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
 </section>
 
 @code {
@@ -150,12 +182,17 @@
 
     [Parameter]
     public EventCallback<List<Repository>> OnFilteredRepositoriesChanged { get; set; }
+    [Parameter]
+    public int PageSize { get; set; } = 6;
+    [Parameter]
+    public EventCallback<int> OnPageSizeChanged { get; set; }
 
     private List<Repository>? FilteredRepositories { get; set; }
 
     private List<string> Topics { get; set; } = new();
     private List<string> Languages { get; set; } = new();
     private List<string> Licenses { get; set; } = new();
+    private readonly int[] pageSizeOptions = new[] { 6, 10, 20, 50, 100 };
 
     private string searchQuery = string.Empty;
     private string selectedVisibility = string.Empty;
@@ -166,6 +203,8 @@
     private bool includeArchived = true;
     private bool includeForked = true;
     private bool includeTemplates = true;
+    private int selectedPageSize = 6;
+    private bool isCollapsed;
 
     protected override void OnInitialized()
     {
@@ -174,6 +213,7 @@
         Languages = Repositories.Select(r => r.Language ?? string.Empty).Distinct().ToList();
         Licenses = Repositories.Where(r => r.License != null).Select(r => r.License!.Name ?? string.Empty).Distinct().ToList();
         _Repositories = Repositories;
+        selectedPageSize = pageSizeOptions.Contains(PageSize) ? PageSize : pageSizeOptions.First();
     }
 
     private void OnSearchQueryChanged(ChangeEventArgs e) { searchQuery = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
@@ -185,6 +225,16 @@
     private void HandleArchivedChange(ChangeEventArgs e) { includeArchived = e.Value != null ? (bool)e.Value : true; ApplyFilters(); }
     private void HandleForkedChange(ChangeEventArgs e) { includeForked = e.Value != null ? (bool)e.Value : true; ApplyFilters(); }
     private void HandleTemplatesChange(ChangeEventArgs e) { includeTemplates = e.Value != null ? (bool)e.Value : true; ApplyFilters(); }
+    private async Task HandlePageSizeChange(ChangeEventArgs e)
+    {
+        if (e.Value is null) return;
+        if (!int.TryParse(e.Value.ToString(), out var newSize)) return;
+        if (!pageSizeOptions.Contains(newSize)) return;
+        if (newSize == selectedPageSize) return;
+        selectedPageSize = newSize;
+        await OnPageSizeChanged.InvokeAsync(selectedPageSize);
+    }
+    private void ToggleCollapse() => isCollapsed = !isCollapsed;
 
     private void ApplyFilters()
     {

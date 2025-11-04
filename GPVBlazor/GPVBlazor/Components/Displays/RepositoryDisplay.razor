@@ -87,9 +87,9 @@
                         </span>
                         <span>Readme</span>
                     </button>
-                    <ReadmeModal ShowModal="ShowModal" readme="repository?.Readme" />
+                    <ReadmeModal ShowModal="ShowModal" ShowModalChanged="OnReadmeModalChanged" readme="repository?.Readme" />
                 }
-                <StarHistoryModal ShowModal="ShowStarHistoryModal" Repository="repository" Token="@Token" />
+                <StarHistoryModal ShowModal="ShowStarHistoryModal" ShowModalChanged="OnStarHistoryModalChanged" Repository="repository" Token="@Token" />
             </div>
             @if (!string.IsNullOrEmpty(repository?.Description))
             {
@@ -153,4 +153,6 @@
     private bool ShowModal = false;
     private bool ShowStarHistoryModal = false;
     private void showModal() { ShowModal = true; }
+    private void OnReadmeModalChanged(bool isVisible) => ShowModal = isVisible;
+    private void OnStarHistoryModalChanged(bool isVisible) => ShowStarHistoryModal = isVisible;
 }

@@ -7,7 +7,7 @@
 @if (ShowModal)
 {
     <div class="modal is-active">
-        <div class="modal-background" @onclick="() => ShowModal = false"></div>
+        <div class="modal-background" @onclick="CloseModalAsync"></div>
         <div class="modal-card" role="document" style="width: 90%; max-width: 900px;">
             <header class="modal-card-head">
                 <p class="modal-card-title">
@@ -16,7 +16,7 @@
                     </span>
                     Star History - @Repository?.Name
                 </p>
-                <button class="delete is-large" aria-label="close" @onclick="() => ShowModal = false"></button>
+                <button class="delete is-large" aria-label="close" @onclick="CloseModalAsync"></button>
             </header>
             <section class="modal-card-body">
                 @if (IsLoading)
@@ -76,6 +76,7 @@
     [Parameter] public bool ShowModal { get; set; }
     [Parameter] public Repository? Repository { get; set; }
     [Parameter] public string? Token { get; set; }
+    [Parameter] public EventCallback<bool> ShowModalChanged { get; set; }
 
     private bool IsLoading = false;
     private StarHistory? StarHistory;
@@ -110,5 +111,17 @@
             IsLoading = false;
             StateHasChanged();
         }
+    }
+
+    private async Task CloseModalAsync()
+    {
+        if (!ShowModal)
+        {
+            return;
+        }
+
+        ShowModal = false;
+        await ShowModalChanged.InvokeAsync(false);
+        await InvokeAsync(StateHasChanged);
     }
 }
