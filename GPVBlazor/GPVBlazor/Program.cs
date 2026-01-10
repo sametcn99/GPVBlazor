@@ -1,11 +1,22 @@
 using GPVBlazor.Components;
-using GPVBlazor.Services.Configuration;
 using GPVBlazor.Endpoints;
+using GPVBlazor.Services.Configuration;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 ServiceConfiguration.Configure(builder.Services);
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -21,9 +32,10 @@ else
 
 app.UseHttpsRedirection();
 
-
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+app.MapStaticAssets();
 
 // Map SEO endpoints
 app.MapSitemapEndpoints();

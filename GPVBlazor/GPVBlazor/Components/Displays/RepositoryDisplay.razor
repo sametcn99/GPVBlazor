@@ -10,15 +10,15 @@
                     <span class="repo-category">@Title</span>
                 }
                 <h4 class="repo-name">
-                    <a href="@repository.HtmlUrl" target="_blank" rel="noopener">@repository.Name</a>
+                    <a href="@repository!.HtmlUrl" target="_blank" rel="noopener">@repository!.Name</a>
                 </h4>
             </div>
             <div class="repo-badges">
                 @if (!string.IsNullOrEmpty(repository.Language))
                 {
-                    <span class="repo-badge language" style="--lang-color: @GetLanguageColor(repository.Language)">
+                    <span class="repo-badge language" style="--lang-color: @GetLanguageColor(repository!.Language)">
                         <span class="lang-dot"></span>
-                        @repository.Language
+                        @repository!.Language
                     </span>
                 }
                 @if (repository.Archived)
@@ -44,23 +44,23 @@
 
         @if (!string.IsNullOrEmpty(repository?.Description))
         {
-            <p class="repo-description">@repository.Description</p>
+            <p class="repo-description">@repository!.Description</p>
         }
 
         <div class="repo-stats">
             <div class="repo-stat" title="Stars">
                 <i class="fas fa-star"></i>
-                <span>@FormatCount(repository.StargazersCount)</span>
+                <span>@FormatCount(repository!.StargazersCount)</span>
             </div>
             <div class="repo-stat" title="Forks">
                 <i class="fas fa-code-branch"></i>
-                <span>@FormatCount(repository.ForksCount)</span>
+                <span>@FormatCount(repository!.ForksCount)</span>
             </div>
-            @if (repository.OpenIssuesCount > 0)
+            @if (repository!.OpenIssuesCount > 0)
             {
                 <div class="repo-stat" title="Open Issues">
                     <i class="fas fa-exclamation-circle"></i>
-                    <span>@repository.OpenIssuesCount</span>
+                    <span>@repository!.OpenIssuesCount</span>
                 </div>
             }
         </div>
@@ -68,13 +68,13 @@
         @if (ShowActions ?? !IsCompact)
         {
             <div class="repo-actions">
-                <a href="@repository.HtmlUrl" class="repo-action-btn primary" target="_blank" rel="noopener" title="View on GitHub">
+                <a href="@repository!.HtmlUrl" class="repo-action-btn primary" target="_blank" rel="noopener" title="View on GitHub">
                     <i class="fab fa-github"></i>
                     <span>GitHub</span>
                 </a>
-                @if (!string.IsNullOrEmpty(repository.Homepage) && Uri.IsWellFormedUriString(repository.Homepage, UriKind.Absolute))
+                @if (!string.IsNullOrEmpty(repository!.Homepage) && Uri.IsWellFormedUriString(repository!.Homepage, UriKind.Absolute))
                 {
-                    <a href="@repository.Homepage" class="repo-action-btn link" target="_blank" rel="noopener" title="Visit Homepage">
+                    <a href="@repository!.Homepage" class="repo-action-btn link" target="_blank" rel="noopener" title="Visit Homepage">
                         <i class="fas fa-external-link-alt"></i>
                         <span>Homepage</span>
                     </a>
@@ -104,16 +104,16 @@
                     @GetTimeAgo(repository?.PushedAt)
                 </span>
             </div>
-            @if (repository?.Topics != null && repository.Topics.Any())
+            @if (repository?.Topics != null && repository!.Topics.Any())
             {
                 <div class="repo-topics">
-                    @foreach (var topic in repository.Topics.Take(IsCompact ? 3 : 4))
+                    @foreach (var topic in repository!.Topics.Take(IsCompact ? 3 : 4))
                     {
                         <span class="repo-topic">#@topic</span>
                     }
-                    @if (repository.Topics.Count > (IsCompact ? 3 : 4))
+                    @if (repository!.Topics.Count > (IsCompact ? 3 : 4))
                     {
-                        <span class="repo-topic more">+@(repository.Topics.Count - (IsCompact ? 3 : 4))</span>
+                        <span class="repo-topic more">+@(repository!.Topics.Count - (IsCompact ? 3 : 4))</span>
                     }
                 </div>
             }

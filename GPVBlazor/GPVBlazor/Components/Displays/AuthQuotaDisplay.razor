@@ -88,10 +88,9 @@
             }
 
             rateInfo = await AuthService.GetRateLimitAsync(token);
-            if (rateInfo?.Resources?.Core?.Reset != 0)
+            if (rateInfo?.Resources?.Core is { Reset: var reset } && reset != 0)
             {
-                var resetUnix = rateInfo.Resources.Core.Reset;
-                var dt = DateTimeOffset.FromUnixTimeSeconds(resetUnix).ToLocalTime();
+                var dt = DateTimeOffset.FromUnixTimeSeconds(reset).ToLocalTime();
                 resetTime = dt.ToString("g");
             }
         }
