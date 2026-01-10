@@ -4,169 +4,196 @@
 
 @if (UserStats is not null)
 {
-    <div class="box mt-4 mb-5 fade-in-up">
-        <h2 class="title is-3">
-            <span class="icon has-text-primary">
-                <i class="fas fa-chart-bar"></i>
-            </span>
-            <span>Statistics & Insights</span>
-        </h2>
-        <div>
-            <div class="columns is-multiline">
+    <div class="statistics-section box mt-4 mb-5">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span class="section-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </span>
+                <span>Statistics & Insights</span>
+            </h2>
+            <div class="section-tabs">
+                <button class="tab-btn @(activeTab == "overview" ? "active" : "")" @onclick='() => activeTab = "overview"'>
+                    <i class="fas fa-th-large"></i>
+                    <span>Overview</span>
+                </button>
+                <button class="tab-btn @(activeTab == "highlights" ? "active" : "")" @onclick='() => activeTab = "highlights"'>
+                    <i class="fas fa-trophy"></i>
+                    <span>Highlights</span>
+                </button>
+                <button class="tab-btn @(activeTab == "charts" ? "active" : "")" @onclick='() => activeTab = "charts"'>
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Analytics</span>
+                </button>
+            </div>
+        </div>
+
+        @if (activeTab == "overview")
+        {
+            <div class="stats-grid">
                 @if (user != null && user?.CreatedAt != null)
                 {
                     var profileAge = DateTimeOffset.UtcNow.Year - user.CreatedAt.Year;
-                    <div class="column is-4">
-                        <div class="box has-text-primary">
-                            <span class="icon">
-                                <i class="fas fa-birthday-cake"></i>
-                            </span>
-                            <strong>Profile Age:</strong> @profileAge years
+                    var profileMonths = (DateTimeOffset.UtcNow - user.CreatedAt).Days / 30;
+                    <div class="stat-tile accent-purple">
+                        <div class="stat-tile-icon">
+                            <i class="fas fa-birthday-cake"></i>
+                        </div>
+                        <div class="stat-tile-content">
+                            <span class="stat-tile-value">@profileAge</span>
+                            <span class="stat-tile-label">Years on GitHub</span>
+                            <span class="stat-tile-sub">~@profileMonths months total</span>
                         </div>
                     </div>
                 }
-                <div class="column is-4">
-                    <div class="box has-text-info">
-                        <span class="icon">
-                            <i class="fas fa-code-branch"></i>
-                        </span>
-                        <strong>Public Repositories:</strong> @UserStats.TotalRepositories
+                <div class="stat-tile accent-blue">
+                    <div class="stat-tile-icon">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <div class="stat-tile-content">
+                        <span class="stat-tile-value">@UserStats.TotalRepositories</span>
+                        <span class="stat-tile-label">Public Repos</span>
+                        <span class="stat-tile-sub">@UserStats.TotalArchivedRepositories archived</span>
                     </div>
                 </div>
-                <div class="column is-4">
-                    <div class="box has-text-link">
-                        <span class="icon">
-                            <i class="fas fa-file-code"></i>
-                        </span>
-                        <strong>Public Gists:</strong> @user?.PublicGists
+                <div class="stat-tile accent-yellow">
+                    <div class="stat-tile-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-tile-content">
+                        <span class="stat-tile-value">@FormatNumber(UserStats.TotalStars)</span>
+                        <span class="stat-tile-label">Total Stars</span>
+                        <span class="stat-tile-sub">~@UserStats.AverageStarsPerRepository avg/repo</span>
                     </div>
                 </div>
-                <div class="column is-4">
-                    <div class="box has-text-warning">
-                        <span class="icon">
-                            <i class="fas fa-archive"></i>
-                        </span>
-                        <strong>Archived Repositories:</strong> @UserStats.TotalArchivedRepositories
+                <div class="stat-tile accent-green">
+                    <div class="stat-tile-icon">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <div class="stat-tile-content">
+                        <span class="stat-tile-value">@FormatNumber(UserStats.TotalForks)</span>
+                        <span class="stat-tile-label">Total Forks</span>
+                        <span class="stat-tile-sub">~@UserStats.AverageForksPerRepository avg/repo</span>
                     </div>
                 </div>
-                <div class="column is-4">
-                    <div class="box has-text-success">
-                        <span class="icon">
-                            <i class="fas fa-code"></i>
-                        </span>
-                        <strong>Languages Used:</strong> @UserStats.TotalLanguages
+                <div class="stat-tile accent-cyan">
+                    <div class="stat-tile-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="stat-tile-content">
+                        <span class="stat-tile-value">@UserStats.TotalLanguages</span>
+                        <span class="stat-tile-label">Languages Used</span>
+                        <span class="stat-tile-sub">Across all repositories</span>
                     </div>
                 </div>
-                <div class="column is-4">
-                    <div class="box has-text-danger">
-                        <span class="icon">
-                            <i class="fas fa-star"></i>
-                        </span>
-                        <strong>Total Stars:</strong> @UserStats.TotalStars
+                <div class="stat-tile accent-orange">
+                    <div class="stat-tile-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div class="stat-tile-content">
+                        <span class="stat-tile-value">@UserStats.TotalTopics</span>
+                        <span class="stat-tile-label">Topics Tagged</span>
+                        <span class="stat-tile-sub">Repository categories</span>
                     </div>
                 </div>
-                <div class="column is-4">
-                    <div class="box has-text-primary">
-                        <span class="icon">
-                            <i class="fas fa-tags"></i>
-                        </span>
-                        <strong>Total Topics:</strong> @UserStats.TotalTopics
+                <div class="stat-tile accent-pink">
+                    <div class="stat-tile-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="stat-tile-content">
+                        <span class="stat-tile-value">@user?.PublicGists</span>
+                        <span class="stat-tile-label">Public Gists</span>
+                        <span class="stat-tile-sub">Code snippets</span>
                     </div>
                 </div>
-                <div class="column is-4">
-                    <div class="box has-text-info">
-                        <span class="icon">
-                            <i class="fas fa-code-branch"></i>
-                        </span>
-                        <strong>Total Forks:</strong> @UserStats.TotalForks
+                <div class="stat-tile accent-red">
+                    <div class="stat-tile-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="stat-tile-content">
+                        <span class="stat-tile-value">@UserStats.TotalOpenIssues</span>
+                        <span class="stat-tile-label">Open Issues</span>
+                        <span class="stat-tile-sub">Awaiting resolution</span>
                     </div>
                 </div>
-                <div class="column is-4">
-                    <div class="box has-text-link">
-                        <span class="icon">
-                            <i class="fas fa-book"></i>
-                        </span>
-                        <strong>Readme Files:</strong> @UserStats.TotalReadmes
+                <div class="stat-tile accent-teal">
+                    <div class="stat-tile-icon">
+                        <i class="fas fa-book"></i>
                     </div>
-                </div>
-                <div class="column is-4">
-                    <div class="box has-text-warning">
-                        <span class="icon">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </span>
-                        <strong>Open Issues:</strong> @UserStats.TotalOpenIssues
-                    </div>
-                </div>
-                <div class="column is-4">
-                    <div class="box has-text-success">
-                        <span class="icon">
-                            <i class="fas fa-chart-line"></i>
-                        </span>
-                        <strong>Avg Stars/Repo:</strong> @UserStats.AverageStarsPerRepository
-                    </div>
-                </div>
-                <div class="column is-4">
-                    <div class="box has-text-danger">
-                        <span class="icon">
-                            <i class="fas fa-chart-area"></i>
-                        </span>
-                        <strong>Avg Forks/Repo:</strong> @UserStats.AverageForksPerRepository
+                    <div class="stat-tile-content">
+                        <span class="stat-tile-value">@UserStats.TotalReadmes</span>
+                        <span class="stat-tile-label">README Files</span>
+                        <span class="stat-tile-sub">Documented repos</span>
                     </div>
                 </div>
             </div>
+        }
 
-            <hr class="my-5" />
-
-            <h3 class="title is-4 mb-4">
-                <span class="icon has-text-primary">
-                    <i class="fas fa-trophy"></i>
-                </span>
-                <span>Top Repositories</span>
-            </h3>
-            <div class="columns is-multiline">
-                <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.MostStarred" Title="🌟 Most Starred" Token="@Token" />
-                </div>
-                <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.LatestUpdatedRepository" Title="🔄 Latest Updated" Token="@Token" />
-                </div>
-                <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.LastCreatedRepository" Title="🆕 Recently Created" Token="@Token" />
-                </div>
-                <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.OldestRepository" Title="🏛️ Oldest Repository" Token="@Token" />
-                </div>
-                <div class="column is-6">
-                    <RepositoryDisplay repository="@UserStats.LongestUpdatePeriod" Title="⏱️ Longest Update Period" Token="@Token" />
+        @if (activeTab == "highlights")
+        {
+            <div class="highlights-section">
+                <div class="highlight-grid">
+                    <div class="highlight-card gold">
+                        <div class="highlight-badge">
+                            <i class="fas fa-crown"></i>
+                            <span>Most Starred</span>
+                        </div>
+                        <RepositoryDisplay repository="@UserStats.MostStarred" Token="@Token" IsCompact="true" ShowActions="true" />
+                    </div>
+                    <div class="highlight-card blue">
+                        <div class="highlight-badge">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Latest Updated</span>
+                        </div>
+                        <RepositoryDisplay repository="@UserStats.LatestUpdatedRepository" Token="@Token" IsCompact="true" ShowActions="true" />
+                    </div>
+                    <div class="highlight-card green">
+                        <div class="highlight-badge">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Recently Created</span>
+                        </div>
+                        <RepositoryDisplay repository="@UserStats.LastCreatedRepository" Token="@Token" IsCompact="true" ShowActions="true" />
+                    </div>
+                    <div class="highlight-card purple">
+                        <div class="highlight-badge">
+                            <i class="fas fa-history"></i>
+                            <span>Oldest Repository</span>
+                        </div>
+                        <RepositoryDisplay repository="@UserStats.OldestRepository" Token="@Token" IsCompact="true" ShowActions="true" />
+                    </div>
+                    <div class="highlight-card orange">
+                        <div class="highlight-badge">
+                            <i class="fas fa-clock"></i>
+                            <span>Longest Update Period</span>
+                        </div>
+                        <RepositoryDisplay repository="@UserStats.LongestUpdatePeriod" Token="@Token" IsCompact="true" ShowActions="true" />
+                    </div>
                 </div>
             </div>
+        }
 
-            <hr class="my-5" />
-
-            <h3 class="title is-4 mb-4">
-                <span class="icon has-text-primary">
-                    <i class="fas fa-chart-pie"></i>
-                </span>
-                <span>Visual Analytics</span>
-            </h3>
-            <div class="columns is-multiline">
-                <div class="column is-6">
-                    <ChartDisplay Data="@UserStats.TopTopics" Title="Top Topics" />
-                </div>
-                <div class="column is-6">
-                    <ChartDisplay Data="@UserStats.StarsPerRepository" Title="Stars per Repository" />
-                </div>
-                <div class="column is-6">
-                    <ChartDisplay Data="@UserStats.UsedLanguages" Title="Top Used Languages" />
-                </div>
-                <div class="column is-6">
-                    <ChartDisplay Data="@UserStats.UsedLicenses" Title="Top Used Licenses" />
-                </div>
-                <div class="column is-12">
-                    <ChartDisplay Data="@UserStats.RepositoriesByYear" Title="Repositories by Year" />
+        @if (activeTab == "charts")
+        {
+            <div class="charts-section">
+                <div class="charts-grid">
+                    <div class="chart-wrapper">
+                        <ChartDisplay Data="@UserStats.TopTopics" Title="Top Topics" InitialChartType="ChartDisplay.ChartTypes.doughnut" />
+                    </div>
+                    <div class="chart-wrapper">
+                        <ChartDisplay Data="@UserStats.StarsPerRepository" Title="Stars per Repository" InitialChartType="ChartDisplay.ChartTypes.bar" />
+                    </div>
+                    <div class="chart-wrapper">
+                        <ChartDisplay Data="@UserStats.UsedLanguages" Title="Top Languages" InitialChartType="ChartDisplay.ChartTypes.pie" />
+                    </div>
+                    <div class="chart-wrapper">
+                        <ChartDisplay Data="@UserStats.UsedLicenses" Title="License Distribution" InitialChartType="ChartDisplay.ChartTypes.doughnut" />
+                    </div>
+                    <div class="chart-wrapper full-width">
+                        <ChartDisplay Data="@UserStats.RepositoriesByYear" Title="Repository Timeline" InitialChartType="ChartDisplay.ChartTypes.bar" />
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
 }
 
@@ -176,4 +203,15 @@
     [Parameter] public List<Repository>? Repositories { get; set; }
     [Parameter] public User? user { get; set; }
     [Parameter] public string? Token { get; set; }
+
+    private string activeTab = "overview";
+
+    private string FormatNumber(int number)
+    {
+        if (number >= 1000000)
+            return $"{number / 1000000.0:F1}M";
+        if (number >= 1000)
+            return $"{number / 1000.0:F1}K";
+        return number.ToString();
+    }
 }

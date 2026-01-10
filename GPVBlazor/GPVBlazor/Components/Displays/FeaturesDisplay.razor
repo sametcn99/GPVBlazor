@@ -1,31 +1,32 @@
 ﻿<section class="section" id="features">
     <div class="container">
         <div class="has-text-centered mb-6">
-            <h2 class="title is-2 has-text-weight-bold">
-                <span class="icon is-large">
+            <h2 class="title is-3 has-text-weight-bold">
+                <span class="icon has-text-warning mr-2">
                     <i class="fas fa-star"></i>
                 </span>
-                <span>Features</span>
+                Features
             </h2>
-            <p class="subtitle is-5 has-text-grey">Powerful tools to explore GitHub profiles</p>
+            <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
+                Comprehensive tools designed for developers to explore and analyze GitHub profiles efficiently
+            </p>
         </div>
         <div class="columns is-multiline">
             @foreach (var feature in featureTexts)
             {
-                <div class="column is-one-third">
-                    <div class="card fade-in-up" style="height:100%;">
-                        <div class="card-content">
-                            <div class="media mb-3">
-                                <div class="media-left">
-                                    <span class="icon is-large has-text-primary">
-                                        <i class="@feature.Icon fa-2x"></i>
-                                    </span>
-                                </div>
+                <div class="column is-6-tablet is-4-desktop">
+                    <div class="box" style="height: 100%;">
+                        <div class="is-flex is-align-items-start mb-4">
+                            <span class="icon is-medium has-text-@feature.Color mr-3" style="flex-shrink: 0;">
+                                <i class="@feature.Icon fa-lg"></i>
+                            </span>
+                            <div>
+                                <h3 class="title is-5 mb-1">@feature.Header</h3>
+                                <span class="tag is-dark is-small">@feature.Category</span>
                             </div>
-                            <div class="content">
-                                <h3 class="title is-4">@feature.Header</h3>
-                                <p class="has-text-grey">@feature.Span</p>
-                            </div>
+                        </div>
+                        <div class="content">
+                            <p class="has-text-grey-light is-size-6">@feature.Span</p>
                         </div>
                     </div>
                 </div>
@@ -39,39 +40,75 @@
     {
         new FeatureText
         {
-            Icon = "fas fa-compass",
-            Header = "Effortless Navigation",
-            Span = "Github Profile Viewer ensures effortless navigation through GitHub profiles. Whether you're a seasoned open-source enthusiast or a curious observer, the user-friendly interface simplifies the exploration process."
+            Icon = "fas fa-search",
+            Header = "User Search",
+            Span = "Quickly search and find any GitHub user by their username. The real-time search feature provides instant results with user avatars and profile links.",
+            Color = "primary",
+            Category = "Search"
         },
         new FeatureText
         {
             Icon = "fas fa-code-branch",
-            Header = "Detailed Repository Insights",
-            Span = "Gain in-depth insights into repositories, including names and descriptions. Explore the coding projects that define a developer's journey, all presented in a clear and organized manner."
-        },
-        new FeatureText
-        {
-            Icon = "fas fa-users",
-            Header = "Explore Connections",
-            Span = "Efficiently explore a user's network by checking their followers and those they follow. Identify key contributors in the open-source community and broaden your connections effortlessly."
+            Header = "Repository Explorer",
+            Span = "Browse through all public repositories with detailed information including stars, forks, language, and descriptions. Filter and sort repositories by various criteria.",
+            Color = "info",
+            Category = "Repositories"
         },
         new FeatureText
         {
             Icon = "fas fa-chart-line",
-            Header = "Star History",
-            Span = "While not offering a detailed commit history, Github Profile Viewer showcases the star history of repositories. Understand which projects have garnered attention and appreciation, providing insights into a developer's impact on the GitHub community."
+            Header = "Star History Charts",
+            Span = "Visualize the growth of repository stars over time with interactive charts. Understand how a project's popularity has evolved since its creation.",
+            Color = "warning",
+            Category = "Analytics"
         },
         new FeatureText
         {
-            Icon = "fas fa-bolt",
-            Header = "Built with .NET & Blazor",
-            Span = "Github Profile Viewer is built with .NET 8 and Blazor, ensuring a seamless and performant user experience. The powerful combination of these technologies guarantees a robust and reliable platform."
+            Icon = "fas fa-users",
+            Header = "Network Analysis",
+            Span = "Explore a user's network by viewing their followers and following lists. Identify connections and key contributors in the open-source community.",
+            Color = "success",
+            Category = "Network"
+        },
+        new FeatureText
+        {
+            Icon = "fas fa-file-code",
+            Header = "Gist Viewer",
+            Span = "Access and browse user's gists with syntax highlighting. View code snippets, notes, and shared files directly from the profile page.",
+            Color = "link",
+            Category = "Gists"
+        },
+        new FeatureText
+        {
+            Icon = "fas fa-book-open",
+            Header = "README Preview",
+            Span = "Read repository README files without leaving the application. Properly rendered markdown content helps you understand projects quickly.",
+            Color = "primary",
+            Category = "Documentation"
+        },
+        new FeatureText
+        {
+            Icon = "fas fa-chart-bar",
+            Header = "Profile Statistics",
+            Span = "View comprehensive profile statistics including total stars received, total forks, primary languages, and contribution metrics.",
+            Color = "info",
+            Category = "Statistics"
+        },
+        new FeatureText
+        {
+            Icon = "fas fa-filter",
+            Header = "Advanced Filtering",
+            Span = "Filter repositories by language, sort by stars or date, and search within a user's repositories to find exactly what you're looking for.",
+            Color = "warning",
+            Category = "Filtering"
         },
         new FeatureText
         {
             Icon = "fas fa-mobile-alt",
             Header = "Responsive Design",
-            Span = "The integration of Bulma CSS guarantees a responsive design, allowing you to explore GitHub profiles across various devices. Whether on desktop or mobile, the experience remains smooth and consistent."
+            Span = "Fully responsive interface that works seamlessly across desktop, tablet, and mobile devices. Explore GitHub profiles anywhere, anytime.",
+            Color = "success",
+            Category = "Design"
         }
     };
 
@@ -80,5 +117,7 @@
         public string Icon { get; set; } = "";
         public string Header { get; set; } = "";
         public string Span { get; set; } = "";
+        public string Color { get; set; } = "primary";
+        public string Category { get; set; } = "";
     }
 }

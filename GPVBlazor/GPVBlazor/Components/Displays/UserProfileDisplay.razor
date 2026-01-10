@@ -3,163 +3,151 @@
 @inject Services.Interfaces.IContactService ContactService
 
 @if (UserProfile is null) { return; }
-<div class="box mb-5 fade-in-up">
-    <div class="media">
-        <figure class="media-left">
-            <p class="image is-128x128">
-                <img src="@UserProfile.AvatarUrl" alt="Avatar" class="is-rounded"
-                    style="object-fit: cover; width: 128px; height: 128px; border: 3px solid var(--accent-color);" />
-            </p>
-        </figure>
-        <div class="media-content">
-            <div class="content">
-                <h1 class="title is-2 mb-2">@UserProfile.Name</h1>
-                <p class="subtitle is-5 mb-3">
-                    <a href="https://github.com/@UserProfile.Login" target="_blank" class="has-text-primary">
-                        <span class="icon">
-                            <i class="fab fa-github"></i>
-                        </span>
-                        <strong>@@@UserProfile.Login</strong>
-                    </a>
-                </p>
-                @if (!string.IsNullOrEmpty(UserProfile.Bio))
+<div class="profile-hero-card box mb-5">
+    <div class="profile-header">
+        <div class="profile-avatar-section">
+            <figure class="profile-avatar">
+                <img src="@UserProfile.AvatarUrl" alt="@UserProfile.Name's avatar" />
+                @if (UserProfile.Hireable == true)
                 {
-                    <p class="is-size-6 mb-3">
-                        <span class="icon">
-                            <i class="fas fa-quote-left"></i>
-                        </span>
-                        @UserProfile.Bio
-                    </p>
+                    <span class="hireable-badge" title="Available for hire">
+                        <i class="fas fa-briefcase"></i>
+                    </span>
                 }
-
-                <div class="columns is-multiline is-mobile">
-                    @if (!string.IsNullOrEmpty(UserProfile.Email))
-                    {
-                        <div class="column is-half">
-                            <span class="icon-text">
-                                <span class="icon has-text-primary">
-                                    <i class="fas fa-envelope"></i>
-                                </span>
-                                <span><a href="mailto:@UserProfile.Email">@UserProfile.Email</a></span>
-                            </span>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(UserProfile.Location))
-                    {
-                        <div class="column is-half">
-                            <span class="icon-text">
-                                <span class="icon has-text-primary">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </span>
-                                <span>@UserProfile.Location</span>
-                            </span>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(UserProfile.Company))
-                    {
-                        <div class="column is-half">
-                            <span class="icon-text">
-                                <span class="icon has-text-primary">
-                                    <i class="fas fa-building"></i>
-                                </span>
-                                <span>@UserProfile.Company</span>
-                            </span>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(UserProfile.Blog))
-                    {
-                        <div class="column is-half">
-                            <span class="icon-text">
-                                <span class="icon has-text-primary">
-                                    <i class="fas fa-link"></i>
-                                </span>
-                                <span>
-                                    <a href="@(UserProfile.Blog.StartsWith("http") ? UserProfile.Blog : $"https://{UserProfile.Blog}")"
-                                        target="_blank">
-                                        @UserProfile.Blog
-                                    </a>
-                                </span>
-                            </span>
-                        </div>
-                    }
+            </figure>
+            <div class="profile-quick-stats is-hidden-tablet">
+                <div class="quick-stat">
+                    <span class="stat-value">@UserProfile.PublicRepos</span>
+                    <span class="stat-label">Repos</span>
                 </div>
+                <div class="quick-stat">
+                    <span class="stat-value">@UserProfile.Followers</span>
+                    <span class="stat-label">Followers</span>
+                </div>
+                <div class="quick-stat">
+                    <span class="stat-value">@UserProfile.Following</span>
+                    <span class="stat-label">Following</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-info">
+            <div class="profile-name-section">
+                <h1 class="profile-name">@(UserProfile.Name ?? UserProfile.Login)</h1>
+                <a href="https://github.com/@UserProfile.Login" target="_blank" rel="noopener" class="profile-username">
+                    <i class="fab fa-github"></i>
+                    <span>@@@UserProfile.Login</span>
+                    <i class="fas fa-external-link-alt fa-xs"></i>
+                </a>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(UserProfile.Bio))
+            {
+                <p class="profile-bio">
+                    <i class="fas fa-quote-left fa-sm"></i>
+                    @UserProfile.Bio
+                </p>
+            }
 
-                <div class="columns is-mobile is-multiline mt-3">
-                    <div class="column is-narrow">
-                        <div class="tags has-addons">
-                            <span class="tag is-dark">
-                                <span class="icon">
-                                    <i class="fas fa-code-branch"></i>
-                                </span>
-                            </span>
-                            <span class="tag is-primary">@UserProfile.PublicRepos Repos</span>
-                        </div>
+            <div class="profile-details">
+                @if (!string.IsNullOrEmpty(UserProfile.Company))
+                {
+                    <div class="profile-detail-item">
+                        <i class="fas fa-building"></i>
+                        <span>@UserProfile.Company</span>
                     </div>
-                    <div class="column is-narrow">
-                        <div class="tags has-addons">
-                            <span class="tag is-dark">
-                                <span class="icon">
-                                    <i class="fas fa-file-code"></i>
-                                </span>
-                            </span>
-                            <span class="tag is-info">@UserProfile.PublicGists Gists</span>
-                        </div>
+                }
+                @if (!string.IsNullOrEmpty(UserProfile.Location))
+                {
+                    <div class="profile-detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>@UserProfile.Location</span>
                     </div>
-                    <div class="column is-narrow">
-                        <div class="tags has-addons">
-                            <span class="tag is-dark">
-                                <span class="icon">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </span>
-                            </span>
-                            <span class="tag">Joined @UserProfile.CreatedAt.ToString("MMM yyyy")</span>
-                        </div>
+                }
+                @if (!string.IsNullOrEmpty(UserProfile.Email))
+                {
+                    <div class="profile-detail-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:@UserProfile.Email">@UserProfile.Email</a>
                     </div>
+                }
+                @if (!string.IsNullOrEmpty(UserProfile.Blog))
+                {
+                    <div class="profile-detail-item">
+                        <i class="fas fa-globe"></i>
+                        <a href="@(UserProfile.Blog.StartsWith("http") ? UserProfile.Blog : $"https://{UserProfile.Blog}")" target="_blank" rel="noopener">
+                            @TruncateUrl(UserProfile.Blog)
+                        </a>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(UserProfile.TwitterUsername))
+                {
+                    <div class="profile-detail-item">
+                        <i class="fab fa-twitter"></i>
+                        <a href="https://twitter.com/@UserProfile.TwitterUsername" target="_blank" rel="noopener">@@@UserProfile.TwitterUsername</a>
+                    </div>
+                }
+                <div class="profile-detail-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Joined @UserProfile.CreatedAt.ToString("MMMM yyyy")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-stats-section is-hidden-mobile">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">@UserProfile.PublicRepos</span>
+                    <span class="stat-text">Repositories</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-file-code"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">@UserProfile.PublicGists</span>
+                    <span class="stat-text">Gists</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="mt-4">
-        <div class="buttons">
-            <button class="button is-primary is-rounded" @onclick="FetchAndShowFollowersModal"
-                disabled="@isLoadingFollowers">
-                <span class="icon">
-                    @if (isLoadingFollowers)
-                    {
-                        <i class="fas fa-spinner fa-pulse"></i>
-                    }
-                    else
-                    {
-                        <i class="fas fa-user-friends"></i>
-                    }
-                </span>
-                <span>@(isLoadingFollowers ? "Loading..." : "Followers")</span>
-                @if (!isLoadingFollowers)
-                {
-                    <span class="tag is-light ml-2">@UserProfile.Followers</span>
-                }
-            </button>
-            <button class="button is-info is-rounded" @onclick="FetchAndShowFollowingModal"
-                disabled="@isLoadingFollowing">
-                <span class="icon">
-                    @if (isLoadingFollowing)
-                    {
-                        <i class="fas fa-spinner fa-pulse"></i>
-                    }
-                    else
-                    {
-                        <i class="fas fa-users"></i>
-                    }
-                </span>
-                <span>@(isLoadingFollowing ? "Loading..." : "Following")</span>
-                @if (!isLoadingFollowing)
-                {
-                    <span class="tag is-light ml-2">@UserProfile.Following</span>
-                }
-            </button>
-        </div>
-    </footer>
+    <div class="profile-actions">
+        <button class="profile-action-btn followers-btn" @onclick="FetchAndShowFollowersModal" disabled="@isLoadingFollowers">
+            @if (isLoadingFollowers)
+            {
+                <i class="fas fa-spinner fa-pulse"></i>
+                <span>Loading...</span>
+            }
+            else
+            {
+                <i class="fas fa-user-friends"></i>
+                <span>Followers</span>
+                <span class="action-count">@FormatCount(UserProfile.Followers)</span>
+            }
+        </button>
+        <button class="profile-action-btn following-btn" @onclick="FetchAndShowFollowingModal" disabled="@isLoadingFollowing">
+            @if (isLoadingFollowing)
+            {
+                <i class="fas fa-spinner fa-pulse"></i>
+                <span>Loading...</span>
+            }
+            else
+            {
+                <i class="fas fa-users"></i>
+                <span>Following</span>
+                <span class="action-count">@FormatCount(UserProfile.Following)</span>
+            }
+        </button>
+        <a href="https://github.com/@UserProfile.Login" target="_blank" rel="noopener" class="profile-action-btn github-btn">
+            <i class="fab fa-github"></i>
+            <span>View on GitHub</span>
+        </a>
+    </div>
 </div>
 
 
@@ -186,6 +174,21 @@ else if (showFollowingModal is true)
     private bool showFollowingModal = false;
     private bool isLoadingFollowing = false;
 
+    private string FormatCount(int count)
+    {
+        if (count >= 1000000)
+            return $"{count / 1000000.0:F1}M";
+        if (count >= 1000)
+            return $"{count / 1000.0:F1}K";
+        return count.ToString();
+    }
+
+    private string TruncateUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return url;
+        var cleanUrl = url.Replace("https://", "").Replace("http://", "").TrimEnd('/');
+        return cleanUrl.Length > 30 ? cleanUrl.Substring(0, 27) + "..." : cleanUrl;
+    }
 
     private async Task FetchAndShowFollowersModal()
     {

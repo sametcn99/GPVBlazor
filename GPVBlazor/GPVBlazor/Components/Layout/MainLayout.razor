@@ -1,66 +1,128 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components
 
-<article class="content">
+<div class="is-flex is-flex-direction-column" style="min-height: 100vh;">
     <GPVBlazor.Components.Displays.NavbarDisplay />
-    @Body
-</article>
+    
+    <main style="flex: 1;">
+        @Body
+    </main>
 
-<footer class="footer">
-    <div class="container">
-        <div class="has-text-centered">
+    <footer class="footer mt-auto">
+        <div class="container">
             <div class="columns">
-                <div class="column">
-                    <h3 class="title is-5">
-                        <span class="icon">
-                            <i class="fab fa-github"></i>
+                <!-- Brand Column -->
+                <div class="column is-4">
+                    <div class="is-flex is-align-items-center mb-3">
+                        <span class="icon is-medium has-text-primary mr-2">
+                            <i class="fab fa-github fa-lg"></i>
                         </span>
-                        <span>GitHub Profile Viewer</span>
-                    </h3>
-                    <p class="subtitle is-6">
-                        Explore GitHub profiles with comprehensive insights
+                        <span class="title is-5 mb-0">GitHub Profile Viewer</span>
+                    </div>
+                    <p class="is-size-6 has-text-grey mb-4" style="max-width: 300px;">
+                        A comprehensive tool for exploring GitHub profiles, repositories, and developer statistics.
                     </p>
-                </div>
-                <div class="column">
-                    <p class="title is-6">Quick Links</p>
-                    <p>
-                        <a href="/" class="has-text-grey-light">
-                            <span class="icon is-small">
-                                <i class="fas fa-home"></i>
-                            </span>
-                            Home
-                        </a>
-                    </p>
-                    <p>
-                        <a href="https://sametcc.me/repo/GPVBlazor" target="_blank" class="has-text-grey-light">
-                            <span class="icon is-small">
-                                <i class="fab fa-github"></i>
-                            </span>
-                            Source Code
-                        </a>
-                    </p>
-                </div>
-                <div class="column">
-                    <p class="title is-6">Built With</p>
-                    <div class="tags are-medium justify-content-center">
-                        <span class="tag is-primary">
-                            <span class="icon">
-                                <i class="fas fa-bolt"></i>
-                            </span>
+                    <div class="is-flex is-align-items-center">
+                        <span class="tag is-dark mr-2">
+                            <span class="icon is-small"><i class="fas fa-code"></i></span>
+                            <span>Open Source</span>
+                        </span>
+                        <span class="tag is-dark">
+                            <span class="icon is-small"><i class="fas fa-bolt"></i></span>
                             <span>Blazor</span>
-                        </span>
-                        <span class="tag is-info">
-                            <span class="icon">
-                                <i class="fab fa-css3-alt"></i>
-                            </span>
-                            <span>Bulma</span>
                         </span>
                     </div>
                 </div>
+
+                <!-- Quick Links Column -->
+                <div class="column is-4">
+                    <p class="title is-6 has-text-grey-light mb-3">Quick Links</p>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li class="mb-2">
+                            <a href="/" class="is-flex is-align-items-center">
+                                <span class="icon is-small has-text-grey mr-2">
+                                    <i class="fas fa-home"></i>
+                                </span>
+                                <span>Home</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="/#features" class="is-flex is-align-items-center">
+                                <span class="icon is-small has-text-grey mr-2">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                                <span>Features</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="https://sametcc.me/repo/GPVBlazor" target="_blank" class="is-flex is-align-items-center">
+                                <span class="icon is-small has-text-grey mr-2">
+                                    <i class="fab fa-github"></i>
+                                </span>
+                                <span>Source Code</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://docs.github.com/en/rest" target="_blank" class="is-flex is-align-items-center">
+                                <span class="icon is-small has-text-grey mr-2">
+                                    <i class="fas fa-book"></i>
+                                </span>
+                                <span>GitHub API Docs</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Resources Column -->
+                <div class="column is-4">
+                    <p class="title is-6 has-text-grey-light mb-3">Resources</p>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li class="mb-2">
+                            <a href="https://github.com/settings/tokens" target="_blank" class="is-flex is-align-items-center">
+                                <span class="icon is-small has-text-grey mr-2">
+                                    <i class="fas fa-key"></i>
+                                </span>
+                                <span>Generate Token</span>
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank" class="is-flex is-align-items-center">
+                                <span class="icon is-small has-text-grey mr-2">
+                                    <i class="fas fa-shield-alt"></i>
+                                </span>
+                                <span>Token Security</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://sametcc.me" target="_blank" class="is-flex is-align-items-center">
+                                <span class="icon is-small has-text-grey mr-2">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <span>Developer</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="pt-4 mt-4" style="border-top: 1px solid var(--border-color);">
+                <div class="is-flex is-justify-content-space-between is-align-items-center is-flex-wrap-wrap">
+                    <p class="is-size-7 has-text-grey">
+                        © @DateTime.Now.Year GitHub Profile Viewer. Not affiliated with GitHub, Inc.
+                    </p>
+                    <p class="is-size-7 has-text-grey">
+                        Made with 
+                        <span class="icon is-small has-text-danger mx-1">
+                            <i class="fas fa-heart"></i>
+                        </span>
+                        using .NET and Blazor
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-</footer>
+    </footer>
+</div>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

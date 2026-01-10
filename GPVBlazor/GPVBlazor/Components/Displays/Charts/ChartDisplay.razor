@@ -2,22 +2,47 @@
 @using System.Text.Json
 @inject IJSRuntime JS
 
-<div class="box" style="height: 100%">
-    <div class="is-flex is-justify-content-space-between	">
-        <p class="title">@Title</p>
-        <div class="select">
-            <select @onchange="OnChange" value="@ChartType">
+<div class="chart-display-wrapper">
+    <div class="chart-header">
+        <h4 class="chart-title">
+            <span class="chart-icon">
+                <i class="@GetChartIcon()"></i>
+            </span>
+            @Title
+        </h4>
+        <div class="chart-type-selector">
+            <select @onchange="OnChange" value="@ChartType" class="chart-select">
                 @foreach (var chartType in Enum.GetValues(typeof(ChartTypes)))
                 {
-                    <option value="@chartType" selected="@(chartType.Equals(ChartType))">@chartType</option>
+                    <option value="@chartType" selected="@(chartType.Equals(ChartType))">
+                        @GetChartTypeName(chartType.ToString()!)
+                    </option>
                 }
             </select>
         </div>
     </div>
-    <div class="">
-        <canvas id="@_canvasId">
-        </canvas>
+    <div class="chart-container">
+        <canvas id="@_canvasId"></canvas>
     </div>
+    @if (Data != null && Data.Any())
+    {
+        <div class="chart-legend-custom">
+            @foreach (var item in Data.Take(5))
+            {
+                <div class="legend-item">
+                    <span class="legend-color" style="background: @GetItemColor(item.Key)"></span>
+                    <span class="legend-label">@TruncateLabel(item.Key)</span>
+                    <span class="legend-value">@item.Value</span>
+                </div>
+            }
+            @if (Data.Count > 5)
+            {
+                <div class="legend-item more">
+                    <span class="legend-label">+@(Data.Count - 5) more</span>
+                </div>
+            }
+        </div>
+    }
 </div>
 
 @code {
@@ -37,13 +62,13 @@
     private readonly string _canvasId = $"canvas-{Guid.NewGuid()}";
     private IJSObjectReference? _module;
     private ChartModel? _chartModel;
+    private string[]? _backgroundColors;
 
     protected override async Task OnInitializedAsync()
     {
-        // Set initial chart type from parameter or default to pie
         ChartType = InitialChartType ?? ChartTypes.pie;
         
-        var backgroundColors = GenerateRandomColors(Data?.Count ?? 0);
+        _backgroundColors = GenerateConsistentColors(Data?.Count ?? 0);
 
         _chartModel = new ChartModel
         {
@@ -51,8 +76,11 @@
             label = "Count: ",
             type = ChartType.ToString(),
             labels = Data?.Keys.ToArray() ?? Array.Empty<string>(),
-            datasets = new[] { new ChartModel.ChartDataset { label = "Count", data = Data?.Values.ToArray() ?? Array.Empty<int>(),
-backgroundColor = backgroundColors, } }
+            datasets = new[] { new ChartModel.ChartDataset { 
+                label = "Count", 
+                data = Data?.Values.ToArray() ?? Array.Empty<int>(),
+                backgroundColor = _backgroundColors,
+            }}
         };
 
         _module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/ChartDisplay.js");
@@ -60,10 +88,19 @@ backgroundColor = backgroundColors, } }
         await _module.InvokeVoidAsync("PieChart.createPieChart", chartModelJSON);
     }
 
-    private static string[] GenerateRandomColors(int count)
+    private static string[] GenerateConsistentColors(int count)
     {
-        var random = new Random();
-        return Enumerable.Range(0, count).Select(_ => $"#{random.Next(0x1000000):X6}").ToArray();
+        var baseColors = new[]
+        {
+            "#667eea", "#764ba2", "#f093fb", "#f5576c", "#4facfe",
+            "#00f2fe", "#43e97b", "#38f9d7", "#fa709a", "#fee140",
+            "#a8edea", "#fed6e3", "#d299c2", "#fef9d7", "#89f7fe",
+            "#66a6ff", "#89f7fe", "#c471f5", "#fa71cd", "#fdfc47"
+        };
+        
+        return Enumerable.Range(0, count)
+            .Select(i => baseColors[i % baseColors.Length])
+            .ToArray();
     }
 
     private async Task OnChange(ChangeEventArgs e)
@@ -75,5 +112,45 @@ backgroundColor = backgroundColors, } }
             var chartModelJSON = JsonSerializer.Serialize(_chartModel);
             await _module!.InvokeVoidAsync("PieChart.createPieChart", chartModelJSON);
         }
+    }
+
+    private string GetChartIcon()
+    {
+        return ChartType switch
+        {
+            ChartTypes.pie => "fas fa-chart-pie",
+            ChartTypes.doughnut => "fas fa-circle-notch",
+            ChartTypes.bar => "fas fa-chart-bar",
+            ChartTypes.line => "fas fa-chart-line",
+            ChartTypes.polarArea => "fas fa-compass",
+            ChartTypes.radar => "fas fa-spider",
+            _ => "fas fa-chart-pie"
+        };
+    }
+
+    private string GetChartTypeName(string type)
+    {
+        return type switch
+        {
+            "pie" => "Pie Chart",
+            "doughnut" => "Doughnut",
+            "bar" => "Bar Chart",
+            "line" => "Line Chart",
+            "polarArea" => "Polar Area",
+            "radar" => "Radar",
+            _ => type
+        };
+    }
+
+    private string GetItemColor(string key)
+    {
+        if (Data == null || _backgroundColors == null) return "#667eea";
+        var index = Data.Keys.ToList().IndexOf(key);
+        return index >= 0 && index < _backgroundColors.Length ? _backgroundColors[index] : "#667eea";
+    }
+
+    private string TruncateLabel(string label)
+    {
+        return label.Length > 15 ? label.Substring(0, 12) + "..." : label;
     }
 }

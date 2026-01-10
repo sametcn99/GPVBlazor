@@ -2,12 +2,23 @@
 @using GPVBlazor.Models
 @inject Services.Interfaces.IUserService UserService
 
-<button class="button is-primary is-large is-rounded" @onclick="OpenModal">
-    <span class="icon">
-        <i class="fas fa-search"></i>
-    </span>
-    <span>Search GitHub Users</span>
-</button>
+@if (IsNavbarMode)
+{
+    <a class="navbar-item" @onclick="OpenModal" style="cursor: pointer;">
+        <span class="icon has-text-grey-lighter" title="Search Users">
+            <i class="fas fa-search"></i>
+        </span>
+    </a>
+}
+else
+{
+    <button class="button is-primary is-large is-rounded" @onclick="OpenModal">
+        <span class="icon">
+            <i class="fas fa-search"></i>
+        </span>
+        <span>Search GitHub Users</span>
+    </button>
+}
 
 <div class="modal @(isModalActive ? "is-active" : "")">
     <div class="modal-background" @onclick="CloseModal"></div>
@@ -134,4 +145,7 @@
     private void OpenModal() { isModalActive = true; }
 
     private void CloseModal() { isModalActive = false; showResults = false; inputValue = string.Empty; }
+
+    [Parameter]
+    public bool IsNavbarMode { get; set; } = false;
 }

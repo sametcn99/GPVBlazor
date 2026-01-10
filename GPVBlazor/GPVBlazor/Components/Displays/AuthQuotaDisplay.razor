@@ -2,36 +2,70 @@
 @inject IJSRuntime JS
 @inject Services.Interfaces.IAuthService AuthService
 
-<div class="box has-text-left">
-    <h3 class="title is-5">
-        <span class="icon">
-            <i class="fas fa-tachometer-alt"></i>
+<div class="box" style="height: 100%;">
+    <div class="is-flex is-align-items-center mb-4">
+        <span class="icon is-medium has-text-info mr-3">
+            <i class="fas fa-tachometer-alt fa-lg"></i>
         </span>
-        <span>API Usage</span>
-    </h3>
+        <div>
+            <h3 class="title is-5 mb-0">API Rate Limits</h3>
+            <p class="is-size-7 has-text-grey">Monitor your GitHub API usage</p>
+        </div>
+    </div>
 
     @if (loading)
     {
-        <p>Loading...</p>
+        <div class="has-text-centered py-4">
+            <span class="icon has-text-grey">
+                <i class="fas fa-circle-notch fa-spin"></i>
+            </span>
+            <p class="has-text-grey is-size-7 mt-2">Loading rate limit info...</p>
+        </div>
     }
     else if (rateInfo is null)
     {
-        <p class="has-text-grey">No auth token found or failed to fetch rate limit.</p>
+        <div class="notification is-dark is-size-7 py-3 px-4" style="background-color: rgba(139, 148, 158, 0.1); border: 1px solid var(--border-color);">
+            <div class="is-flex is-align-items-center">
+                <span class="icon has-text-grey mr-2">
+                    <i class="fas fa-info-circle"></i>
+                </span>
+                <span>Add an authentication token to view your API rate limits and unlock higher quotas.</span>
+            </div>
+        </div>
     }
     else
     {
-        <div class="columns is-mobile is-multiline">
+        <div class="columns is-mobile is-multiline mb-0">
             <div class="column is-half">
-                <p class="heading">Core Remaining</p>
-                <p class="title is-4">@rateInfo.Resources.Core.Remaining / @rateInfo.Resources.Core.Limit</p>
+                <div class="p-3" style="background-color: rgba(88, 166, 255, 0.05); border-radius: 6px; border: 1px solid var(--border-color);">
+                    <p class="heading has-text-grey mb-1">Core API</p>
+                    <p class="title is-4 mb-0 has-text-primary">@rateInfo.Resources.Core.Remaining</p>
+                    <p class="is-size-7 has-text-grey">of @rateInfo.Resources.Core.Limit requests</p>
+                    <progress class="progress is-small is-primary mt-2" 
+                              value="@rateInfo.Resources.Core.Remaining" 
+                              max="@rateInfo.Resources.Core.Limit">
+                    </progress>
+                </div>
             </div>
             <div class="column is-half">
-                <p class="heading">Search Remaining</p>
-                <p class="title is-4">@rateInfo.Resources.Search.Remaining / @rateInfo.Resources.Search.Limit</p>
+                <div class="p-3" style="background-color: rgba(63, 185, 80, 0.05); border-radius: 6px; border: 1px solid var(--border-color);">
+                    <p class="heading has-text-grey mb-1">Search API</p>
+                    <p class="title is-4 mb-0 has-text-success">@rateInfo.Resources.Search.Remaining</p>
+                    <p class="is-size-7 has-text-grey">of @rateInfo.Resources.Search.Limit requests</p>
+                    <progress class="progress is-small is-success mt-2" 
+                              value="@rateInfo.Resources.Search.Remaining" 
+                              max="@rateInfo.Resources.Search.Limit">
+                    </progress>
+                </div>
             </div>
-            <div class="column is-full">
-                <p class="is-size-7 has-text-grey">Reset: @resetTime</p>
-            </div>
+        </div>
+        <div class="is-flex is-align-items-center mt-3 pt-3" style="border-top: 1px solid var(--border-color);">
+            <span class="icon is-small has-text-grey mr-2">
+                <i class="fas fa-clock"></i>
+            </span>
+            <p class="is-size-7 has-text-grey">
+                Resets at: <strong class="has-text-grey-light">@resetTime</strong>
+            </p>
         </div>
     }
 </div>

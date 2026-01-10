@@ -2,141 +2,128 @@
 
 @if (repository is not null)
 {
-    <div class="box is-flex is-flex-direction-column is-justify-content-space-between" style="height: 100%">
-        <div>
-           @if(!string.IsNullOrEmpty(Title))
-            {
-                <p class="title is-5 has-text-primary mb-3">@Title</p>
-            }
-            <div class="mb-3">
-                <h4 class="title is-4 mb-2">
-                    @repository.Name
+    <div class="repo-card @(IsCompact ? "compact" : "")">
+        <div class="repo-card-header">
+            <div class="repo-title-section">
+                @if(!string.IsNullOrEmpty(Title))
+                {
+                    <span class="repo-category">@Title</span>
+                }
+                <h4 class="repo-name">
+                    <a href="@repository.HtmlUrl" target="_blank" rel="noopener">@repository.Name</a>
                 </h4>
-                <div class="tags">
-                    @if (!string.IsNullOrEmpty(repository.Language))
-                    {
-                        <span class="tag is-primary">
-                            <span class="icon">
-                                <i class="fas fa-code"></i>
-                            </span>
-                            <span>@repository.Language</span>
-                        </span>
-                    }
-                    @if (repository.Archived)
-                    {
-                        <span class="tag is-warning">
-                            <span class="icon">
-                                <i class="fas fa-archive"></i>
-                            </span>
-                            <span>Archived</span>
-                        </span>
-                    }
-                    @if (repository.IsTemplate)
-                    {
-                        <span class="tag is-info">
-                            <span class="icon">
-                                <i class="fas fa-copy"></i>
-                            </span>
-                            <span>Template</span>
-                        </span>
-                    }
-                    @if (repository.Fork)
-                    {
-                        <span class="tag is-link">
-                            <span class="icon">
-                                <i class="fas fa-code-branch"></i>
-                            </span>
-                            <span>Forked</span>
-                        </span>
-                    }
-                </div>
             </div>
-            <div class="buttons are-small mb-3">
+            <div class="repo-badges">
+                @if (!string.IsNullOrEmpty(repository.Language))
+                {
+                    <span class="repo-badge language" style="--lang-color: @GetLanguageColor(repository.Language)">
+                        <span class="lang-dot"></span>
+                        @repository.Language
+                    </span>
+                }
+                @if (repository.Archived)
+                {
+                    <span class="repo-badge archived" title="Archived">
+                        <i class="fas fa-archive"></i>
+                    </span>
+                }
+                @if (repository.IsTemplate)
+                {
+                    <span class="repo-badge template" title="Template">
+                        <i class="fas fa-copy"></i>
+                    </span>
+                }
+                @if (repository.Fork)
+                {
+                    <span class="repo-badge forked" title="Forked">
+                        <i class="fas fa-code-branch"></i>
+                    </span>
+                }
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(repository?.Description))
+        {
+            <p class="repo-description">@repository.Description</p>
+        }
+
+        <div class="repo-stats">
+            <div class="repo-stat" title="Stars">
+                <i class="fas fa-star"></i>
+                <span>@FormatCount(repository.StargazersCount)</span>
+            </div>
+            <div class="repo-stat" title="Forks">
+                <i class="fas fa-code-branch"></i>
+                <span>@FormatCount(repository.ForksCount)</span>
+            </div>
+            @if (repository.OpenIssuesCount > 0)
+            {
+                <div class="repo-stat" title="Open Issues">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>@repository.OpenIssuesCount</span>
+                </div>
+            }
+        </div>
+
+        @if (ShowActions ?? !IsCompact)
+        {
+            <div class="repo-actions">
+                <a href="@repository.HtmlUrl" class="repo-action-btn primary" target="_blank" rel="noopener" title="View on GitHub">
+                    <i class="fab fa-github"></i>
+                    <span>GitHub</span>
+                </a>
                 @if (!string.IsNullOrEmpty(repository.Homepage) && Uri.IsWellFormedUriString(repository.Homepage, UriKind.Absolute))
                 {
-                    <a href="@repository.Homepage" class="button is-link is-light is-rounded" target="_blank">
-                        <span class="icon">
-                            <i class="fas fa-home"></i>
-                        </span>
+                    <a href="@repository.Homepage" class="repo-action-btn link" target="_blank" rel="noopener" title="Visit Homepage">
+                        <i class="fas fa-external-link-alt"></i>
                         <span>Homepage</span>
                     </a>
                 }
-                <a href="@repository.HtmlUrl" class="button is-primary is-light is-rounded" target="_blank">
-                    <span class="icon">
-                        <i class="fab fa-github"></i>
-                    </span>
-                    <span>GitHub</span>
-                </a>
-                <a href="@repository.CloneUrl" class="button is-info is-light is-rounded" target="_blank">
-                    <span class="icon">
-                        <i class="fas fa-download"></i>
-                    </span>
-                    <span>Clone</span>
-                </a>
-                <button class="button is-warning is-light is-rounded" @onclick="() => ShowStarHistoryModal = true">
-                    <span class="icon">
-                        <i class="fas fa-star"></i>
-                    </span>
-                    <span>@repository.StargazersCount</span>
+                <button class="repo-action-btn star" @onclick="() => ShowStarHistoryModal = true" title="View Star History">
+                    <i class="fas fa-chart-line"></i>
+                    <span>History</span>
                 </button>
                 @if (repository?.Readme?.Content is not null)
                 {
-                    <button class="button is-success is-light is-rounded" @onclick="() => ShowModal = true">
-                        <span class="icon">
-                            <i class="fas fa-book"></i>
-                        </span>
-                        <span>Readme</span>
+                    <button class="repo-action-btn readme" @onclick="() => ShowModal = true" title="View README">
+                        <i class="fas fa-book-open"></i>
+                        <span>README</span>
                     </button>
-                    <ReadmeModal ShowModal="ShowModal" ShowModalChanged="OnReadmeModalChanged" readme="repository?.Readme" />
                 }
-                <StarHistoryModal ShowModal="ShowStarHistoryModal" ShowModalChanged="OnStarHistoryModalChanged" Repository="repository" Token="@Token" />
             </div>
-            @if (!string.IsNullOrEmpty(repository?.Description))
-            {
-                <p class="has-text-grey truncate">@repository.Description</p>
-            }
-        </div>
-        <footer class="mt-3">
-            <div class="level is-mobile">
-                <div class="level-left">
-                    <div class="level-item">
-                        <small class="has-text-grey">
-                            <span class="icon is-small">
-                                <i class="fas fa-calendar-plus"></i>
-                            </span>
-                            @(repository?.CreatedAt?.ToString("MMM dd, yyyy") ?? "N/A")
-                        </small>
-                    </div>
-                </div>
-                <div class="level-right">
-                    <div class="level-item">
-                        <small class="has-text-grey">
-                            <span class="icon is-small">
-                                <i class="fas fa-sync"></i>
-                            </span>
-                            @(repository?.PushedAt?.ToString("MMM dd, yyyy") ?? "N/A")
-                        </small>
-                    </div>
-                </div>
+        }
+
+        <div class="repo-footer">
+            <div class="repo-dates">
+                <span class="repo-date" title="Created">
+                    <i class="fas fa-plus-circle"></i>
+                    @(repository?.CreatedAt?.ToString("MMM yyyy") ?? "N/A")
+                </span>
+                <span class="repo-date" title="Last updated">
+                    <i class="fas fa-sync-alt"></i>
+                    @GetTimeAgo(repository?.PushedAt)
+                </span>
             </div>
             @if (repository?.Topics != null && repository.Topics.Any())
             {
-                <div class="tags are-small mt-2">
-                    @foreach (var topic in repository.Topics.Take(5))
+                <div class="repo-topics">
+                    @foreach (var topic in repository.Topics.Take(IsCompact ? 3 : 4))
                     {
-                        <span class="tag is-dark">
-                            <span class="icon is-small">
-                                <i class="fas fa-hashtag"></i>
-                            </span>
-                            <span>@topic</span>
-                        </span>
+                        <span class="repo-topic">#@topic</span>
                     }
-                    @if (repository.Topics.Count > 5)
+                    @if (repository.Topics.Count > (IsCompact ? 3 : 4))
                     {
-                        <span class="tag">+@(repository.Topics.Count - 5)</span>
+                        <span class="repo-topic more">+@(repository.Topics.Count - (IsCompact ? 3 : 4))</span>
                     }
                 </div>
-            }        </footer>
+            }
+        </div>
+        
+        <StarHistoryModal ShowModal="ShowStarHistoryModal" ShowModalChanged="OnStarHistoryModalChanged" Repository="repository" Token="@Token" />
+        @if (repository?.Readme?.Content is not null)
+        {
+            <ReadmeModal ShowModal="ShowModal" ShowModalChanged="OnReadmeModalChanged" readme="repository?.Readme" />
+        }
     </div>
 }
 
@@ -150,9 +137,64 @@
     [Parameter]
     public String? Token { get; set; }
 
+    [Parameter]
+    public bool IsCompact { get; set; } = false;
+
+    [Parameter]
+    public bool? ShowActions { get; set; }
+
     private bool ShowModal = false;
     private bool ShowStarHistoryModal = false;
     private void showModal() { ShowModal = true; }
     private void OnReadmeModalChanged(bool isVisible) => ShowModal = isVisible;
     private void OnStarHistoryModalChanged(bool isVisible) => ShowStarHistoryModal = isVisible;
+
+    private string FormatCount(int count)
+    {
+        if (count >= 1000000)
+            return $"{count / 1000000.0:F1}M";
+        if (count >= 1000)
+            return $"{count / 1000.0:F1}K";
+        return count.ToString();
+    }
+
+    private string GetTimeAgo(DateTimeOffset? date)
+    {
+        if (date == null) return "N/A";
+        var span = DateTimeOffset.UtcNow - date.Value;
+        if (span.TotalDays < 1) return "Today";
+        if (span.TotalDays < 2) return "Yesterday";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays}d ago";
+        if (span.TotalDays < 30) return $"{(int)(span.TotalDays / 7)}w ago";
+        if (span.TotalDays < 365) return $"{(int)(span.TotalDays / 30)}mo ago";
+        return $"{(int)(span.TotalDays / 365)}y ago";
+    }
+
+    private string GetLanguageColor(string? language)
+    {
+        return language?.ToLower() switch
+        {
+            "javascript" => "#f1e05a",
+            "typescript" => "#3178c6",
+            "python" => "#3572A5",
+            "java" => "#b07219",
+            "c#" => "#178600",
+            "c++" => "#f34b7d",
+            "c" => "#555555",
+            "go" => "#00ADD8",
+            "rust" => "#dea584",
+            "ruby" => "#701516",
+            "php" => "#4F5D95",
+            "swift" => "#F05138",
+            "kotlin" => "#A97BFF",
+            "dart" => "#00B4AB",
+            "html" => "#e34c26",
+            "css" => "#563d7c",
+            "scss" => "#c6538c",
+            "vue" => "#41b883",
+            "shell" => "#89e051",
+            "powershell" => "#012456",
+            _ => "#8b949e"
+        };
+    }
 }
