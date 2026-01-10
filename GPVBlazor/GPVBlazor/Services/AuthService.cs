@@ -1,6 +1,6 @@
-﻿using GPVBlazor.Services.Interfaces;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text.Json;
+using GPVBlazor.Services.Interfaces;
 
 namespace GPVBlazor.Services
 {
@@ -11,6 +11,12 @@ namespace GPVBlazor.Services
 
         public string? CurrentAccessToken { get; private set; }
         public event Action? OnAuthStateChanged;
+
+        private string? ClientId => _configuration["GitHub:ClientId"] ?? _configuration["ClientId"];
+        private string? ClientSecret =>
+            _configuration["GitHub:ClientSecret"] ?? _configuration["ClientSecret"];
+        private string? RedirectUri =>
+            _configuration["GitHub:RedirectUri"] ?? _configuration["RedirectUri"];
 
         public AuthService(HttpClient httpClient, IConfiguration configuration)
         {
@@ -32,37 +38,41 @@ namespace GPVBlazor.Services
 
         public string GetGitHubLoginUrl()
         {
-            var clientId = _configuration["GitHub:ClientId"];
-            var redirectUri = _configuration["GitHub:RedirectUri"];
             // Scopes: public_repo, read:user, user:email, gist as suggested in the modal
             var scopes = "public_repo,read:user,user:email,gist";
-            
-            return $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirectUri}&scope={scopes}";
+
+            return $"https://github.com/login/oauth/authorize?client_id={ClientId}&redirect_uri={RedirectUri}&scope={scopes}";
         }
 
         public async Task<string?> GetAccessTokenFromCodeAsync(string code)
         {
-            var tokenReq = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
+            var tokenReq = new HttpRequestMessage(
+                HttpMethod.Post,
+                "https://github.com/login/oauth/access_token"
+            );
             tokenReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            
+
             var parameters = new Dictionary<string, string>
             {
-                { "client_id", _configuration["GitHub:ClientId"] ?? "" },
-                { "client_secret", _configuration["GitHub:ClientSecret"] ?? "" },
+                { "client_id", ClientId ?? "" },
+                { "client_secret", ClientSecret ?? "" },
                 { "code", code },
-                { "redirect_uri", _configuration["GitHub:RedirectUri"] ?? "" }
+                { "redirect_uri", RedirectUri ?? "" },
             };
 
             tokenReq.Content = new FormUrlEncodedContent(parameters);
 
-            try 
+            try
             {
                 var response = await _httpClient.SendAsync(tokenReq);
-                if (!response.IsSuccessStatusCode) return null;
+                if (!response.IsSuccessStatusCode)
+                    return null;
 
                 using var stream = await response.Content.ReadAsStreamAsync();
-                var tokenResponse = await JsonSerializer.DeserializeAsync<OAuthTokenResponse>(stream);
-                
+                var tokenResponse = await JsonSerializer.DeserializeAsync<OAuthTokenResponse>(
+                    stream
+                );
+
                 return tokenResponse?.AccessToken;
             }
             catch
@@ -73,7 +83,10 @@ namespace GPVBlazor.Services
 
         public async Task<bool> IsTokenValidAsync(string token)
         {
-            var rateReq = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/rate_limit");
+            var rateReq = new HttpRequestMessage(
+                HttpMethod.Get,
+                "https://api.github.com/rate_limit"
+            );
             rateReq.Headers.Add("User-Agent", "BlazorApp");
             if (token is not null)
             {
@@ -86,7 +99,10 @@ namespace GPVBlazor.Services
 
         public async Task<Models.RateLimitInfo?> GetRateLimitAsync(string? token)
         {
-            var rateReq = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/rate_limit");
+            var rateReq = new HttpRequestMessage(
+                HttpMethod.Get,
+                "https://api.github.com/rate_limit"
+            );
             rateReq.Headers.Add("User-Agent", "BlazorApp");
             if (!string.IsNullOrWhiteSpace(token))
             {
@@ -94,17 +110,22 @@ namespace GPVBlazor.Services
             }
 
             var response = await _httpClient.SendAsync(rateReq);
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+                return null;
 
             using var stream = await response.Content.ReadAsStreamAsync();
             var options = new System.Text.Json.JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true,
             };
 
             // GitHub returns an object with 'resources' property containing core/search
-            var root = await System.Text.Json.JsonSerializer.DeserializeAsync<RateRoot>(stream, options);
-            if (root?.Resources is null) return null;
+            var root = await System.Text.Json.JsonSerializer.DeserializeAsync<RateRoot>(
+                stream,
+                options
+            );
+            if (root?.Resources is null)
+                return null;
 
             return new Models.RateLimitInfo
             {
@@ -114,15 +135,15 @@ namespace GPVBlazor.Services
                     {
                         Limit = root.Resources.Core.Limit,
                         Remaining = root.Resources.Core.Remaining,
-                        Reset = root.Resources.Core.Reset
+                        Reset = root.Resources.Core.Reset,
                     },
                     Search = new Models.RateResource
                     {
                         Limit = root.Resources.Search.Limit,
                         Remaining = root.Resources.Search.Remaining,
-                        Reset = root.Resources.Search.Reset
-                    }
-                }
+                        Reset = root.Resources.Search.Reset,
+                    },
+                },
             };
         }
 
@@ -130,10 +151,10 @@ namespace GPVBlazor.Services
         {
             [System.Text.Json.Serialization.JsonPropertyName("access_token")]
             public string? AccessToken { get; set; }
-            
+
             [System.Text.Json.Serialization.JsonPropertyName("token_type")]
             public string? TokenType { get; set; }
-            
+
             [System.Text.Json.Serialization.JsonPropertyName("scope")]
             public string? Scope { get; set; }
         }
