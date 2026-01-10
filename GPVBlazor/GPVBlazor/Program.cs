@@ -30,7 +30,7 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disabled for simplified Docker deployment
 
 app.UseStaticFiles();
 app.UseAntiforgery();
