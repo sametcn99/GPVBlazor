@@ -9,10 +9,25 @@ namespace GPVBlazor.Services
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
 
+        public string? CurrentAccessToken { get; private set; }
+        public event Action? OnAuthStateChanged;
+
         public AuthService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _configuration = configuration;
+        }
+
+        public void Login(string token)
+        {
+            CurrentAccessToken = token;
+            OnAuthStateChanged?.Invoke();
+        }
+
+        public void Logout()
+        {
+            CurrentAccessToken = null;
+            OnAuthStateChanged?.Invoke();
         }
 
         public string GetGitHubLoginUrl()

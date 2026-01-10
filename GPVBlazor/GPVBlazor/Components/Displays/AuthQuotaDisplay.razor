@@ -1,4 +1,5 @@
 @rendermode InteractiveServer
+@implements IDisposable
 @inject IJSRuntime JS
 @inject Services.Interfaces.IAuthService AuthService
 
@@ -75,14 +76,55 @@
     private bool loading = true;
     private string resetTime = string.Empty;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        // Read token from localStorage
+        AuthService.OnAuthStateChanged += HandleAuthStateChange;
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnAuthStateChanged -= HandleAuthStateChange;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadRateLimitAsync();
+            StateHasChanged();
+        }
+    }
+
+    private void HandleAuthStateChange()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadRateLimitAsync();
+            StateHasChanged();
+        });
+    }
+
+    private async Task LoadRateLimitAsync()
+    {
         try
         {
-            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+            loading = true;
+            StateHasChanged();
+
+            var token = AuthService.CurrentAccessToken;
+            if (string.IsNullOrEmpty(token))
+            {
+                try 
+                { 
+                    token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken"); 
+                } 
+                catch { /* ignore js errors */ }
+            }
+
             if (string.IsNullOrWhiteSpace(token))
             {
+                rateInfo = null;
+                resetTime = string.Empty;
                 loading = false;
                 return;
             }
@@ -96,7 +138,7 @@
         }
         catch
         {
-            // ignore errors, show null state
+            rateInfo = null;
         }
         finally
         {

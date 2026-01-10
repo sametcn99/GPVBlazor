@@ -1,5 +1,6 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@implements IDisposable
 @inject IJSRuntime JS
 @inject Services.Interfaces.IAuthService AuthService
 @inject NavigationManager NavManager
@@ -43,62 +44,97 @@
                             <i class="fas fa-key fa-lg"></i>
                         </span>
                         <div>
-                            <h2 class="title is-5 mb-0">Authentication Token</h2>
-                            <p class="is-size-7 has-text-grey">Increase your API rate limits</p>
+                            <h2 class="title is-5 mb-0">Authentication Status</h2>
+                            <p class="is-size-7 has-text-grey">Manage your access level</p>
                         </div>
                     </div>
                     <div class="content">
-                        <p class="is-size-6 has-text-grey-light mb-4">
-                            Add your GitHub personal access token to unlock higher API rate limits 
-                            and access private repository information.
-                        </p>
-                        
-                        <div class="field mb-4">
-                            <button class="button is-dark is-fullwidth" @onclick="SignInWithGitHub">
-                                <span class="icon">
-                                    <i class="fab fa-github"></i>
-                                </span>
-                                <span>Sign in with GitHub</span>
-                            </button>
-                        </div>
-
-                        <div class="is-divider" data-content="OR"></div>
-                        <p class="has-text-centered is-size-7 has-text-grey mb-3">- OR -</p>
-
-                        <div class="field">
-                            <label class="label is-small has-text-grey-light">Personal Access Token</label>
-                            <div class="control has-icons-left">
-                                <input @bind="AuthToken" placeholder="ghp_xxxxxxxxxxxx" class="input"
-                                    type="password" @oninput="HandleInputChange" />
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-lock"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <div class="control">
-                                <button class="button is-primary is-fullwidth" @onclick="AddToken">
+                        @if (string.IsNullOrEmpty(AuthService.CurrentAccessToken))
+                        {
+                            <p class="is-size-6 has-text-grey-light mb-4">
+                                Add your GitHub personal access token to unlock higher API rate limits 
+                                and access private repository information.
+                            </p>
+                            
+                            <div class="field mb-4">
+                                <button class="button is-dark is-fullwidth" @onclick="SignInWithGitHub">
                                     <span class="icon">
-                                        <i class="fas fa-plus-circle"></i>
+                                        <i class="fab fa-github"></i>
                                     </span>
-                                    <span>Save Token</span>
+                                    <span>Sign in with GitHub</span>
                                 </button>
                             </div>
-                        </div>
-                        <div class="notification is-dark is-size-7 py-2 px-3 mt-3" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--border-color);">
-                            <span class="icon is-small has-text-info">
-                                <i class="fas fa-shield-alt"></i>
-                            </span>
-                            <span>Your token is stored locally in your browser and never sent to our servers.</span>
-                        </div>
-                        <div class="has-text-centered mt-3">
-                            <a class="is-size-7 has-text-primary" @onclick="OpenPATModal" style="cursor: pointer;">
-                                <span class="icon is-small">
-                                    <i class="fas fa-question-circle"></i>
+
+                            <div class="is-divider" data-content="OR"></div>
+                            <p class="has-text-centered is-size-7 has-text-grey mb-3">- OR -</p>
+
+                            <div class="field">
+                                <label class="label is-small has-text-grey-light">Personal Access Token</label>
+                                <div class="control has-icons-left">
+                                    <input @bind="AuthToken" placeholder="ghp_xxxxxxxxxxxx" class="input"
+                                        type="password" @oninput="HandleInputChange" />
+                                    <span class="icon is-small is-left">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <button class="button is-primary is-fullwidth" @onclick="AddToken">
+                                        <span class="icon">
+                                            <i class="fas fa-plus-circle"></i>
+                                        </span>
+                                        <span>Save Token</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="notification is-dark is-size-7 py-2 px-3 mt-3" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--border-color);">
+                                <span class="icon is-small has-text-info">
+                                    <i class="fas fa-shield-alt"></i>
                                 </span>
-                                <span>How to create a Personal Access Token?</span>
-                            </a>
-                        </div>
+                                <span>Your token is stored locally in your browser and never sent to our servers.</span>
+                            </div>
+                            <div class="has-text-centered mt-3">
+                                <a class="is-size-7 has-text-primary" @onclick="OpenPATModal" style="cursor: pointer;">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                    <span>How to create a Personal Access Token?</span>
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="notification is-success is-light mb-4">
+                                <div class="is-flex is-align-items-center">
+                                    <span class="icon is-medium has-text-success mr-2">
+                                        <i class="fas fa-check-circle fa-lg"></i>
+                                    </span>
+                                    <div>
+                                        <p class="has-text-weight-bold">Authenticated</p>
+                                        @if (authSource == "github")
+                                        {
+                                            <p class="is-size-7">Signed in with GitHub</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="is-size-7">Using Personal Access Token</p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="has-text-grey mb-4">
+                                You currently have increased API rate limits and access to data based on your token's permissions.
+                            </p>
+
+                            <button class="button is-danger is-outlined is-fullwidth" @onclick="RemoveToken">
+                                <span class="icon">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </span>
+                                <span>@(authSource == "github" ? "Sign Out" : "Remove Token")</span>
+                            </button>
+                        }
                     </div>
                 </div>
             </div>
@@ -164,11 +200,23 @@
 @code {
     private string? AuthToken { get; set; }
     private bool showPATModal = false;
+    private string? authSource;
+
+    protected override void OnInitialized()
+    {
+        AuthService.OnAuthStateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnAuthStateChanged -= StateHasChanged;
+    }
 
     private async Task AddToken()
     {
         if (!string.IsNullOrWhiteSpace(AuthToken))
         {
+            // Simple validation that it looks like a token if needed, but the API check is better
             bool isValid = await AuthService.IsTokenValidAsync(AuthToken);
             if (!isValid)
             {
@@ -176,8 +224,21 @@
                 return;
             }
             await JS.InvokeVoidAsync("localStorage.setItem", "authToken", AuthToken);
-            await JS.InvokeAsync<object>("alert", "✓ Token added successfully!");
+            await JS.InvokeVoidAsync("localStorage.setItem", "authSource", "manual");
+            authSource = "manual";
+            AuthService.Login(AuthToken);
+            // Clear the input
+            AuthToken = string.Empty;
         }
+    }
+
+    private async Task RemoveToken()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        await JS.InvokeVoidAsync("localStorage.removeItem", "authSource");
+        AuthService.Logout();
+        // Force refresh if needed, but state change should handle it
+        authSource = null;
     }
 
     private void HandleInputChange(ChangeEventArgs e)
@@ -206,8 +267,18 @@
     {
         if (firstRender)
         {
-            AuthToken = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-            StateHasChanged();
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+            authSource = await JS.InvokeAsync<string>("localStorage.getItem", "authSource");
+            
+            if (!string.IsNullOrEmpty(token))
+            {
+                // Sync service if logic didn't happen in Navbar yet or we are first
+                if (string.IsNullOrEmpty(AuthService.CurrentAccessToken))
+                {
+                    AuthService.Login(token);
+                }
+                StateHasChanged();
+            }
         }
     }
 }

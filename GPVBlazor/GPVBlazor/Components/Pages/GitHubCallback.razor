@@ -49,8 +49,13 @@
                 {
                     // Save to localStorage
                     await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
-                    // Redirect to home
-                    NavManager.NavigateTo("/", true);
+                    await JS.InvokeVoidAsync("localStorage.setItem", "authSource", "github");
+                    
+                    // Update auth state in memory
+                    AuthService.Login(token);
+
+                    // Redirect to home without force reload
+                    NavManager.NavigateTo("/", false);
                 }
                 else
                 {

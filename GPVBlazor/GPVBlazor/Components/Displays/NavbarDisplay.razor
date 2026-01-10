@@ -1,5 +1,8 @@
 ﻿@rendermode InteractiveServer
+@implements IDisposable
 @inject NavigationManager NavManager
+@inject Services.Interfaces.IAuthService AuthService
+@inject IJSRuntime JS
 
 <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="container">
@@ -38,6 +41,26 @@
 
             <div class="navbar-end">
                 <GPVBlazor.Components.Displays.SearchBarDisplay IsNavbarMode="true" />
+                <div class="navbar-item">
+                    @if (string.IsNullOrEmpty(AuthService.CurrentAccessToken))
+                    {
+                        <a href="@AuthService.GetGitHubLoginUrl()" class="button is-primary is-outlined">
+                            <span class="icon">
+                                <i class="fab fa-github"></i>
+                            </span>
+                            <span>Sign In</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="button is-danger is-light" @onclick="SignOut">
+                            <span class="icon">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </span>
+                            <span>Sign Out</span>
+                        </button>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -47,4 +70,35 @@
     private bool isMenuActive = false;
     private void ToggleNavbar() => isMenuActive = !isMenuActive;
     private string GetNavbarMenuClass() { return "navbar-menu" + (isMenuActive ? " is-active" : ""); }
+
+    protected override void OnInitialized()
+    {
+        AuthService.OnAuthStateChanged += StateHasChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+            if (!string.IsNullOrEmpty(token))
+            {
+                AuthService.Login(token);
+                StateHasChanged();
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnAuthStateChanged -= StateHasChanged;
+    }
+
+    private async Task SignOut()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        await JS.InvokeVoidAsync("localStorage.removeItem", "authSource");
+        AuthService.Logout();
+        NavManager.NavigateTo("/", false);
+    }
 }
