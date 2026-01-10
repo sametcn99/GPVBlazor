@@ -12,11 +12,9 @@ namespace GPVBlazor.Services
         public string? CurrentAccessToken { get; private set; }
         public event Action? OnAuthStateChanged;
 
-        private string? ClientId => _configuration["GitHub:ClientId"] ?? _configuration["ClientId"];
-        private string? ClientSecret =>
-            _configuration["GitHub:ClientSecret"] ?? _configuration["ClientSecret"];
-        private string? RedirectUri =>
-            _configuration["GitHub:RedirectUri"] ?? _configuration["RedirectUri"];
+        private string? ClientId => _configuration["ClientId"] ?? _configuration["GitHub:ClientId"];
+        private string? ClientSecret => _configuration["ClientSecret"] ?? _configuration["GitHub:ClientSecret"];
+        private string? RedirectUri => _configuration["RedirectUri"] ?? _configuration["GitHub:RedirectUri"];
 
         public AuthService(HttpClient httpClient, IConfiguration configuration)
         {
