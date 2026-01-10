@@ -1,15 +1,59 @@
 ﻿using GPVBlazor.Services.Interfaces;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace GPVBlazor.Services
 {
     public class AuthService : IAuthService
     {
         private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public AuthService(HttpClient httpClient)
+        public AuthService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _configuration = configuration;
+        }
+
+        public string GetGitHubLoginUrl()
+        {
+            var clientId = _configuration["GitHub:ClientId"];
+            var redirectUri = _configuration["GitHub:RedirectUri"];
+            // Scopes: public_repo, read:user, user:email, gist as suggested in the modal
+            var scopes = "public_repo,read:user,user:email,gist";
+            
+            return $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirectUri}&scope={scopes}";
+        }
+
+        public async Task<string?> GetAccessTokenFromCodeAsync(string code)
+        {
+            var tokenReq = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
+            tokenReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            
+            var parameters = new Dictionary<string, string>
+            {
+                { "client_id", _configuration["GitHub:ClientId"] ?? "" },
+                { "client_secret", _configuration["GitHub:ClientSecret"] ?? "" },
+                { "code", code },
+                { "redirect_uri", _configuration["GitHub:RedirectUri"] ?? "" }
+            };
+
+            tokenReq.Content = new FormUrlEncodedContent(parameters);
+
+            try 
+            {
+                var response = await _httpClient.SendAsync(tokenReq);
+                if (!response.IsSuccessStatusCode) return null;
+
+                using var stream = await response.Content.ReadAsStreamAsync();
+                var tokenResponse = await JsonSerializer.DeserializeAsync<OAuthTokenResponse>(stream);
+                
+                return tokenResponse?.AccessToken;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<bool> IsTokenValidAsync(string token)
@@ -65,6 +109,18 @@ namespace GPVBlazor.Services
                     }
                 }
             };
+        }
+
+        private class OAuthTokenResponse
+        {
+            [System.Text.Json.Serialization.JsonPropertyName("access_token")]
+            public string? AccessToken { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("token_type")]
+            public string? TokenType { get; set; }
+            
+            [System.Text.Json.Serialization.JsonPropertyName("scope")]
+            public string? Scope { get; set; }
         }
 
         private class RateRoot

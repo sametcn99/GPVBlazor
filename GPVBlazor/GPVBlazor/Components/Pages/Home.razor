@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 @inject Services.Interfaces.IAuthService AuthService
+@inject NavigationManager NavManager
 <PageTitle>GitHub Profile Viewer - Explore GitHub Profiles</PageTitle>
 
 <!-- Hero Section -->
@@ -51,6 +52,19 @@
                             Add your GitHub personal access token to unlock higher API rate limits 
                             and access private repository information.
                         </p>
+                        
+                        <div class="field mb-4">
+                            <button class="button is-dark is-fullwidth" @onclick="SignInWithGitHub">
+                                <span class="icon">
+                                    <i class="fab fa-github"></i>
+                                </span>
+                                <span>Sign in with GitHub</span>
+                            </button>
+                        </div>
+
+                        <div class="is-divider" data-content="OR"></div>
+                        <p class="has-text-centered is-size-7 has-text-grey mb-3">- OR -</p>
+
                         <div class="field">
                             <label class="label is-small has-text-grey-light">Personal Access Token</label>
                             <div class="control has-icons-left">
@@ -180,6 +194,12 @@
     {
         showPATModal = isActive;
         StateHasChanged();
+    }
+
+    private void SignInWithGitHub()
+    {
+        var url = AuthService.GetGitHubLoginUrl();
+        NavManager.NavigateTo(url, forceLoad: true);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

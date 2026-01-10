@@ -1,0 +1,75 @@
+@page "/github-callback"
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+@inject Services.Interfaces.IAuthService AuthService
+@inject IJSRuntime JS
+
+<div class="container has-text-centered py-6">
+    @if (isLoading)
+    {
+        <h3 class="title is-4">Authenticating with GitHub...</h3>
+        <span class="icon is-large has-text-primary">
+            <i class="fas fa-circle-notch fa-spin fa-3x"></i>
+        </span>
+        <p class="mt-4">Please wait while we log you in...</p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="notification is-danger">
+            <button class="delete"></button>
+            @errorMessage
+        </div>
+        <button class="button is-primary" @onclick="GoHome">Return Home</button>
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Code { get; set; }
+
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (string.IsNullOrEmpty(Code))
+            {
+                errorMessage = "No authentication code received from GitHub.";
+                isLoading = false;
+                StateHasChanged();
+                return;
+            }
+
+            try
+            {
+                var token = await AuthService.GetAccessTokenFromCodeAsync(Code);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    // Save to localStorage
+                    await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+                    // Redirect to home
+                    NavManager.NavigateTo("/", true);
+                }
+                else
+                {
+                    errorMessage = "Failed to exchange code for access token. Please ensure your Client ID and Secret are correct in appsettings.json";
+                    isLoading = false;
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An error occurred during authentication: {ex.Message}";
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void GoHome()
+    {
+        NavManager.NavigateTo("/");
+    }
+}
