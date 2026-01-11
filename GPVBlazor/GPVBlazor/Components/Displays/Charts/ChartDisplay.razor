@@ -10,21 +10,28 @@
             </span>
             @Title
         </h4>
-        <div class="chart-type-selector">
-            <select @onchange="OnChange" value="@ChartType" class="chart-select">
-                @foreach (var chartType in Enum.GetValues(typeof(ChartTypes)))
-                {
-                    <option value="@chartType" selected="@(chartType.Equals(ChartType))">
-                        @GetChartTypeName(chartType.ToString()!)
-                    </option>
-                }
-            </select>
+        <div class="field mb-0">
+            <div class="control has-icons-left">
+                <div class="select is-small is-rounded is-primary">
+                    <select @onchange="OnChange" value="@ChartType">
+                        @foreach (var chartType in Enum.GetValues(typeof(ChartTypes)))
+                        {
+                            <option value="@chartType" selected="@(chartType.Equals(ChartType))">
+                                @GetChartTypeName(chartType.ToString()!)
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="icon is-small is-left">
+                    <i class="fas fa-filter"></i>
+                </div>
+            </div>
         </div>
     </div>
     <div class="chart-container">
         <canvas id="@_canvasId"></canvas>
     </div>
-    @if (Data != null && Data.Any())
+    @if (Data != null && Data.Any() && ChartType != ChartTypes.line)
     {
         <div class="chart-legend-custom">
             @foreach (var item in Data.Take(5))

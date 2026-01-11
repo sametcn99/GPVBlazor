@@ -375,15 +375,27 @@ namespace GPVBlazor.Services
                 starHistory.Points = stargazers.OrderBy(s => s.StarredAt).ToList();
 
                 // Group by month for chart display
-                var monthlyData = starHistory.Points
+                var groupedData = starHistory.Points
                     .GroupBy(s => new { s.StarredAt.Year, s.StarredAt.Month })
                     .Select(g => new
                     {
-                        Date = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"),
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
                         Count = g.Count()
                     })
-                    .OrderBy(x => x.Date)
-                    .ToDictionary(x => x.Date, x => x.Count);
+                    .OrderBy(x => x.Year)
+                    .ThenBy(x => x.Month)
+                    .ToList();
+
+                var monthlyData = new Dictionary<string, int>();
+                int cumulativeCount = 0;
+
+                foreach (var item in groupedData)
+                {
+                    cumulativeCount += item.Count;
+                    var dateStr = new DateTime(item.Year, item.Month, 1).ToString("MMM yyyy");
+                    monthlyData[dateStr] = cumulativeCount;
+                }
 
                 starHistory.MonthlyData = monthlyData;
 

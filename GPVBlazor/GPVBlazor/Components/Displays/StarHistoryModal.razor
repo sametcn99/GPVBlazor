@@ -11,7 +11,7 @@
         <div class="modal-card" role="document" style="width: 90%; max-width: 900px;">
             <header class="modal-card-head">
                 <p class="modal-card-title">
-                    <span class="icon">
+                    <span class="icon mr-2">
                         <i class="fas fa-star"></i>
                     </span>
                     Star History - @Repository?.Name
@@ -21,50 +21,60 @@
             <section class="modal-card-body">
                 @if (IsLoading)
                 {
-                    <div class="has-text-centered">
-                        <span class="icon is-large">
+                    <div class="has-text-centered py-6">
+                        <span class="icon is-large fa-3x mb-4 has-text-info">
                             <i class="fas fa-spinner fa-pulse"></i>
                         </span>
-                        <p>Loading star history...</p>
+                        <p class="is-size-5">Loading star history...</p>
                     </div>
                 }
                 else if (StarHistory?.MonthlyData.Any() == true)
                 {
-                    <div style="height: 400px;">
-                        <ChartDisplay 
-                            Data="StarHistory.MonthlyData" 
-                            Title="Stars over time" InitialChartType="ChartDisplay.ChartTypes.line"/>
-                    </div>
-                    <div class="mt-4">
-                        <div class="level">
-                            <div class="level-item has-text-centered">
-                                <div>
-                                    <p class="heading">Total Stars</p>
-                                    <p class="title">@Repository?.StargazersCount</p>
-                                </div>
-                            </div>
-                            <div class="level-item has-text-centered">
-                                <div>
-                                    <p class="heading">First Star</p>
-                                    <p class="title is-size-6">@(StarHistory.Points.FirstOrDefault()?.StarredAt.ToString("MMM yyyy") ?? "N/A")</p>
-                                </div>
-                            </div>
-                            <div class="level-item has-text-centered">
-                                <div>
-                                    <p class="heading">Latest Star</p>
-                                    <p class="title is-size-6">@(StarHistory.Points.LastOrDefault()?.StarredAt.ToString("MMM yyyy") ?? "N/A")</p>
-                                </div>
+                    <div class="columns is-multiline mb-5">
+                        <div class="column is-4">
+                            <div class="box has-text-centered h-100">
+                                <span class="icon is-large has-text-warning mb-2">
+                                    <i class="fas fa-star fa-2x"></i>
+                                </span>
+                                <p class="heading mt-2">Total Stars</p>
+                                <p class="title is-4">@Repository?.StargazersCount</p>
                             </div>
                         </div>
+                        <div class="column is-4">
+                            <div class="box has-text-centered h-100">
+                                <span class="icon is-large has-text-info mb-2">
+                                    <i class="fas fa-calendar-alt fa-2x"></i>
+                                </span>
+                                <p class="heading mt-2">First Star</p>
+                                <p class="title is-4">@(StarHistory.Points.FirstOrDefault()?.StarredAt.ToString("MMM yyyy") ?? "N/A")</p>
+                            </div>
+                        </div>
+                        <div class="column is-4">
+                            <div class="box has-text-centered h-100">
+                                <span class="icon is-large has-text-success mb-2">
+                                    <i class="fas fa-clock fa-2x"></i>
+                                </span>
+                                <p class="heading mt-2">Latest Star</p>
+                                <p class="title is-4">@(StarHistory.Points.LastOrDefault()?.StarredAt.ToString("MMM yyyy") ?? "N/A")</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="box" style="height: 450px; position: relative;">
+                        <ChartDisplay 
+                            Data="StarHistory.MonthlyData" 
+                            Title="Growth over time" 
+                            InitialChartType="ChartDisplay.ChartTypes.line"/>
                     </div>
                 }
                 else
                 {
-                    <div class="has-text-centered">
-                        <span class="icon is-large has-text-grey-light">
-                            <i class="fas fa-star"></i>
+                    <div class="has-text-centered py-6">
+                        <span class="icon is-large has-text-grey-light fa-3x mb-4">
+                            <i class="far fa-star"></i>
                         </span>
-                        <p class="has-text-grey">No star history data available or repository has no stars.</p>
+                        <p class="has-text-grey is-size-5">No star history data available.</p>
+                        <p class="has-text-grey-light is-size-7 mt-2">This repository might not have any stars yet.</p>
                     </div>
                 }
             </section>
