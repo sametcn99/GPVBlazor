@@ -1,0 +1,130 @@
+@using GPVBlazor.Models
+
+@if (Gist is not null)
+{
+    <div class="repo-card">
+        <div class="repo-card-header">
+            <div class="repo-title-section">
+                <h4 class="repo-name">
+                    <a href="@Gist.HtmlUrl" target="_blank" rel="noopener">
+                        @(string.IsNullOrEmpty(Gist.Description) ? (Gist.Files?.FirstOrDefault().Key ?? "Untitled Gist") : Gist.Description)
+                    </a>
+                </h4>
+            </div>
+            <div class="repo-badges">
+                @if (Gist.Files != null)
+                {
+                    @foreach (var file in Gist.Files.Take(3))
+                    {
+                        <span class="repo-badge language" style="--lang-color: @GetLanguageColor(file.Value.Language)">
+                            <span class="lang-dot"></span>
+                            @(file.Value.Language ?? "Text")
+                        </span>
+                    }
+                    @if (Gist.Files.Count > 3)
+                    {
+                        <span class="repo-badge">
+                            +@(Gist.Files.Count - 3)
+                        </span>
+                    }
+                }
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Gist.Description))
+        {
+            <p class="repo-description">
+                @if (Gist.Files != null && Gist.Files.Any())
+                {
+                    <span class="is-size-7 has-text-grey">
+                        <i class="fas fa-file-code mr-1"></i>
+                        @string.Join(", ", Gist.Files.Select(f => f.Key).Take(3))
+                        @(Gist.Files.Count > 3 ? "..." : "")
+                    </span>
+                }
+            </p>
+        }
+        else
+        {
+             <p class="repo-description">
+                <span class="is-size-7 has-text-grey">
+                    No description provided.
+                </span>
+            </p>
+        }
+
+        <div class="repo-stats">
+            <div class="repo-stat" title="Files">
+                <i class="fas fa-file"></i>
+                <span>@Gist.Files?.Count Files</span>
+            </div>
+            <div class="repo-stat" title="Comments">
+                <i class="fas fa-comment"></i>
+                <span>@Gist.Comments</span>
+            </div>
+        </div>
+
+        <div class="repo-footer">
+            <div class="repo-dates">
+                <span class="repo-date" title="Created">
+                    <i class="fas fa-plus-circle"></i>
+                    @Gist.CreatedAt.ToString("MMM yyyy")
+                </span>
+                <span class="repo-date" title="Last updated">
+                    <i class="fas fa-sync-alt"></i>
+                    @GetTimeAgo(Gist.UpdatedAt)
+                </span>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Gist? Gist { get; set; }
+
+    private string GetTimeAgo(DateTimeOffset? date)
+    {
+        if (date == null) return "N/A";
+        var span = DateTimeOffset.UtcNow - date.Value;
+        if (span.TotalDays < 1) return "Today";
+        if (span.TotalDays < 2) return "Yesterday";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays}d ago";
+        if (span.TotalDays < 30) return $"{(int)(span.TotalDays / 7)}w ago";
+        if (span.TotalDays < 365) return $"{(int)(span.TotalDays / 30)}mo ago";
+        return $"{(int)(span.TotalDays / 365)}y ago";
+    }
+
+    private string GetLanguageColor(string? language)
+    {
+        return language?.ToLower() switch
+        {
+            "javascript" => "#f1e05a",
+            "typescript" => "#3178c6",
+            "python" => "#3572A5",
+            "java" => "#b07219",
+            "c#" => "#178600",
+            "c++" => "#f34b7d",
+            "c" => "#555555",
+            "go" => "#00ADD8",
+            "rust" => "#dea584",
+            "ruby" => "#701516",
+            "php" => "#4F5D95",
+            "swift" => "#F05138",
+            "kotlin" => "#A97BFF",
+            "dart" => "#00B4AB",
+            "html" => "#e34c26",
+            "css" => "#563d7c",
+            "scss" => "#c6538c",
+            "vue" => "#41b883",
+            "shell" => "#89e051",
+            "powershell" => "#012456",
+            "markdown" => "#083fa1",
+            "json" => "#292929",
+            "xml" => "#0060ac",
+            "yaml" => "#cb171e",
+            "text" => "#777777",
+            _ => "#8b949e"
+        };
+    }
+}

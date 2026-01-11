@@ -28,128 +28,279 @@
         <LoadingDisplay />
     }
 
-    @if (repositories is not null)
+    @if (repositories is not null || gists is not null)
     {
         <div class="repositories-section box">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <span class="section-icon">
-                        <i class="fas fa-folder-open"></i>
-                    </span>
-                    <span>All Repositories</span>
-                    <span class="repo-count-badge">@FilteredCount</span>
-                </h2>
-                <div class="view-options">
-                    <button class="view-btn @(viewMode == "grid" ? "active" : "")" @onclick='() => viewMode = "grid"' title="Grid view">
-                        <i class="fas fa-th-large"></i>
-                    </button>
-                    <button class="view-btn @(viewMode == "list" ? "active" : "")" @onclick='() => viewMode = "list"' title="List view">
-                        <i class="fas fa-list"></i>
-                    </button>
-                </div>
+            <div class="tabs is-boxed mb-4">
+                <ul>
+                    <li class="@(activeTab == "repositories" ? "is-active" : "")">
+                        <a @onclick='() => activeTab = "repositories"'>
+                            <span class="icon is-small"><i class="fas fa-book" aria-hidden="true"></i></span>
+                            <span>Repositories</span>
+                            @if (user?.PublicRepos > 0)
+                            {
+                                <span class="tag is-rounded ml-2">@user.PublicRepos</span>
+                            }
+                        </a>
+                    </li>
+                    <li class="@(activeTab == "gists" ? "is-active" : "")">
+                        <a @onclick='() => activeTab = "gists"'>
+                            <span class="icon is-small"><i class="fas fa-code" aria-hidden="true"></i></span>
+                            <span>Gists</span>
+                            @if (user?.PublicGists > 0)
+                            {
+                                <span class="tag is-rounded ml-2">@user.PublicGists</span>
+                            }
+                        </a>
+                    </li>
+                </ul>
             </div>
-            
-            <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories"
-                                                                              OnFilteredRepositoriesChanged="UpdateFilteredRepositories"
-                                                                              PageSize="pageSize"
-                                                                              OnPageSizeChanged="HandlePageSizeChanged" />
 
-            @if (pagedRepositories.Any())
+            @if (activeTab == "repositories")
             {
-                <div class="@(viewMode == "grid" ? "repo-grid" : "repo-list")">
-                    @foreach (var repo in pagedRepositories)
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </span>
+                        <span>All Repositories</span>
+                        <span class="repo-count-badge">@FilteredCount</span>
+                    </h2>
+                    <div class="view-options">
+                        <button class="view-btn @(viewMode == "grid" ? "active" : "")" @onclick='() => viewMode = "grid"' title="Grid view">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button class="view-btn @(viewMode == "list" ? "active" : "")" @onclick='() => viewMode = "list"' title="List view">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories"
+                                                                                  OnFilteredRepositoriesChanged="UpdateFilteredRepositories"
+                                                                                  PageSize="pageSize"
+                                                                                  OnPageSizeChanged="HandlePageSizeChanged" />
+
+                @if (pagedRepositories.Any())
+                {
+                    <div class="@(viewMode == "grid" ? "repo-grid" : "repo-list")">
+                        @foreach (var repo in pagedRepositories)
+                        {
+                            <div class="@(viewMode == "grid" ? "repo-grid-item" : "repo-list-item")">
+                                <RepositoryDisplay repository="repo" Token="@token" @key="repo.NodeId" />
+                            </div>
+                        }
+                    </div>
+
+                    @if (TotalPages > 1)
                     {
-                        <div class="@(viewMode == "grid" ? "repo-grid-item" : "repo-list-item")">
-                            <RepositoryDisplay repository="repo" Token="@token" @key="repo.NodeId" />
+                        <div class="pagination-wrapper">
+                            <div class="pagination-info">
+                                Showing <strong>@((currentPage - 1) * pageSize + 1)</strong> - <strong>@Math.Min(currentPage * pageSize, FilteredCount)</strong> of <strong>@FilteredCount</strong> repositories
+                            </div>
+                            <nav class="pagination is-rounded is-small is-centered" role="navigation" aria-label="Pagination Navigation">
+                                <ul class="pagination-list is-flex is-align-items-center is-justify-content-center">
+                                    <li>
+                                        <button class="pagination-link icon-only"
+                                                title="First page"
+                                                aria-label="Go to first page"
+                                                @onclick="GoToFirst"
+                                                disabled="@(!CanGoPrevious)">
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="pagination-link icon-only"
+                                                title="Previous page"
+                                                aria-label="Go to previous page"
+                                                @onclick="PreviousPage"
+                                                disabled="@(!CanGoPrevious)">
+                                            <span class="icon is-small">
+                                                <i class="fas fa-chevron-left"></i>
+                                            </span>
+                                        </button>
+                                    </li>
+                                    @foreach (var item in PaginationItems)
+                                    {
+                                        <li>
+                                            @if (item.IsPage)
+                                            {
+                                                <button class="@GetPageButtonClass(item.PageNumber)"
+                                                        aria-label="@GetPageAriaLabel(item.PageNumber)"
+                                                        aria-current="@GetAriaCurrent(item.PageNumber)"
+                                                        @onclick="@(() => GoToPage(item.PageNumber))"
+                                                        disabled="@(item.PageNumber == currentPage)">
+                                                    @item.PageNumber
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                                            }
+                                        </li>
+                                    }
+                                    <li>
+                                        <button class="pagination-link icon-only"
+                                                title="Next page"
+                                                aria-label="Go to next page"
+                                                @onclick="NextPage"
+                                                disabled="@(!CanGoNext)">
+                                            <span class="icon is-small">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="pagination-link icon-only"
+                                                title="Last page"
+                                                aria-label="Go to last page"
+                                                @onclick="GoToLast"
+                                                disabled="@(!CanGoNext)">
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     }
-                </div>
-
-                @if (TotalPages > 1)
+                }
+                else
                 {
-                    <div class="pagination-wrapper">
-                        <div class="pagination-info">
-                            Showing <strong>@((currentPage - 1) * pageSize + 1)</strong> - <strong>@Math.Min(currentPage * pageSize, FilteredCount)</strong> of <strong>@FilteredCount</strong> repositories
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-search"></i>
                         </div>
-                        <nav class="pagination is-rounded is-small is-centered" role="navigation" aria-label="Pagination Navigation">
-                            <ul class="pagination-list is-flex is-align-items-center is-justify-content-center">
-                                <li>
-                                    <button class="pagination-link icon-only"
-                                            title="First page"
-                                            aria-label="Go to first page"
-                                            @onclick="GoToFirst"
-                                            disabled="@(!CanGoPrevious)">
-                                        <span class="icon is-small">
-                                            <i class="fas fa-angle-double-left"></i>
-                                        </span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="pagination-link icon-only"
-                                            title="Previous page"
-                                            aria-label="Go to previous page"
-                                            @onclick="PreviousPage"
-                                            disabled="@(!CanGoPrevious)">
-                                        <span class="icon is-small">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </span>
-                                    </button>
-                                </li>
-                                @foreach (var item in PaginationItems)
-                                {
-                                    <li>
-                                        @if (item.IsPage)
-                                        {
-                                            <button class="@GetPageButtonClass(item.PageNumber)"
-                                                    aria-label="@GetPageAriaLabel(item.PageNumber)"
-                                                    aria-current="@GetAriaCurrent(item.PageNumber)"
-                                                    @onclick="@(() => GoToPage(item.PageNumber))"
-                                                    disabled="@(item.PageNumber == currentPage)">
-                                                @item.PageNumber
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <span class="pagination-ellipsis" aria-hidden="true">&hellip;</span>
-                                        }
-                                    </li>
-                                }
-                                <li>
-                                    <button class="pagination-link icon-only"
-                                            title="Next page"
-                                            aria-label="Go to next page"
-                                            @onclick="NextPage"
-                                            disabled="@(!CanGoNext)">
-                                        <span class="icon is-small">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="pagination-link icon-only"
-                                            title="Last page"
-                                            aria-label="Go to last page"
-                                            @onclick="GoToLast"
-                                            disabled="@(!CanGoNext)">
-                                        <span class="icon is-small">
-                                            <i class="fas fa-angle-double-right"></i>
-                                        </span>
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
+                        <p class="empty-title">No repositories found</p>
+                        <p class="empty-description">No repositories match the current filters. Try adjusting your search criteria.</p>
                     </div>
                 }
             }
-            else
+            else if (activeTab == "gists")
             {
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-search"></i>
+                <div class="section-header">
+                     <h2 class="section-title">
+                        <span class="section-icon">
+                            <i class="fas fa-code"></i>
+                        </span>
+                        <span>All Gists</span>
+                        <span class="repo-count-badge">@GistFilteredCount</span>
+                    </h2>
+                    <div class="view-options">
+                        <button class="view-btn @(viewMode == "grid" ? "active" : "")" @onclick='() => viewMode = "grid"' title="Grid view">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button class="view-btn @(viewMode == "list" ? "active" : "")" @onclick='() => viewMode = "list"' title="List view">
+                            <i class="fas fa-list"></i>
+                        </button>
                     </div>
-                    <p class="empty-title">No repositories found</p>
-                    <p class="empty-description">No repositories match the current filters. Try adjusting your search criteria.</p>
                 </div>
+
+                <GPVBlazor.Components.Displays.FilterDisplays.GistFilterBar Gists="gists"
+                                                                            OnFilteredGistsChanged="UpdateFilteredGists"
+                                                                            PageSize="gistPageSize"
+                                                                            OnPageSizeChanged="HandleGistPageSizeChanged" />
+
+                @if (pagedGists.Any())
+                {
+                    <div class="@(viewMode == "grid" ? "repo-grid" : "repo-list")">
+                        @foreach (var gist in pagedGists)
+                        {
+                            <div class="@(viewMode == "grid" ? "repo-grid-item" : "repo-list-item")">
+                                <GistDisplay Gist="gist" @key="gist.NodeId" />
+                            </div>
+                        }
+                    </div>
+                    
+                     @if (GistTotalPages > 1)
+                    {
+                        <div class="pagination-wrapper">
+                            <div class="pagination-info">
+                                Showing <strong>@((gistCurrentPage - 1) * gistPageSize + 1)</strong> - <strong>@Math.Min(gistCurrentPage * gistPageSize, GistFilteredCount)</strong> of <strong>@GistFilteredCount</strong> gists
+                            </div>
+                            <nav class="pagination is-rounded is-small is-centered" role="navigation" aria-label="Pagination Navigation">
+                                <ul class="pagination-list is-flex is-align-items-center is-justify-content-center">
+                                    <li>
+                                        <button class="pagination-link icon-only"
+                                                title="First page"
+                                                aria-label="Go to first page"
+                                                @onclick="GoToFirstGist"
+                                                disabled="@(!CanGoPreviousGist)">
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="pagination-link icon-only"
+                                                title="Previous page"
+                                                aria-label="Go to previous page"
+                                                @onclick="PreviousGistPage"
+                                                disabled="@(!CanGoPreviousGist)">
+                                            <span class="icon is-small">
+                                                <i class="fas fa-chevron-left"></i>
+                                            </span>
+                                        </button>
+                                    </li>
+                                    @foreach (var item in GistPaginationItems)
+                                    {
+                                        <li>
+                                            @if (item.IsPage)
+                                            {
+                                                <button class="@GetGistPageButtonClass(item.PageNumber)"
+                                                        aria-label="@GetGistPageAriaLabel(item.PageNumber)"
+                                                        aria-current="@GetGistAriaCurrent(item.PageNumber)"
+                                                        @onclick="@(() => GoToGistPage(item.PageNumber))"
+                                                        disabled="@(item.PageNumber == gistCurrentPage)">
+                                                    @item.PageNumber
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                                            }
+                                        </li>
+                                    }
+                                    <li>
+                                        <button class="pagination-link icon-only"
+                                                title="Next page"
+                                                aria-label="Go to next page"
+                                                @onclick="NextGistPage"
+                                                disabled="@(!CanGoNextGist)">
+                                            <span class="icon is-small">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="pagination-link icon-only"
+                                                title="Last page"
+                                                aria-label="Go to last page"
+                                                @onclick="GoToLastGist"
+                                                disabled="@(!CanGoNextGist)">
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <p class="empty-title">No gists found</p>
+                        <p class="empty-description">This user has no public gists.</p>
+                    </div>
+                }
             }
         </div>
     }
@@ -162,11 +313,17 @@
     private List<Repository>? repositories;
     private List<Repository> filteredRepositories = new();
     private List<Repository> pagedRepositories = new();
+    private List<Gist>? gists;
+    private List<Gist> filteredGists = new();
+    private List<Gist> pagedGists = new();
     private RepositoryStats? stats;
     string? token;
     private int currentPage = 1;
     private int pageSize = 6;
+    private int gistCurrentPage = 1;
+    private int gistPageSize = 6;
     private string viewMode = "grid";
+    private string activeTab = "repositories";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -213,10 +370,22 @@
 
             if (user is not null)
             {
-                repositories = await UserService.FetchUserRepositories(Username, token, user.PublicRepos) ?? new List<Repository>();
+                var repoTask = UserService.FetchUserRepositories(Username, token, user.PublicRepos);
+                var gistTask = UserService.FetchUserGists(Username, token, user.PublicGists);
+
+                await Task.WhenAll(repoTask, gistTask);
+
+                repositories = await repoTask ?? new List<Repository>();
+                gists = await gistTask ?? new List<Gist>();
+
                 filteredRepositories = repositories.ToList();
+                filteredGists = gists.ToList();
+                
                 currentPage = 1;
+                gistCurrentPage = 1;
+                
                 UpdatePagination();
+                UpdateGistPagination();
 
                 if (repositories.Any())
                 {
@@ -241,6 +410,13 @@
         this.filteredRepositories = filteredRepositories ?? new List<Repository>();
         currentPage = 1;
         UpdatePagination();
+    }
+
+    private void UpdateFilteredGists(List<Gist> filteredGists)
+    {
+        this.filteredGists = filteredGists ?? new List<Gist>();
+        gistCurrentPage = 1;
+        UpdateGistPagination();
     }
 
     private void UpdatePagination()
@@ -420,8 +596,185 @@
         UpdatePagination();
     }
 
+    private void HandleGistPageSizeChanged(int newSize)
+    {
+        if (newSize <= 0) return;
+        if (gistPageSize == newSize) return;
+
+        gistPageSize = newSize;
+        gistCurrentPage = 1;
+        UpdateGistPagination();
+    }
+
     private string? GetAriaCurrent(int pageNumber) => pageNumber == currentPage ? "page" : null;
     private string GetPageAriaLabel(int pageNumber) => pageNumber == currentPage ? $"Current page, page {pageNumber}" : $"Go to page {pageNumber}";
+
+    // Gist Pagination Logic
+    private void UpdateGistPagination()
+    {
+        if (filteredGists == null || filteredGists.Count == 0)
+        {
+            pagedGists = new List<Gist>();
+            gistCurrentPage = 1;
+            StateHasChanged();
+            return;
+        }
+
+        var totalPages = GistTotalPages;
+        if (totalPages == 0)
+        {
+            pagedGists = new List<Gist>();
+            gistCurrentPage = 1;
+            StateHasChanged();
+            return;
+        }
+
+        if (gistCurrentPage > totalPages)
+        {
+            gistCurrentPage = totalPages;
+        }
+
+        if (gistCurrentPage < 1)
+        {
+            gistCurrentPage = 1;
+        }
+
+        var effectivePageSize = Math.Max(gistPageSize, 1);
+        var skip = (gistCurrentPage - 1) * effectivePageSize;
+        pagedGists = filteredGists.Skip(skip).Take(effectivePageSize).ToList();
+        StateHasChanged();
+    }
+
+    private int GistTotalPages
+    {
+        get
+        {
+            if (filteredGists?.Count > 0)
+            {
+                var effectivePageSize = Math.Max(gistPageSize, 1);
+                return (int)Math.Ceiling((double)filteredGists.Count / effectivePageSize);
+            }
+            return 0;
+        }
+    }
+
+    private int GistFilteredCount => filteredGists?.Count ?? 0;
+    private bool CanGoPreviousGist => gistCurrentPage > 1;
+    private bool CanGoNextGist => gistCurrentPage < GistTotalPages;
+
+    private IEnumerable<PaginationItem> GistPaginationItems
+    {
+        get
+        {
+            var totalPages = GistTotalPages;
+            if (totalPages == 0)
+            {
+                return Enumerable.Empty<PaginationItem>();
+            }
+
+            var items = new List<PaginationItem>();
+
+            if (totalPages <= 7)
+            {
+                for (var page = 1; page <= totalPages; page++)
+                {
+                    items.Add(new PaginationItem(page));
+                }
+                return items;
+            }
+
+            items.Add(new PaginationItem(1));
+
+            int start;
+            int end;
+
+            if (gistCurrentPage <= 4)
+            {
+                start = 2;
+                end = 4;
+            }
+            else if (gistCurrentPage >= totalPages - 3)
+            {
+                start = totalPages - 3;
+                end = totalPages - 1;
+            }
+            else
+            {
+                start = gistCurrentPage - 1;
+                end = gistCurrentPage + 1;
+            }
+
+            start = Math.Max(2, start);
+            end = Math.Min(totalPages - 1, end);
+
+            if (start > 2)
+            {
+                items.Add(PaginationItem.Ellipsis());
+            }
+
+            for (var page = start; page <= end; page++)
+            {
+                if (page > 1 && page < totalPages)
+                {
+                    items.Add(new PaginationItem(page));
+                }
+            }
+
+            if (end < totalPages - 1)
+            {
+                items.Add(PaginationItem.Ellipsis());
+            }
+
+            items.Add(new PaginationItem(totalPages));
+
+            return items;
+        }
+    }
+
+    private void GoToGistPage(int pageNumber)
+    {
+        if (pageNumber < 1 || pageNumber > GistTotalPages || pageNumber == gistCurrentPage) return;
+        gistCurrentPage = pageNumber;
+        UpdateGistPagination();
+    }
+
+    private void PreviousGistPage()
+    {
+        if (!CanGoPreviousGist) return;
+        gistCurrentPage--;
+        UpdateGistPagination();
+    }
+
+    private void NextGistPage()
+    {
+        if (!CanGoNextGist) return;
+        gistCurrentPage++;
+        UpdateGistPagination();
+    }
+
+    private void GoToFirstGist()
+    {
+        if (!CanGoPreviousGist) return;
+        gistCurrentPage = 1;
+        UpdateGistPagination();
+    }
+
+    private void GoToLastGist()
+    {
+        if (!CanGoNextGist) return;
+        gistCurrentPage = GistTotalPages;
+        UpdateGistPagination();
+    }
+
+    private string GetGistPageButtonClass(int pageNumber)
+    {
+        return pageNumber == gistCurrentPage
+            ? "pagination-link is-current"
+            : "pagination-link";
+    }
+
+    private string? GetGistAriaCurrent(int pageNumber) => pageNumber == gistCurrentPage ? "page" : null;
+    private string GetGistPageAriaLabel(int pageNumber) => pageNumber == gistCurrentPage ? $"Current page, page {pageNumber}" : $"Go to page {pageNumber}";
 
     private readonly record struct PaginationItem
     {

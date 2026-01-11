@@ -1,0 +1,238 @@
+/* Repository Card - Modern Design */
+.repo-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.repo-card:hover {
+    border-color: var(--accent-color);
+    box-shadow: var(--shadow-lg);
+}
+
+.repo-card.compact {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0 1rem 1rem 1rem;
+}
+
+.repo-card.compact:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.repo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.repo-card.compact .repo-card-header {
+    padding: 0;
+    border-bottom: none;
+    margin-bottom: 0.75rem;
+}
+
+.repo-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.repo-category {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.repo-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.repo-name a {
+    color: var(--text-primary);
+    transition: color 0.2s ease;
+}
+
+.repo-name a:hover {
+    color: var(--accent-color);
+}
+
+.repo-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.repo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--dark-bg);
+    color: var(--text-secondary);
+}
+
+.repo-badge.language {
+    background: rgba(var(--lang-color-rgb, 136, 149, 158), 0.15);
+}
+
+.repo-badge.language .lang-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--lang-color, #8b949e);
+}
+
+.repo-badge.archived { color: var(--warning-color); }
+.repo-badge.template { color: var(--info-color); }
+.repo-badge.forked { color: var(--accent-color); }
+
+.repo-description {
+    padding: 0 1.25rem;
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.repo-card.compact .repo-description {
+    padding: 0;
+    -webkit-line-clamp: 2;
+}
+
+.repo-stats {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+}
+
+.repo-card.compact .repo-stats {
+    padding: 0.75rem 0;
+}
+
+.repo-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.repo-stat i {
+    font-size: 0.8rem;
+}
+
+.repo-stat[title="Stars"] i { color: var(--warning-color); }
+.repo-stat[title="Forks"] i { color: var(--accent-color); }
+.repo-stat[title="Open Issues"] i { color: var(--danger-color); }
+.repo-stat[title="Watchers"] i { color: var(--info-color); }
+
+.repo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0 1.25rem 1rem;
+}
+
+.repo-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--dark-bg);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.repo-action-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--text-primary);
+    background: var(--card-bg-hover);
+}
+
+.repo-action-btn.primary:hover { border-color: var(--text-primary); }
+.repo-action-btn.link:hover { border-color: var(--info-color); color: var(--info-color); }
+.repo-action-btn.star:hover { border-color: var(--warning-color); color: var(--warning-color); }
+.repo-action-btn.readme:hover { border-color: var(--success-color); color: var(--success-color); }
+
+.repo-footer {
+    margin-top: auto;
+    padding: 1rem 1.25rem;
+    background: var(--dark-bg);
+    border-top: 1px solid var(--border-color);
+}
+
+.repo-card.compact .repo-footer {
+    padding: 0.75rem 0 0;
+    background: transparent;
+    border-top: 1px solid var(--border-color);
+}
+
+.repo-dates {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.repo-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.repo-date i {
+    font-size: 0.7rem;
+}
+
+.repo-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.repo-topic {
+    padding: 0.2rem 0.6rem;
+    background: rgba(88, 166, 255, 0.1);
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    border-radius: 20px;
+    color: var(--accent-color);
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.repo-topic.more {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-muted);
+}

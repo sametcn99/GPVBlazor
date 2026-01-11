@@ -116,6 +116,45 @@ namespace GPVBlazor.Services
             return repos;
         }
 
+        public async Task<List<Gist>> FetchUserGists(string username, string token, int count, int page = 1)
+        {
+            string cacheKey = $"UserGists-{username}";
+            if (_memoryCache.TryGetValue(cacheKey, out List<Gist>? cachedGists)) return cachedGists ?? new List<Gist>();
+
+            var gists = new List<Gist>();
+            var pages = (int)Math.Ceiling(count / 100.0);
+
+            var pageTasks = Enumerable.Range(page, pages).Select(async currentPage =>
+            {
+                try
+                {
+                    var gistsRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/gists?per_page=100&page={currentPage}");
+                    gistsRequest.Headers.Add("User-Agent", "BlazorApp");
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                        gistsRequest.Headers.Authorization = authHeader;
+                    }
+
+                    var gistsResponse = await _httpClient.SendAsync(gistsRequest);
+                    if (!gistsResponse.IsSuccessStatusCode) return new List<Gist>();
+
+                    var pageGists = JsonSerializer.Deserialize<List<Gist>>(await gistsResponse.Content.ReadAsStringAsync());
+                    return pageGists ?? new List<Gist>();
+                }
+                catch
+                {
+                    return new List<Gist>();
+                }
+            });
+
+            var allGists = await Task.WhenAll(pageTasks);
+            gists.AddRange(allGists.SelectMany(g => g));
+
+            _memoryCache.Set(cacheKey, gists, TimeSpan.FromHours(1));
+            return gists;
+        }
+
         public async Task<List<Repository>> FetchReadmes(string username, string token, List<Repository> repositories)
         {
             var readmeTasks = repositories.Select(async repo =>

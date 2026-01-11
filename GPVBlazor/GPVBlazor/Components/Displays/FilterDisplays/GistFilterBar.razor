@@ -1,0 +1,158 @@
+@using GPVBlazor.Models
+@using GPVBlazor.Services.Interfaces
+@inject IGistFilterService filterService
+
+<section class="box mb-4" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+    <div class="is-flex is-align-items-center is-justify-content-space-between mb-4">
+        <h3 class="title is-5 mb-0">
+            <span class="icon has-text-primary">
+                <i class="fas fa-filter"></i>
+            </span>
+            <span>Filter Gists</span>
+        </h3>
+        <button type="button"
+                class="button is-small is-light"
+                @onclick="ToggleCollapse">
+            <span class="icon">
+                <i class="fas @(isCollapsed ? "fa-chevron-down" : "fa-chevron-up")"></i>
+            </span>
+            <span>@(isCollapsed ? "Show Filters" : "Hide Filters")</span>
+        </button>
+    </div>
+
+    @if (!isCollapsed)
+    {
+        <div class="field">
+            <label class="label">Search</label>
+            <div class="control has-icons-left">
+                <input type="text"
+                       value="@searchQuery"
+                       @oninput="OnSearchQueryChanged"
+                       class="input"
+                       placeholder="Search gists...">
+                <span class="icon is-left">
+                    <i class="fas fa-search"></i>
+                </span>
+            </div>
+        </div>
+
+        <div class="columns is-multiline">
+            <div class="column is-6">
+                <div class="field">
+                    <label class="label">Sort By</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select @onchange="HandleSortChange">
+                                <option value="">Default</option>
+                                <option value="Updated Descending">🔄 Recently Updated</option>
+                                <option value="Updated Ascending">🔄 Least Updated</option>
+                                <option value="Created Descending">🆕 Newest First</option>
+                                <option value="Created Ascending">🕐 Oldest First</option>
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-sort"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-6">
+                <div class="field">
+                    <label class="label">Language</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select @onchange="HandleLanguageChange">
+                                <option value="">All Languages</option>
+                                @foreach (var language in Languages)
+                                {
+                                    <option value="@language">@language</option>
+                                }
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-code"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-12">
+                <div class="field">
+                    <label class="label">Items Per Page</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select value="@selectedPageSize" @onchange="HandlePageSizeChange">
+                                @foreach (var option in pageSizeOptions)
+                                {
+                                    <option value="@option">@option</option>
+                                }
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-layer-group"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public List<Gist>? Gists { get; set; }
+
+    public List<Gist>? _Gists { get; set; }
+
+    [Parameter]
+    public EventCallback<List<Gist>> OnFilteredGistsChanged { get; set; }
+    [Parameter]
+    public int PageSize { get; set; } = 6;
+    [Parameter]
+    public EventCallback<int> OnPageSizeChanged { get; set; }
+
+    private List<Gist>? FilteredGists { get; set; }
+
+    private List<string> Languages { get; set; } = new();
+    private readonly int[] pageSizeOptions = new[] { 6, 10, 20, 50, 100 };
+
+    private string searchQuery = string.Empty;
+    private string selectedSort = string.Empty;
+    private string selectedLanguage = string.Empty;
+    private int selectedPageSize = 6;
+    private bool isCollapsed;
+
+    protected override void OnInitialized()
+    {
+        if (Gists == null) return;
+        Languages = Gists.SelectMany(g => g.Files?.Values.Select(f => f.Language) ?? Enumerable.Empty<string>())
+                         .Where(l => !string.IsNullOrEmpty(l))
+                         .Distinct()
+                         .OrderBy(l => l)
+                         .ToList()!;
+        _Gists = Gists;
+        selectedPageSize = pageSizeOptions.Contains(PageSize) ? PageSize : pageSizeOptions.First();
+    }
+
+    private void OnSearchQueryChanged(ChangeEventArgs e) { searchQuery = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
+    private void HandleSortChange(ChangeEventArgs e) { selectedSort = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
+    private void HandleLanguageChange(ChangeEventArgs e) { selectedLanguage = e.Value?.ToString() ?? string.Empty; ApplyFilters(); }
+    private async Task HandlePageSizeChange(ChangeEventArgs e)
+    {
+        if (e.Value is null) return;
+        if (!int.TryParse(e.Value.ToString(), out var newSize)) return;
+        if (!pageSizeOptions.Contains(newSize)) return;
+        if (newSize == selectedPageSize) return;
+        selectedPageSize = newSize;
+        await OnPageSizeChanged.InvokeAsync(selectedPageSize);
+    }
+    private void ToggleCollapse() => isCollapsed = !isCollapsed;
+
+    private void ApplyFilters()
+    {
+        FilteredGists = filterService.FilterGists(Gists!, _Gists!, searchQuery, selectedSort, selectedLanguage);
+        OnFilteredGistsChanged.InvokeAsync(FilteredGists);
+        StateHasChanged();
+    }
+}

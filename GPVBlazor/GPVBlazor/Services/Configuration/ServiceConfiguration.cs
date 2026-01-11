@@ -18,6 +18,7 @@ namespace GPVBlazor.Services.Configuration
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IRepositoryFilterService, RepositoryFilterService>();
+            services.AddScoped<IGistFilterService, GistFilterService>();
             services.AddHttpClient<AuthService>();
             services.AddScoped<IAuthService>(sp => new AuthService(
                 sp.GetRequiredService<HttpClient>(),
