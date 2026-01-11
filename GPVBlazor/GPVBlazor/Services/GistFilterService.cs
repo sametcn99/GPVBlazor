@@ -37,6 +37,12 @@ namespace GPVBlazor.Services
                 case "Created Ascending":
                     query = query.OrderBy(g => g.CreatedAt);
                     break;
+                case "Stars Descending":
+                    query = query.OrderByDescending(g => g.StargazersCount);
+                    break;
+                case "Stars Ascending":
+                    query = query.OrderBy(g => g.StargazersCount);
+                    break;
             }
 
             return query.ToList();

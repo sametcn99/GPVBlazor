@@ -2,6 +2,7 @@
 using GPVBlazor.Services.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 
 namespace GPVBlazor.Services
@@ -122,6 +123,24 @@ namespace GPVBlazor.Services
             if (_memoryCache.TryGetValue(cacheKey, out List<Gist>? cachedGists)) return cachedGists ?? new List<Gist>();
 
             var gists = new List<Gist>();
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                try
+                {
+                    var graphQLGists = await FetchUserGistsGraphQL(username, token, count);
+                    if (graphQLGists != null)
+                    {
+                        _memoryCache.Set(cacheKey, graphQLGists, TimeSpan.FromHours(1));
+                        return graphQLGists;
+                    }
+                }
+                catch
+                {
+                    // Fallback to REST if GraphQL fails
+                }
+            }
+
             var pages = (int)Math.Ceiling(count / 100.0);
 
             var pageTasks = Enumerable.Range(page, pages).Select(async currentPage =>
@@ -152,6 +171,115 @@ namespace GPVBlazor.Services
             gists.AddRange(allGists.SelectMany(g => g));
 
             _memoryCache.Set(cacheKey, gists, TimeSpan.FromHours(1));
+            return gists;
+        }
+
+        private async Task<List<Gist>?> FetchUserGistsGraphQL(string username, string token, int count)
+        {
+            var gists = new List<Gist>();
+            string? cursor = null;
+            bool hasNextPage = true;
+
+            while (hasNextPage && gists.Count < count)
+            {
+                var query = new
+                {
+                    query = @"
+                    query ($username: String!, $cursor: String) {
+                        user(login: $username) {
+                            gists(first: 100, after: $cursor, orderBy: {field: CREATED_AT, direction: DESC}) {
+                                pageInfo {
+                                    endCursor
+                                    hasNextPage
+                                }
+                                nodes {
+                                    id
+                                    description
+                                    url
+                                    isPublic
+                                    createdAt
+                                    updatedAt
+                                    stargazerCount
+                                    comments {
+                                        totalCount
+                                    }
+                                    files {
+                                        name
+                                        language {
+                                            name
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }",
+                    variables = new { username, cursor }
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Post, "https://api.github.com/graphql");
+                request.Headers.Add("User-Agent", "BlazorApp");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Content = new StringContent(JsonSerializer.Serialize(query), Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode) return null;
+
+                var content = await response.Content.ReadAsStringAsync();
+                using var doc = JsonDocument.Parse(content);
+
+                if (doc.RootElement.TryGetProperty("errors", out _)) return null;
+
+                if (!doc.RootElement.TryGetProperty("data", out var data) ||
+                    !data.TryGetProperty("user", out var user) ||
+                    !user.TryGetProperty("gists", out var gistsData)) return null;
+
+                var nodes = gistsData.GetProperty("nodes");
+
+                foreach (var node in nodes.EnumerateArray())
+                {
+                    var gist = new Gist
+                    {
+                        Id = node.GetProperty("id").GetString(),
+                        Description = node.GetProperty("description").GetString(),
+                        HtmlUrl = node.GetProperty("url").GetString(),
+                        Public = node.GetProperty("isPublic").GetBoolean(),
+                        CreatedAt = node.GetProperty("createdAt").GetDateTime(),
+                        UpdatedAt = node.GetProperty("updatedAt").GetDateTime(),
+                        StargazersCount = node.GetProperty("stargazerCount").GetInt32(),
+                        Comments = node.GetProperty("comments").GetProperty("totalCount").GetInt32(),
+                        Files = new Dictionary<string, GistFile>()
+                    };
+
+                    if (node.TryGetProperty("files", out var filesElement))
+                    {
+                        foreach (var file in filesElement.EnumerateArray())
+                        {
+                            var filename = file.GetProperty("name").GetString();
+                            var language = file.GetProperty("language").ValueKind == JsonValueKind.Null
+                                ? null
+                                : file.GetProperty("language").GetProperty("name").GetString();
+
+                            if (filename != null)
+                            {
+                                gist.Files[filename] = new GistFile
+                                {
+                                    Filename = filename,
+                                    Language = language
+                                };
+                            }
+                        }
+                    }
+                    gists.Add(gist);
+                }
+
+                var pageInfo = gistsData.GetProperty("pageInfo");
+                hasNextPage = pageInfo.GetProperty("hasNextPage").GetBoolean();
+                if (hasNextPage)
+                {
+                    cursor = pageInfo.GetProperty("endCursor").GetString();
+                }
+            }
+
             return gists;
         }
 

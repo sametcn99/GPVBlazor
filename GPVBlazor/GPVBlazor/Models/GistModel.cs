@@ -64,6 +64,9 @@ namespace GPVBlazor.Models
         [JsonPropertyName("comments")]
         public int Comments { get; set; }
 
+        [JsonPropertyName("stargazers_count")]
+        public int StargazersCount { get; set; }
+
         [JsonPropertyName("user")]
         public User? User { get; set; }
 
