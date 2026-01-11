@@ -1,6 +1,8 @@
 ﻿@rendermode InteractiveServer
 @using GPVBlazor.Models
 @inject Services.Interfaces.IContactService ContactService
+@inject Services.Interfaces.IUserService UserService
+@inject NavigationManager NavigationManager
 
 @if (UserProfile is null) { return; }
 <div class="profile-hero-card box mb-5">
@@ -91,6 +93,19 @@
                     <i class="fas fa-calendar-alt"></i>
                     <span>Joined @UserProfile.CreatedAt.ToString("MMMM yyyy")</span>
                 </div>
+                @if (organizations is not null && organizations.Any())
+                {
+                    <div class="profile-detail-item organizations-section">
+                        <div class="organizations-list">
+                            @foreach (var org in organizations)
+                            {
+                                <a href="/p/@org.Login" class="organization-logo-btn" data-tooltip="@org.Login">
+                                    <img src="@org.AvatarUrl" alt="@org.Login" />
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 
@@ -173,6 +188,16 @@ else if (showFollowingModal is true)
     private List<User>? followings;
     private bool showFollowingModal = false;
     private bool isLoadingFollowing = false;
+
+    private List<Organization>? organizations;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (UserProfile?.Login is not null && token is not null)
+        {
+            organizations = await UserService.FetchUserOrganizations(UserProfile.Login, token);
+        }
+    }
 
     private string FormatCount(int count)
     {

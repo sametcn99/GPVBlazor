@@ -429,5 +429,32 @@ namespace GPVBlazor.Services
                 return null;
             }
         }
+
+        public async Task<List<Organization>> FetchUserOrganizations(string username, string token)
+        {
+            string cacheKey = $"UserOrganizations-{username}";
+            if (_memoryCache.TryGetValue(cacheKey, out List<Organization>? cachedOrgs)) return cachedOrgs ?? new List<Organization>();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/orgs");
+            request.Headers.Add("User-Agent", "BlazorApp");
+            if (!string.IsNullOrEmpty(token))
+            {
+                var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Authorization = authHeader;
+            }
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var orgs = JsonSerializer.Deserialize<List<Organization>>(content);
+                if (orgs is not null)
+                {
+                    _memoryCache.Set(cacheKey, orgs, TimeSpan.FromHours(1));
+                    return orgs;
+                }
+            }
+            return new List<Organization>();
+        }
     }
 }
