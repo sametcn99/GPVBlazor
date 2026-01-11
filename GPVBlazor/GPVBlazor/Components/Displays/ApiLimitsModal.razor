@@ -1,0 +1,33 @@
+@inject Services.Interfaces.IAuthService AuthService
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
+
+<div class="modal @(IsActive ? "is-active" : "")">
+    <div class="modal-background" @onclick="Close"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">API Rate Limits</p>
+            <button class="delete" aria-label="close" @onclick="Close"></button>
+        </header>
+        <section class="modal-card-body">
+            <GPVBlazor.Components.Displays.AuthQuotaDisplay />
+        </section>
+        <footer class="modal-card-foot is-justify-content-flex-end">
+            <button class="button" @onclick="Close">Close</button>
+        </footer>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsActive { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsActiveChanged { get; set; }
+
+    private async Task Close()
+    {
+        IsActive = false;
+        await IsActiveChanged.InvokeAsync(IsActive);
+    }
+}

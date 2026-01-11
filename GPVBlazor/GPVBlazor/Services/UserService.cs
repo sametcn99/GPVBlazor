@@ -231,5 +231,36 @@ namespace GPVBlazor.Services
                 return new StarHistory();
             }
         }
+
+        public async Task<ContributionResponse?> FetchUserContributions(string username)
+        {
+            string cacheKey = $"UserContributions-{username}";
+            if (_memoryCache.TryGetValue(cacheKey, out ContributionResponse? cachedContributions))
+                return cachedContributions;
+
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, $"https://github-contributions-api.jogruber.de/v4/{username}?y=last");
+                // No auth needed for this public API
+                
+                var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var contributions = JsonSerializer.Deserialize<ContributionResponse>(content);
+                    
+                    if (contributions is not null)
+                    {
+                        _memoryCache.Set(cacheKey, contributions, TimeSpan.FromHours(24));
+                        return contributions;
+                    }
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

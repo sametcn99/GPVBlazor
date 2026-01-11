@@ -1,6 +1,8 @@
 ﻿@using GPVBlazor.Models
 @using GPVBlazor.Components.Displays
 @using GPVBlazor.Components.Displays.Charts
+@using GPVBlazor.Services.Interfaces
+@inject IUserService UserService
 
 @if (UserStats is not null)
 {
@@ -127,6 +129,47 @@
                     </div>
                 </div>
             </div>
+
+            @if (contributions != null && contributions.Contributions != null)
+            {
+                <div class="contribution-section mt-5">
+                    <div class="contribution-header mb-3">
+                        <h3 class="subtitle is-5 m-0">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            Contribution Activity
+                        </h3>
+                        @if (contributions.Contributions.Any())
+                        {
+                            <span class="contribution-date-range">
+                                @DateTime.Parse(contributions.Contributions.First().Date).ToString("MMM d, yyyy")
+                                -
+                                @DateTime.Parse(contributions.Contributions.Last().Date).ToString("MMM d, yyyy")
+                            </span>
+                        }
+                    </div>
+                    <div class="contribution-graph-wrapper">
+                        <div class="contribution-graph">
+                            @{
+                                var firstDay = contributions.Contributions.FirstOrDefault();
+                                if (firstDay != null && DateTime.TryParse(firstDay.Date, out var date))
+                                {
+                                    var offset = (int)date.DayOfWeek;
+                                    for (int i = 0; i < offset; i++)
+                                    {
+                                        <div class="contribution-day empty"></div>
+                                    }
+                                }
+                            }
+                            @foreach (var day in contributions.Contributions)
+                            {
+                                <div class="contribution-day level-@day.Level"
+                                     data-tooltip="@($"{day.Count} contributions on {DateTime.Parse(day.Date).ToString("MMM d, yyyy")}")">
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         }
 
         @if (activeTab == "highlights")
@@ -205,6 +248,18 @@
     [Parameter] public string? Token { get; set; }
 
     private string activeTab = "overview";
+    private ContributionResponse? contributions;
+    private string? _lastUsername;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (user != null && user.Login != _lastUsername)
+        {
+            _lastUsername = user.Login;
+            contributions = null;
+            contributions = await UserService.FetchUserContributions(user.Login);
+        }
+    }
 
     private string FormatNumber(int number)
     {

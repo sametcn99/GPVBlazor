@@ -9,5 +9,6 @@ namespace GPVBlazor.Services.Interfaces
         Task<List<Repository>> FetchReadmes(string username, string token, List<Repository> repositories);
         Task<UserSearchResult> SearchUsers(string inputValue);
         Task<StarHistory> FetchStarHistory(string owner, string repo, string token);
+        Task<ContributionResponse?> FetchUserContributions(string username);
     }
 }

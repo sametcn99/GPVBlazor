@@ -10,6 +10,7 @@ namespace GPVBlazor.Services
         private readonly IConfiguration _configuration;
 
         public string? CurrentAccessToken { get; private set; }
+        public Models.User? CurrentUser { get; private set; }
         public event Action? OnAuthStateChanged;
 
         private string? ClientId => _configuration["ClientId"] ?? _configuration["GitHub:ClientId"];
@@ -26,11 +27,13 @@ namespace GPVBlazor.Services
         {
             CurrentAccessToken = token;
             OnAuthStateChanged?.Invoke();
+            _ = FetchCurrentUserAsync(token);
         }
 
         public void Logout()
         {
             CurrentAccessToken = null;
+            CurrentUser = null;
             OnAuthStateChanged?.Invoke();
         }
 
@@ -40,6 +43,27 @@ namespace GPVBlazor.Services
             var scopes = "public_repo,read:user,user:email,gist";
 
             return $"https://github.com/login/oauth/authorize?client_id={ClientId}&redirect_uri={RedirectUri}&scope={scopes}";
+        }
+
+        public async Task<Models.User?> FetchCurrentUserAsync(string token)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user");
+            request.Headers.Add("User-Agent", "BlazorApp");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var user = JsonSerializer.Deserialize<Models.User>(content);
+                if (user != null)
+                {
+                    CurrentUser = user;
+                    OnAuthStateChanged?.Invoke();
+                    return user;
+                }
+            }
+            return null;
         }
 
         public async Task<string?> GetAccessTokenFromCodeAsync(string code)

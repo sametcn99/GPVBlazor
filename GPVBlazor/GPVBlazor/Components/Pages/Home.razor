@@ -191,8 +191,213 @@
     </div>
 </section>
 
+<!-- Featured Profiles Showcase Section -->
+<section class="section">
+    <div class="container">
+        <div class="has-text-centered mb-6">
+            <h2 class="title is-3 has-text-weight-bold">
+                <span class="icon has-text-info mr-2">
+                    <i class="fas fa-user-astronaut"></i>
+                </span>
+                Discover Popular Profiles
+            </h2>
+            <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
+                Get started by exploring profiles of notable developers and open-source contributors
+            </p>
+        </div>
+        <div class="columns is-multiline is-centered">
+            @foreach (var profile in featuredProfiles)
+            {
+                <div class="column is-2-desktop is-4-tablet is-6-mobile">
+                    <a href="/p/@profile.Username" class="featured-profile-card box has-text-centered" style="height: 100%; display: block; transition: transform 0.2s ease, border-color 0.2s ease;">
+                        <figure class="image is-96x96 mx-auto mb-3">
+                            <img class="is-rounded" src="https://avatars.githubusercontent.com/@profile.Username" alt="@profile.Name" loading="lazy" style="border: 3px solid var(--border-color);">
+                        </figure>
+                        <p class="title is-6 mb-1">@profile.Name</p>
+                        <p class="is-size-7 has-text-grey">@@@profile.Username</p>
+                        <span class="tag is-dark is-small mt-2">
+                            <span class="icon is-small mr-1">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            View
+                        </span>
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="has-text-centered mt-5">
+            <p class="is-size-6 has-text-grey">
+                <span class="icon is-small has-text-info mr-1">
+                    <i class="fas fa-lightbulb"></i>
+                </span>
+                Or search for any GitHub username above to explore their profile
+            </p>
+        </div>
+    </div>
+</section>
+
 <!-- Features Section -->
 <FeaturesDisplay />
+
+<!-- Use Cases / Benefits Section -->
+<section class="section" style="background-color: var(--card-bg);">
+    <div class="container">
+        <div class="has-text-centered mb-6">
+            <h2 class="title is-3 has-text-weight-bold">
+                <span class="icon has-text-success mr-2">
+                    <i class="fas fa-bullseye"></i>
+                </span>
+                Perfect For
+            </h2>
+            <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
+                Whether you're a developer, recruiter, or learner — GPV helps you explore GitHub like never before
+            </p>
+        </div>
+        <div class="columns is-multiline">
+            @foreach (var useCase in useCases)
+            {
+                <div class="column is-4-desktop is-6-tablet">
+                    <div class="box" style="height: 100%;">
+                        <div class="is-flex is-align-items-start">
+                            <span class="icon is-large has-text-@useCase.Color mr-4" style="font-size: 2.5rem; flex-shrink: 0;">
+                                <i class="@useCase.Icon"></i>
+                            </span>
+                            <div>
+                                <h3 class="title is-5 mb-2">@useCase.Title</h3>
+                                <p class="has-text-grey-light">@useCase.Description</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Technology Stack Section -->
+<section class="section">
+    <div class="container">
+        <div class="has-text-centered mb-6">
+            <h2 class="title is-3 has-text-weight-bold">
+                <span class="icon has-text-link mr-2">
+                    <i class="fas fa-layer-group"></i>
+                </span>
+                Built With Modern Tech
+            </h2>
+            <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
+                Powered by cutting-edge technologies for speed, reliability, and great developer experience
+            </p>
+        </div>
+        <div class="columns is-multiline is-centered">
+            @foreach (var tech in technologies)
+            {
+                <div class="column is-narrow">
+                    <div class="box has-text-centered px-5 py-4" style="min-width: 140px;">
+                        <span class="icon is-large has-text-@tech.Color mb-2" style="font-size: 2.5rem;">
+                            <i class="@tech.Icon"></i>
+                        </span>
+                        <p class="title is-6 mb-1">@tech.Name</p>
+                        <p class="is-size-7 has-text-grey">@tech.Description</p>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="has-text-centered mt-5">
+            <div class="tags is-centered">
+                <span class="tag is-success is-light">
+                    <span class="icon is-small mr-1"><i class="fas fa-lock"></i></span>
+                    Secure
+                </span>
+                <span class="tag is-info is-light">
+                    <span class="icon is-small mr-1"><i class="fas fa-bolt"></i></span>
+                    Fast
+                </span>
+                <span class="tag is-warning is-light">
+                    <span class="icon is-small mr-1"><i class="fas fa-code-branch"></i></span>
+                    Open Source
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="section" style="background-color: var(--card-bg);">
+    <div class="container">
+        <div class="has-text-centered mb-6">
+            <h2 class="title is-3 has-text-weight-bold">
+                <span class="icon has-text-warning mr-2">
+                    <i class="fas fa-question-circle"></i>
+                </span>
+                Frequently Asked Questions
+            </h2>
+            <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
+                Quick answers to common questions about GitHub Profile Viewer
+            </p>
+        </div>
+        <div class="columns is-centered">
+            <div class="column is-8">
+                @foreach (var faq in faqs)
+                {
+                    <div class="box mb-4">
+                        <div class="is-flex is-align-items-start">
+                            <span class="icon has-text-primary mr-3" style="flex-shrink: 0;">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                            <div>
+                                <h3 class="title is-5 mb-2">@faq.Question</h3>
+                                <p class="has-text-grey-light">@faq.Answer</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Open Source CTA Section -->
+<section class="section">
+    <div class="container">
+        <div class="box" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border: 1px solid rgba(102, 126, 234, 0.3);">
+            <div class="has-text-centered">
+                <span class="icon is-large has-text-primary mb-4" style="font-size: 3rem;">
+                    <i class="fas fa-heart"></i>
+                </span>
+                <h2 class="title is-3 mb-3">Open Source & Community Driven</h2>
+                <p class="subtitle is-5 has-text-grey mb-5" style="max-width: 600px; margin: 0 auto;">
+                    GPV is built by the community, for the community. We welcome contributions of all kinds!
+                </p>
+                <div class="buttons is-centered">
+                    <a href="https://github.com/sametcn99/GPVBlazor" target="_blank" rel="noopener" class="button is-dark is-medium">
+                        <span class="icon">
+                            <i class="fab fa-github"></i>
+                        </span>
+                        <span>View on GitHub</span>
+                    </a>
+                    <a href="https://github.com/sametcn99/GPVBlazor/stargazers" target="_blank" rel="noopener" class="button is-warning is-medium">
+                        <span class="icon">
+                            <i class="fas fa-star"></i>
+                        </span>
+                        <span>Star the Project</span>
+                    </a>
+                    <a href="https://github.com/sametcn99/GPVBlazor/issues" target="_blank" rel="noopener" class="button is-info is-medium is-outlined">
+                        <span class="icon">
+                            <i class="fas fa-bug"></i>
+                        </span>
+                        <span>Report Issues</span>
+                    </a>
+                </div>
+                <p class="is-size-7 has-text-grey mt-4">
+                    <span class="icon is-small mr-1">
+                        <i class="fas fa-code-branch"></i>
+                    </span>
+                    Fork, contribute, and help us make GPV even better!
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Personal Access Token Modal -->
 <GPVBlazor.Components.Displays.PersonalAccessTokenModal IsActive="@showPATModal" IsActiveChanged="@OnPATModalChanged" />
@@ -201,6 +406,133 @@
     private string? AuthToken { get; set; }
     private bool showPATModal = false;
     private string? authSource;
+
+    // Featured Profiles Data
+    private List<FeaturedProfile> featuredProfiles = new()
+    {
+        new FeaturedProfile { Username = "torvalds", Name = "Linus Torvalds" },
+        new FeaturedProfile { Username = "gaearon", Name = "Dan Abramov" },
+        new FeaturedProfile { Username = "sindresorhus", Name = "Sindre Sorhus" },
+        new FeaturedProfile { Username = "tj", Name = "TJ Holowaychuk" },
+        new FeaturedProfile { Username = "yyx990803", Name = "Evan You" },
+        new FeaturedProfile { Username = "addyosmani", Name = "Addy Osmani" }
+    };
+
+    // Use Cases Data
+    private List<UseCase> useCases = new()
+    {
+        new UseCase
+        {
+            Icon = "fas fa-laptop-code",
+            Title = "Developers",
+            Description = "Explore other developers' projects, discover coding patterns, and find inspiration for your next project.",
+            Color = "primary"
+        },
+        new UseCase
+        {
+            Icon = "fas fa-user-tie",
+            Title = "Recruiters",
+            Description = "Quickly evaluate candidates' GitHub portfolios, assess their contributions, and understand their technical expertise.",
+            Color = "info"
+        },
+        new UseCase
+        {
+            Icon = "fas fa-graduation-cap",
+            Title = "Learners",
+            Description = "Find inspiration from experienced developers, study popular repositories, and learn best practices from the best.",
+            Color = "success"
+        },
+        new UseCase
+        {
+            Icon = "fas fa-chart-pie",
+            Title = "Researchers",
+            Description = "Analyze open-source trends, track popular technologies, and gather insights about the developer ecosystem.",
+            Color = "warning"
+        },
+        new UseCase
+        {
+            Icon = "fas fa-hands-helping",
+            Title = "Open Source Contributors",
+            Description = "Discover projects to contribute to, find active maintainers, and connect with the open-source community.",
+            Color = "danger"
+        },
+        new UseCase
+        {
+            Icon = "fas fa-briefcase",
+            Title = "Project Managers",
+            Description = "Evaluate potential team members, assess project activity, and make data-driven hiring decisions.",
+            Color = "link"
+        }
+    };
+
+    // Technologies Data
+    private List<Technology> technologies = new()
+    {
+        new Technology { Icon = "fab fa-microsoft", Name = ".NET 9", Description = "Backend Framework", Color = "link" },
+        new Technology { Icon = "fas fa-fire", Name = "Blazor Server", Description = "Interactive UI", Color = "danger" },
+        new Technology { Icon = "fab fa-css3-alt", Name = "Bulma CSS", Description = "Styling Framework", Color = "info" },
+        new Technology { Icon = "fas fa-chart-bar", Name = "Chart.js", Description = "Data Visualization", Color = "warning" },
+        new Technology { Icon = "fab fa-docker", Name = "Docker", Description = "Containerization", Color = "primary" }
+    };
+
+    // FAQ Data
+    private List<FaqItem> faqs = new()
+    {
+        new FaqItem
+        {
+            Question = "Is GitHub Profile Viewer free to use?",
+            Answer = "Yes! GPV is completely free and open source. You can use all features without any cost, and even contribute to the project on GitHub."
+        },
+        new FaqItem
+        {
+            Question = "Do I need a GitHub token to use GPV?",
+            Answer = "A token is optional but recommended. Without a token, you're limited to 60 API requests per hour. With a personal access token, you get 5,000 requests per hour."
+        },
+        new FaqItem
+        {
+            Question = "Is my personal access token secure?",
+            Answer = "Absolutely! Your token is stored only in your browser's local storage and is never sent to our servers. All API calls are made directly to GitHub from your browser."
+        },
+        new FaqItem
+        {
+            Question = "Can I see private repositories?",
+            Answer = "Only if you provide a personal access token with the appropriate permissions. Without proper token permissions, only public repositories are visible."
+        },
+        new FaqItem
+        {
+            Question = "What data does GPV provide about a profile?",
+            Answer = "GPV shows comprehensive profile information including repositories, stars, forks, languages used, contribution statistics, followers, following, gists, and interactive charts."
+        }
+    };
+
+    // Model Classes
+    private class FeaturedProfile
+    {
+        public string Username { get; set; } = "";
+        public string Name { get; set; } = "";
+    }
+
+    private class UseCase
+    {
+        public string Icon { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Color { get; set; } = "primary";
+    }
+
+    private class Technology
+    {
+        public string Icon { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Color { get; set; } = "primary";
+    }
+
+    private class FaqItem
+    {
+        public string Question { get; set; } = "";
+        public string Answer { get; set; } = "";
+    }
 
     protected override void OnInitialized()
     {

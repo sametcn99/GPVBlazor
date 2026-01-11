@@ -28,77 +28,124 @@
         </div>
 
         <div id="navbarMenu" class="@GetNavbarMenuClass()">
-            <div class="navbar-start ml-4-desktop">
-                <NavLink href="/" Match="NavLinkMatch.All" class="navbar-item">
-                    <span class="icon is-small mr-2"><i class="fas fa-home"></i></span>
-                    <span>Home</span>
-                </NavLink>
-                <a href="/#features" class="navbar-item">
-                    <span class="icon is-small mr-2"><i class="fas fa-star"></i></span>
-                    <span>Features</span>
-                </a>
-            </div>
-
             <div class="navbar-end">
-                <GPVBlazor.Components.Displays.SearchBarDisplay IsNavbarMode="true" />
-                <div class="navbar-item">
-                    @if (string.IsNullOrEmpty(AuthService.CurrentAccessToken))
-                    {
-                        <a href="@AuthService.GetGitHubLoginUrl()" class="button is-primary is-outlined">
-                            <span class="icon">
-                                <i class="fab fa-github"></i>
-                            </span>
-                            <span>Sign In</span>
-                        </a>
-                    }
-                    else
-                    {
-                        <button class="button is-danger is-light" @onclick="SignOut">
-                            <span class="icon">
-                                <i class="fas fa-sign-out-alt"></i>
-                            </span>
-                            <span>Sign Out</span>
-                        </button>
-                    }
+                        <GPVBlazor.Components.Displays.SearchBarDisplay IsNavbarMode="true" />
+                        <div class="navbar-item">
+                            @if (string.IsNullOrEmpty(AuthService.CurrentAccessToken))
+                            {
+                                <a href="@AuthService.GetGitHubLoginUrl()" class="button is-primary is-outlined">
+                                    <span class="icon">
+                                        <i class="fab fa-github"></i>
+                                    </span>
+                                    <span>Sign In</span>
+                                </a>
+                            }
+                            else
+                            {
+                                @if (isUserMenuActive)
+                                {
+                                    <div class="dropdown-backdrop" @onclick="CloseUserMenu"></div>
+                                }
+                                <div class="dropdown is-right @(isUserMenuActive ? "is-active" : "")">
+                                    <div class="dropdown-trigger">
+                                        <button class="button is-white" @onclick="ToggleUserMenu" aria-haspopup="true" aria-controls="dropdown-menu">
+                                            <figure class="image is-24x24 mr-2">
+                                                <img class="is-rounded" src="@(AuthService.CurrentUser?.AvatarUrl ?? "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")" alt="Avatar">
+                                            </figure>
+                                            <span>@(AuthService.CurrentUser?.Login ?? "User")</span>
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                        <div class="dropdown-content">
+                                            <a href="/p/@(AuthService.CurrentUser?.Login)" class="dropdown-item" @onclick="CloseUserMenu">
+                                                <span class="icon mr-2"><i class="fas fa-user"></i></span>
+                                                Profile
+                                            </a>
+                                            <a class="dropdown-item" @onclick="OpenApiLimitsModal">
+                                                <span class="icon mr-2"><i class="fas fa-tachometer-alt"></i></span>
+                                                API Limits
+                                            </a>
+                                            <hr class="dropdown-divider">
+                                            <a class="dropdown-item has-text-danger" @onclick="SignOut">
+                                                <span class="icon mr-2"><i class="fas fa-sign-out-alt"></i></span>
+                                                Sign Out
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</nav>
-
-@code {
-    private bool isMenuActive = false;
-    private void ToggleNavbar() => isMenuActive = !isMenuActive;
-    private string GetNavbarMenuClass() { return "navbar-menu" + (isMenuActive ? " is-active" : ""); }
-
-    protected override void OnInitialized()
-    {
-        AuthService.OnAuthStateChanged += StateHasChanged;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-            if (!string.IsNullOrEmpty(token))
+        </nav>
+        
+        <GPVBlazor.Components.Displays.ApiLimitsModal @bind-IsActive="isApiLimitsModalActive" />
+        
+        @code {
+            private bool isMenuActive = false;
+            private bool isUserMenuActive = false;
+            private bool isApiLimitsModalActive = false;
+        
+            private void ToggleNavbar() => isMenuActive = !isMenuActive;
+            private void ToggleUserMenu() => isUserMenuActive = !isUserMenuActive;
+            private void CloseUserMenu() => isUserMenuActive = false;
+            
+            private void OpenApiLimitsModal()
             {
-                AuthService.Login(token);
-                StateHasChanged();
+                isApiLimitsModalActive = true;
+                isUserMenuActive = false;
+            }
+        
+            private string GetNavbarMenuClass() { return "navbar-menu" + (isMenuActive ? " is-active" : ""); }
+        
+            protected override void OnInitialized()
+            {
+                AuthService.OnAuthStateChanged += StateHasChanged;
+            }
+        
+            protected override async Task OnAfterRenderAsync(bool firstRender)
+            {
+                if (firstRender)
+                {
+                    var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        AuthService.Login(token);
+                        StateHasChanged();
+                    }
+                }
+            }
+        
+            public void Dispose()
+            {
+                AuthService.OnAuthStateChanged -= StateHasChanged;
+            }
+        
+            private async Task SignOut()
+            {
+                await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
+                await JS.InvokeVoidAsync("localStorage.removeItem", "authSource");
+                AuthService.Logout();
+                NavManager.NavigateTo("/", false);
             }
         }
-    }
-
-    public void Dispose()
-    {
-        AuthService.OnAuthStateChanged -= StateHasChanged;
-    }
-
-    private async Task SignOut()
-    {
-        await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
-        await JS.InvokeVoidAsync("localStorage.removeItem", "authSource");
-        AuthService.Logout();
-        NavManager.NavigateTo("/", false);
-    }
-}
+        
+        <style>
+            .dropdown-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: 998;
+                cursor: default;
+            }
+            
+            .dropdown.is-active {
+                z-index: 999;
+            }
+        </style>

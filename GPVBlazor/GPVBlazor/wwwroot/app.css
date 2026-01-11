@@ -571,3 +571,96 @@ button:focus:not(:focus-visible) {
 /* ==========================================
    PROFILE PAGE Styles moved to Scoped CSS
    ========================================== */
+
+/* ==========================================
+   HOME PAGE - Featured Profiles Section
+   ========================================== */
+
+.featured-profile-card {
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.featured-profile-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 8px 24px rgba(88, 166, 255, 0.15);
+}
+
+.featured-profile-card:hover img {
+    border-color: var(--accent-color) !important;
+}
+
+.featured-profile-card:hover .tag {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Use Cases Section */
+.use-case-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.use-case-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Technology Stack Cards */
+.tech-card {
+    transition: transform 0.2s ease;
+}
+
+.tech-card:hover {
+    transform: scale(1.05);
+}
+
+/* FAQ Section Accordion Style */
+.faq-item {
+    transition: border-color 0.2s ease;
+}
+
+.faq-item:hover {
+    border-color: var(--accent-color);
+}
+
+/* Open Source CTA Section */
+.open-source-cta {
+    position: relative;
+    overflow: hidden;
+}
+
+.open-source-cta::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+    animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Responsive adjustments for home page sections */
+@media screen and (max-width: 768px) {
+    .featured-profile-card figure.image.is-96x96 {
+        width: 64px !important;
+        height: 64px !important;
+    }
+    
+    .featured-profile-card figure.image.is-96x96 img {
+        width: 64px;
+        height: 64px;
+    }
+}
