@@ -89,6 +89,16 @@
                         <a href="https://twitter.com/@UserProfile.TwitterUsername" target="_blank" rel="noopener">@@@UserProfile.TwitterUsername</a>
                     </div>
                 }
+                @if (socialAccounts is not null)
+                {
+                    @foreach (var account in socialAccounts)
+                    {
+                        <div class="profile-detail-item">
+                            <i class="@GetSocialIcon(account.Provider ?? "")"></i>
+                            <a href="@account.Url" target="_blank" rel="noopener">@TruncateUrl(account.Url ?? "")</a>
+                        </div>
+                    }
+                }
                 <div class="profile-detail-item">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Joined @UserProfile.CreatedAt.ToString("MMMM yyyy")</span>
@@ -190,13 +200,39 @@ else if (showFollowingModal is true)
     private bool isLoadingFollowing = false;
 
     private List<Organization>? organizations;
+    private List<SocialAccount>? socialAccounts;
 
     protected override async Task OnParametersSetAsync()
     {
         if (UserProfile?.Login is not null && token is not null)
         {
-            organizations = await UserService.FetchUserOrganizations(UserProfile.Login, token);
+            var orgsTask = UserService.FetchUserOrganizations(UserProfile.Login, token);
+            var socialTask = UserService.FetchUserSocialAccounts(UserProfile.Login, token);
+
+            await Task.WhenAll(orgsTask, socialTask);
+
+            organizations = await orgsTask;
+            socialAccounts = await socialTask;
         }
+    }
+
+    private string GetSocialIcon(string provider)
+    {
+        return provider.ToLower() switch
+        {
+            "linkedin" => "fab fa-linkedin",
+            "twitter" => "fab fa-twitter",
+            "facebook" => "fab fa-facebook",
+            "instagram" => "fab fa-instagram",
+            "youtube" => "fab fa-youtube",
+            "twitch" => "fab fa-twitch",
+            "reddit" => "fab fa-reddit",
+            "mastodon" => "fab fa-mastodon",
+            "tiktok" => "fab fa-tiktok",
+            "discord" => "fab fa-discord",
+            "npm" => "fab fa-npm",
+            _ => "fas fa-link"
+        };
     }
 
     private string FormatCount(int count)

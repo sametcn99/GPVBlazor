@@ -204,6 +204,19 @@
     display: none;
 }
 
+.load-more-btn {
+    background-color: var(--dark-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.load-more-btn:hover {
+    background-color: var(--card-bg-hover);
+    border-color: var(--accent-color);
+    color: var(--text-primary);
+}
+
 /* Activity Filter Bar (if needed in future) */
 .activity-filter-bar {
     display: flex;

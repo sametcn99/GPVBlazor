@@ -469,10 +469,37 @@ namespace GPVBlazor.Services
             return new List<Organization>();
         }
 
-        public async Task<List<Activity>> FetchUserActivities(string username, string token, int page = 1, int perPage = 30)
+        public async Task<List<SocialAccount>> FetchUserSocialAccounts(string username, string token)
         {
-            string cacheKey = $"UserActivities-{username}-{page}-{perPage}";
-            if (_memoryCache.TryGetValue(cacheKey, out List<Activity>? cachedActivities)) return cachedActivities ?? new List<Activity>();
+            string cacheKey = $"UserSocialAccounts-{username}";
+            if (_memoryCache.TryGetValue(cacheKey, out List<SocialAccount>? cachedAccounts)) return cachedAccounts ?? new List<SocialAccount>();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/social_accounts");
+            request.Headers.Add("User-Agent", "BlazorApp");
+            if (!string.IsNullOrEmpty(token))
+            {
+                var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Authorization = authHeader;
+            }
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var accounts = JsonSerializer.Deserialize<List<SocialAccount>>(content);
+                if (accounts is not null)
+                {
+                    _memoryCache.Set(cacheKey, accounts, TimeSpan.FromHours(1));
+                    return accounts;
+                }
+            }
+            return new List<SocialAccount>();
+        }
+
+        public async Task<(List<Activity> Activities, bool HasNextPage)> FetchUserActivities(string username, string token, int page = 1, int perPage = 30)
+        {
+            string cacheKey = $"UserActivities-v2-{username}-{page}-{perPage}";
+            if (_memoryCache.TryGetValue(cacheKey, out (List<Activity>, bool) cachedResult)) return cachedResult;
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/events/public?page={page}&per_page={perPage}");
             request.Headers.Add("User-Agent", "BlazorApp");
@@ -490,14 +517,27 @@ namespace GPVBlazor.Services
                 {
                     PropertyNameCaseInsensitive = true
                 };
-                var activities = JsonSerializer.Deserialize<List<Activity>>(content, options);
-                if (activities is not null)
+                var activities = JsonSerializer.Deserialize<List<Activity>>(content, options) ?? new List<Activity>();
+                
+                bool hasNextPage = false;
+                if (response.Headers.TryGetValues("Link", out var linkValues))
                 {
-                    _memoryCache.Set(cacheKey, activities, TimeSpan.FromMinutes(5));
-                    return activities;
+                    var linkHeader = string.Join(",", linkValues);
+                    if (linkHeader.Contains("rel=\"next\""))
+                    {
+                        hasNextPage = true;
+                    }
                 }
+                else if (activities.Count == perPage)
+                {
+                    hasNextPage = true;
+                }
+
+                var result = (activities, hasNextPage);
+                _memoryCache.Set(cacheKey, result, TimeSpan.FromMinutes(5));
+                return result;
             }
-            return new List<Activity>();
+            return (new List<Activity>(), false);
         }
     }
 }

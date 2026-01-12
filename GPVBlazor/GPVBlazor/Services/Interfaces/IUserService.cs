@@ -12,6 +12,7 @@ namespace GPVBlazor.Services.Interfaces
         Task<StarHistory> FetchStarHistory(string owner, string repo, string token);
         Task<ContributionResponse?> FetchUserContributions(string username);
         Task<List<Organization>> FetchUserOrganizations(string username, string token);
-        Task<List<Activity>> FetchUserActivities(string username, string token, int page = 1, int perPage = 30);
+        Task<List<SocialAccount>> FetchUserSocialAccounts(string username, string token);
+        Task<(List<Activity> Activities, bool HasNextPage)> FetchUserActivities(string username, string token, int page = 1, int perPage = 30);
     }
 }

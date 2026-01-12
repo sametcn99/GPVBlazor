@@ -331,7 +331,7 @@
                     @if (hasMoreActivities)
                     {
                         <div class="has-text-centered mt-4">
-                            <button class="button is-fullwidth @(isLoadingMoreActivities ? "is-loading" : "")" @onclick="LoadMoreActivities">
+                            <button class="button is-fullwidth load-more-btn @(isLoadingMoreActivities ? "is-loading" : "")" @onclick="LoadMoreActivities">
                                 Load More Activity
                             </button>
                         </div>
@@ -428,9 +428,10 @@
 
                 repositories = await repoTask ?? new List<Repository>();
                 gists = await gistTask ?? new List<Gist>();
-                activities = await activityTask ?? new List<Activity>();
+                var activityResult = await activityTask;
+                activities = activityResult.Activities ?? new List<Activity>();
                 
-                hasMoreActivities = activities.Count == 30;
+                hasMoreActivities = activityResult.HasNextPage;
                 activityPage = 1;
 
                 filteredRepositories = repositories.ToList();
@@ -470,12 +471,13 @@
         try
         {
             activityPage++;
-            var newActivities = await UserService.FetchUserActivities(Username, token, activityPage, 30);
+            var result = await UserService.FetchUserActivities(Username, token, activityPage, 30);
+            var newActivities = result.Activities;
             
             if (newActivities != null && newActivities.Any())
             {
                 activities?.AddRange(newActivities);
-                hasMoreActivities = newActivities.Count == 30;
+                hasMoreActivities = result.HasNextPage;
             }
             else
             {
