@@ -1,224 +1,120 @@
-# 🚀 GitHub Profile Viewer
+# GitHub Profile Viewer
 
-A modern, responsive web application built with **Blazor Server** that allows users to explore GitHub profiles and repositories with detailed insights, statistics, and visualizations.
+A modern, responsive web application built with Blazor Server that allows users to explore GitHub profiles and repositories with detailed insights, statistics, and visualizations. This comprehensive tool enables users to search for any GitHub user and view their profile details, repository information, star history, gists, and network connections all in one place.
 
-🌐 **[Live Demo](https://gpv.sametcc.me)** - Try it now!
+[Home Page](https://gpv.sametcc.me/)
 
-![.NET](https://img.shields.io/badge/.NET-9.0-purple?style=for-the-badge&logo=dotnet)
-![Bulma](https://img.shields.io/badge/Bulma-CSS-00D1B2?style=for-the-badge&logo=bulma)
-![Blazor](https://img.shields.io/badge/Blazor-Server-blue?style=for-the-badge&logo=blazor)
-![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge&logo=docker)
+## Features
 
-## ✨ Features
+### Search and Exploration
 
-### 🔍 Profile Exploration
+* **User Search**: Quickly search and find any GitHub user by their username. The real-time search feature provides instant results with user avatars and profile links.
+* **Repository Explorer**: Browse through all public repositories with detailed information including stars, forks, language, and descriptions. Filter and sort repositories by various criteria.
+* **Gist Viewer**: Access and browse user's gists with syntax highlighting. View code snippets, notes, and shared files directly from the profile page.
+* **README Preview**: Read repository README files without leaving the application. Properly rendered markdown content helps you understand projects quickly.
 
-- **User Search**: Search for GitHub users with real-time suggestions
-- **Comprehensive Profile View**: Display user information, statistics, and bio
-- **Repository Analysis**: Browse and analyze user repositories with detailed metrics
-- **Gist Support**: View and explore user's gists
+### Analytics and Visualization
 
-### 📊 Data Visualization
+* **Star History Charts**: Visualize the growth of repository stars over time with interactive charts. Understand how a project's popularity has evolved since its creation.
+* **Profile Statistics**: View comprehensive profile statistics including total stars received, total forks, primary languages, and contribution metrics.
+* **Network Analysis**: Explore a user's network by viewing their followers and following lists. Identify connections and key contributors in the open-source community.
 
-- **Interactive Charts**: Visual representation of repository statistics
-- **Language Distribution**: See programming language usage across repositories
-- **Activity Insights**: Track user activity and contributions
+### User Experience
 
-### 🔐 Authentication & Rate Limiting
+* **Advanced Filtering**: Filter repositories by language, sort by stars or date, and search within a user's repositories to find exactly what you're looking for.
+* **Responsive Design**: Fully responsive interface that works seamlessly across desktop, tablet, and mobile devices.
+* **Rate Limit Monitoring**: Real-time display of API quota usage to help manage GitHub API limits.
 
-- **GitHub Token Integration**: Optional personal access token for enhanced API limits
-- **Rate Limit Monitoring**: Real-time display of API quota usage
-- **Secure Storage**: Tokens stored securely in browser's local storage
-
-### 🎨 User Experience
-
-- **Responsive Design**: Built with Bulma CSS framework for mobile-first experience
-- **Fast Performance**: Server-side rendering with interactive components
-- **Caching System**: Intelligent caching to reduce API calls and improve performance
-
-### 🛠️ Technical Features
-
-- **Modern Architecture**: Clean separation of concerns with services and interfaces
-- **Error Handling**: Comprehensive error handling and user feedback
-- **Docker Support**: Ready for containerized deployment
-- **Memory Caching**: Efficient caching system to optimize API usage
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [Git](https://git-scm.com/)
-- (Optional) [Docker](https://www.docker.com/) for containerized deployment
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/sametcn99/GPVBlazor.git
-   cd GPVBlazor
-   ```
-
-2. **Navigate to the project directory**
-
-   ```bash
-   cd GPVBlazor/GPVBlazor
-   ```
-
-3. **Restore dependencies**
-
-   ```bash
-   dotnet restore
-   ```
-
-4. **Run the application**
-
-   ```bash
-   dotnet run
-   ```
-
-## 🐳 Docker Deployment
-
-### Build and run with Docker
-
-```bash
-# Build the Docker image
-docker build -t gpvblazor .
-
-# Run the container
-docker run -d -p 8080:8080 --name gpvblazor-app gpvblazor
-```
-
-## 🔧 Configuration
-
-### Application Settings
-
-The application can be configured through `appsettings.json`:
-
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*"
-}
-```
-
-### GitHub Token Setup
-
-1. **Generate a Personal Access Token**:
-
-   - Go to GitHub Settings → Developer settings → Personal access tokens
-   - Generate a new token with appropriate permissions
-   - Copy the token
-
-2. **Add Token in Application**:
-
-   - Enter the token in the authentication section on the home page
-   - The token will be stored securely in your browser's local storage
-
-## 🏗️ Project Structure
-
-```text
-GPVBlazor/
-├── Components/                  # Blazor components
-│   ├── Displays/               # Display components
-│   │   ├── AuthQuotaDisplay.razor
-│   │   ├── UserProfileDisplay.razor
-│   │   └── ...
-│   ├── Layout/                 # Layout components
-│   └── Pages/                  # Page components
-├── Services/                   # Business logic services
-│   ├── Interfaces/            # Service interfaces
-│   ├── UserService.cs         # GitHub API interactions
-│   └── ...
-├── Models/                     # Data models
-├── Endpoints/                  # API endpoints
-└── wwwroot/                   # Static assets
-```
-
-## 🛠️ Technologies Used
+## Technologies Used
 
 ### Backend
 
-- **ASP.NET Core 9.0**: Web framework
-- **Blazor Server**: Interactive web UI framework
-- **C#**: Primary programming language
+* **ASP.NET Core 9.0**: The core web framework used for the application.
+* **Blazor Server**: Provides the interactive web UI framework.
+* **C#**: The primary programming language for backend logic.
 
 ### Frontend
 
-- **Blazor Components**: Interactive UI components
-- **Bulma CSS**: Modern CSS framework
-- **JavaScript**: Client-side interactions
-- **Chart.js**: Data visualization
+* **Blazor Components**: Reusable interactive UI components.
+* **Bulma CSS**: A modern CSS framework used for styling and responsive design.
+* **JavaScript**: Used for client-side interactions and integrations.
+* **Chart.js**: Library used for rendering data visualization charts.
 
-### Tools & Libraries
+### Tools and Libraries
 
-- **Markdig**: Markdown processing for README files
-- **Memory Caching**: Performance optimization
-- **HttpClient**: API communication
-- **Docker**: Containerization
+* **Markdig**: Used for processing and rendering Markdown content for README files.
+* **Memory Caching**: Implemented to optimize performance and reduce API calls.
+* **HttpClient**: Handles communication with the GitHub API.
+* **Docker**: Support for containerized deployment.
 
-## 🤝 Contributing
+## Getting Started
 
-Contributions are welcome! Please follow these steps:
+### Prerequisites
 
-1. **Fork the repository**
-2. **Create a feature branch**
+* .NET 9.0 SDK
+* Git
+* (Optional) Docker for containerized deployment
 
-   ```bash
-   git checkout -b feature/AmazingFeature
-   ```
+### Installation
 
-3. **Commit your changes**
+1. Clone the repository:
 
-   ```bash
-   git commit -m 'Add some AmazingFeature'
-   ```
+    ```bash
+    git clone https://github.com/sametcn99/GPVBlazor.git
+    cd GPVBlazor
+    ```
 
-4. **Push to the branch**
+2. Navigate to the project directory:
 
-   ```bash
-   git push origin feature/AmazingFeature
-   ```
+    ```bash
+    cd GPVBlazor/GPVBlazor
+    ```
 
-5. **Open a Pull Request**
+3. Restore dependencies:
 
-## 📝 API Usage
+    ```bash
+    dotnet restore
+    ```
 
-The application interacts with the GitHub API v3. Key endpoints used:
+4. Run the application:
 
-- `GET /users/{username}` - User profile information
-- `GET /users/{username}/repos` - User repositories
-- `GET /repos/{owner}/{repo}/readme` - Repository README files
-- `GET /search/users` - User search functionality
+    ```bash
+    dotnet run
+    ```
 
-## 🚨 Rate Limiting
+## Docker Deployment
 
-- **Without Authentication**: 60 requests per hour
-- **With Personal Access Token**: 5,000 requests per hour
-- The application includes built-in rate limit monitoring and displays current usage
+To build and run the application using Docker:
 
-## 📊 Performance Features
+1. Build the Docker image:
 
-- **Memory Caching**: Reduces API calls by caching responses
-- **Lazy Loading**: Components load data as needed
-- **Batch Processing**: Multiple API calls processed concurrently
-- **Responsive Design**: Optimized for all device sizes
+    ```bash
+    docker build -t gpvblazor .
+    ```
 
-## 🔒 Security
+2. Run the container:
 
-- **No Server-Side Token Storage**: Tokens are stored only in browser local storage
-- **HTTPS Enforced**: All communications encrypted in production
-- **Input Validation**: All user inputs are validated and sanitized
-- **Error Handling**: Secure error messages that don't leak sensitive information
+    ```bash
+    docker run -d -p 8080:8080 --name gpvblazor-app gpvblazor
+    ```
 
-## 📄 License
+## Configuration
 
-See the [LICENSE.txt](LICENSE.txt) file for details.
+### GitHub Token Setup
 
----
+The application interacts with the GitHub API. While it works without authentication, the API rate limit is restricted to 60 requests per hour. To increase this limit to 5,000 requests per hour and access private repository information, you can configure a Personal Access Token.
+
+1. Generate a Personal Access Token in your GitHub Developer Settings.
+2. Enter the token in the authentication section on the application's home page.
+3. The token is stored securely in your browser's local storage and is never sent to any server other than GitHub's API.
+
+## Project Structure
+
+* **Components**: Contains all Blazor components (Displays, Layout, Pages).
+* **Services**: Contains business logic and API interaction services (UserService, AuthService, etc.).
+* **Models**: Defines data models used throughout the application.
+* **wwwroot**: Contains static assets like CSS, JavaScript, and icons.
+
+## License
+
+See the LICENSE.txt file for details.
