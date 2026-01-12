@@ -188,6 +188,52 @@
     font-size: 0.95rem;
 }
 
+/* Activity List Styles */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background: var(--dark-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.activity-list:empty {
+    display: none;
+}
+
+/* Activity Filter Bar (if needed in future) */
+.activity-filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.activity-filter-btn {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.activity-filter-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--text-primary);
+}
+
+.activity-filter-btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
 /* Responsive Adjustments */
 @media screen and (max-width: 768px) {
     .repo-grid {
@@ -203,5 +249,9 @@
     .view-options {
         width: 100%;
         justify-content: flex-end;
+    }
+    
+    .activity-list {
+        padding: 0.25rem;
     }
 }

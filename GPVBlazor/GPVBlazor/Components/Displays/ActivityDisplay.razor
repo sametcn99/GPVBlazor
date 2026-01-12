@@ -1,0 +1,778 @@
+@using GPVBlazor.Models
+
+<div class="activity-card @GetActivityClass()">
+    <div class="activity-icon-wrapper">
+        <div class="activity-icon @GetActivityIconClass()">
+            <i class="@GetActivityIcon()"></i>
+        </div>
+        <div class="activity-timeline-line"></div>
+    </div>
+    <div class="activity-content">
+        <div class="activity-header">
+            <div class="activity-meta">
+                <span class="activity-type-badge @GetActivityBadgeClass()">@GetActivityTypeLabel()</span>
+                <span class="activity-time">
+                    <i class="far fa-clock"></i>
+                    @GetRelativeTime()
+                </span>
+            </div>
+        </div>
+        
+        <div class="activity-body">
+            @switch (Activity.Type)
+            {
+                case "PushEvent":
+                    @RenderPushEvent()
+                    break;
+                case "WatchEvent":
+                    @RenderWatchEvent()
+                    break;
+                case "CreateEvent":
+                    @RenderCreateEvent()
+                    break;
+                case "DeleteEvent":
+                    @RenderDeleteEvent()
+                    break;
+                case "ForkEvent":
+                    @RenderForkEvent()
+                    break;
+                case "IssuesEvent":
+                    @RenderIssuesEvent()
+                    break;
+                case "IssueCommentEvent":
+                    @RenderIssueCommentEvent()
+                    break;
+                case "PullRequestEvent":
+                    @RenderPullRequestEvent()
+                    break;
+                case "PullRequestReviewEvent":
+                    @RenderPullRequestReviewEvent()
+                    break;
+                case "PullRequestReviewCommentEvent":
+                    @RenderPullRequestReviewCommentEvent()
+                    break;
+                case "ReleaseEvent":
+                    @RenderReleaseEvent()
+                    break;
+                case "CommitCommentEvent":
+                    @RenderCommitCommentEvent()
+                    break;
+                case "GollumEvent":
+                    @RenderGollumEvent()
+                    break;
+                case "MemberEvent":
+                    @RenderMemberEvent()
+                    break;
+                case "PublicEvent":
+                    @RenderPublicEvent()
+                    break;
+                default:
+                    @RenderDefaultEvent()
+                    break;
+            }
+        </div>
+        
+        <div class="activity-footer">
+            <a href="@GetRepoUrl()" target="_blank" class="activity-repo-link">
+                <i class="fas fa-book"></i>
+                <span>@Activity.Repo.Name</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Activity Activity { get; set; } = new();
+
+    private string GetRepoUrl()
+    {
+        return $"https://github.com/{Activity.Repo.Name}";
+    }
+
+    private string GetActivityClass()
+    {
+        return Activity.Type switch
+        {
+            "PushEvent" => "activity-push",
+            "WatchEvent" => "activity-star",
+            "CreateEvent" => "activity-create",
+            "DeleteEvent" => "activity-delete",
+            "ForkEvent" => "activity-fork",
+            "IssuesEvent" => "activity-issue",
+            "IssueCommentEvent" => "activity-comment",
+            "PullRequestEvent" => "activity-pr",
+            "PullRequestReviewEvent" => "activity-pr-review",
+            "PullRequestReviewCommentEvent" => "activity-pr-comment",
+            "ReleaseEvent" => "activity-release",
+            "CommitCommentEvent" => "activity-commit-comment",
+            "GollumEvent" => "activity-wiki",
+            "MemberEvent" => "activity-member",
+            "PublicEvent" => "activity-public",
+            _ => "activity-default"
+        };
+    }
+
+    private string GetActivityIcon()
+    {
+        return Activity.Type switch
+        {
+            "PushEvent" => "fas fa-upload",
+            "WatchEvent" => "fas fa-star",
+            "CreateEvent" => Activity.Payload.RefType switch
+            {
+                "repository" => "fas fa-plus-circle",
+                "branch" => "fas fa-code-branch",
+                "tag" => "fas fa-tag",
+                _ => "fas fa-plus"
+            },
+            "DeleteEvent" => Activity.Payload.RefType switch
+            {
+                "branch" => "fas fa-code-branch",
+                "tag" => "fas fa-tag",
+                _ => "fas fa-trash"
+            },
+            "ForkEvent" => "fas fa-code-branch",
+            "IssuesEvent" => Activity.Payload.Action switch
+            {
+                "opened" => "fas fa-exclamation-circle",
+                "closed" => "fas fa-check-circle",
+                "reopened" => "fas fa-redo",
+                _ => "fas fa-dot-circle"
+            },
+            "IssueCommentEvent" => "fas fa-comment",
+            "PullRequestEvent" => Activity.Payload.Action switch
+            {
+                "opened" => "fas fa-code-pull-request",
+                "closed" when Activity.Payload.PullRequest?.Merged == true => "fas fa-code-merge",
+                "closed" => "fas fa-times-circle",
+                _ => "fas fa-code-pull-request"
+            },
+            "PullRequestReviewEvent" => "fas fa-eye",
+            "PullRequestReviewCommentEvent" => "fas fa-comment-dots",
+            "ReleaseEvent" => "fas fa-rocket",
+            "CommitCommentEvent" => "fas fa-comment-alt",
+            "GollumEvent" => "fas fa-book",
+            "MemberEvent" => "fas fa-user-plus",
+            "PublicEvent" => "fas fa-globe",
+            _ => "fas fa-circle"
+        };
+    }
+
+    private string GetActivityIconClass()
+    {
+        return Activity.Type switch
+        {
+            "PushEvent" => "icon-push",
+            "WatchEvent" => "icon-star",
+            "CreateEvent" => "icon-create",
+            "DeleteEvent" => "icon-delete",
+            "ForkEvent" => "icon-fork",
+            "IssuesEvent" => Activity.Payload.Action switch
+            {
+                "opened" => "icon-issue-open",
+                "closed" => "icon-issue-closed",
+                _ => "icon-issue"
+            },
+            "IssueCommentEvent" => "icon-comment",
+            "PullRequestEvent" => Activity.Payload.Action switch
+            {
+                "opened" => "icon-pr-open",
+                "closed" when Activity.Payload.PullRequest?.Merged == true => "icon-pr-merged",
+                "closed" => "icon-pr-closed",
+                _ => "icon-pr"
+            },
+            "PullRequestReviewEvent" => "icon-pr-review",
+            "PullRequestReviewCommentEvent" => "icon-pr-comment",
+            "ReleaseEvent" => "icon-release",
+            "CommitCommentEvent" => "icon-commit-comment",
+            "GollumEvent" => "icon-wiki",
+            "MemberEvent" => "icon-member",
+            "PublicEvent" => "icon-public",
+            _ => "icon-default"
+        };
+    }
+
+    private string GetActivityBadgeClass()
+    {
+        return Activity.Type switch
+        {
+            "PushEvent" => "badge-push",
+            "WatchEvent" => "badge-star",
+            "CreateEvent" => "badge-create",
+            "DeleteEvent" => "badge-delete",
+            "ForkEvent" => "badge-fork",
+            "IssuesEvent" => "badge-issue",
+            "IssueCommentEvent" => "badge-comment",
+            "PullRequestEvent" => "badge-pr",
+            "PullRequestReviewEvent" => "badge-pr-review",
+            "PullRequestReviewCommentEvent" => "badge-pr-comment",
+            "ReleaseEvent" => "badge-release",
+            "CommitCommentEvent" => "badge-commit-comment",
+            "GollumEvent" => "badge-wiki",
+            "MemberEvent" => "badge-member",
+            "PublicEvent" => "badge-public",
+            _ => "badge-default"
+        };
+    }
+
+    private string GetActivityTypeLabel()
+    {
+        return Activity.Type switch
+        {
+            "PushEvent" => "Push",
+            "WatchEvent" => "Starred",
+            "CreateEvent" => Activity.Payload.RefType switch
+            {
+                "repository" => "New Repo",
+                "branch" => "New Branch",
+                "tag" => "New Tag",
+                _ => "Create"
+            },
+            "DeleteEvent" => Activity.Payload.RefType switch
+            {
+                "branch" => "Delete Branch",
+                "tag" => "Delete Tag",
+                _ => "Delete"
+            },
+            "ForkEvent" => "Fork",
+            "IssuesEvent" => Activity.Payload.Action switch
+            {
+                "opened" => "Issue Opened",
+                "closed" => "Issue Closed",
+                "reopened" => "Issue Reopened",
+                "assigned" => "Issue Assigned",
+                "labeled" => "Issue Labeled",
+                _ => "Issue"
+            },
+            "IssueCommentEvent" => "Comment",
+            "PullRequestEvent" => Activity.Payload.Action switch
+            {
+                "opened" => "PR Opened",
+                "closed" when Activity.Payload.PullRequest?.Merged == true => "PR Merged",
+                "closed" => "PR Closed",
+                "reopened" => "PR Reopened",
+                _ => "Pull Request"
+            },
+            "PullRequestReviewEvent" => "PR Review",
+            "PullRequestReviewCommentEvent" => "PR Comment",
+            "ReleaseEvent" => Activity.Payload.Action switch
+            {
+                "published" => "Release",
+                "created" => "Release Created",
+                _ => "Release"
+            },
+            "CommitCommentEvent" => "Commit Comment",
+            "GollumEvent" => "Wiki",
+            "MemberEvent" => "Member Added",
+            "PublicEvent" => "Made Public",
+            _ => Activity.Type.Replace("Event", "")
+        };
+    }
+
+    private string GetRelativeTime()
+    {
+        var diff = DateTime.UtcNow - Activity.CreatedAt;
+        
+        if (diff.TotalMinutes < 1) return "just now";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h ago";
+        if (diff.TotalDays < 7) return $"{(int)diff.TotalDays}d ago";
+        if (diff.TotalDays < 30) return $"{(int)(diff.TotalDays / 7)}w ago";
+        if (diff.TotalDays < 365) return $"{(int)(diff.TotalDays / 30)}mo ago";
+        return $"{(int)(diff.TotalDays / 365)}y ago";
+    }
+
+    private RenderFragment RenderPushEvent() => __builder =>
+    {
+        var commits = Activity.Payload.Commits;
+        var branch = Activity.Payload.Ref?.Replace("refs/heads/", "") ?? "main";
+        var commitCount = Activity.Payload.Size ?? Activity.Payload.DistinctSize ?? commits?.Count ?? 0;
+        var headSha = Activity.Payload.Head;
+        var beforeSha = Activity.Payload.Before;
+        
+        <div class="push-event">
+            <p class="event-description">
+                @if (commitCount > 0)
+                {
+                    <text>Pushed <strong>@commitCount commit(s)</strong> to </text>
+                }
+                else if (!string.IsNullOrEmpty(headSha))
+                {
+                    var headUrl = $"https://github.com/{Activity.Repo.Name}/commit/{headSha}";
+                    <text>Pushed </text>
+                    <a href="@headUrl" target="_blank" class="commit-sha">@headSha.Substring(0, Math.Min(7, headSha.Length))</a>
+                    <text> to </text>
+                }
+                else
+                {
+                    <text>Pushed to </text>
+                }
+                <span class="branch-name">
+                    <i class="fas fa-code-branch"></i> @branch
+                </span>
+            </p>
+            
+            @if (commits != null && commits.Any())
+            {
+                <div class="commits-list">
+                    @foreach (var commit in commits.Take(3))
+                    {
+                        var commitUrl = $"https://github.com/{Activity.Repo.Name}/commit/{commit.Sha}";
+                        <div class="commit-item">
+                            <a href="@commitUrl" target="_blank" class="commit-sha">
+                                @commit.Sha.Substring(0, 7)
+                            </a>
+                            <span class="commit-message">@TruncateText(commit.Message, 60)</span>
+                        </div>
+                    }
+                    @if (commitCount > 3 && !string.IsNullOrEmpty(beforeSha) && !string.IsNullOrEmpty(headSha))
+                    {
+                        var compareUrl = $"https://github.com/{Activity.Repo.Name}/compare/{beforeSha.Substring(0, Math.Min(7, beforeSha.Length))}...{headSha.Substring(0, Math.Min(7, headSha.Length))}";
+                        <a href="@compareUrl" target="_blank" class="more-commits">
+                            + @(commitCount - 3) more commit(s)
+                        </a>
+                    }
+                </div>
+            }
+            else if (commitCount > 0 && !string.IsNullOrEmpty(headSha))
+            {
+                @* Commits not available in payload, show link to head commit *@
+                var headUrl = $"https://github.com/{Activity.Repo.Name}/commit/{headSha}";
+                <div class="commits-list">
+                    <div class="commit-item">
+                        <a href="@headUrl" target="_blank" class="commit-sha">
+                            @headSha.Substring(0, Math.Min(7, headSha.Length))
+                        </a>
+                        <span class="commit-message">View commit on GitHub</span>
+                    </div>
+                    @if (commitCount > 1 && !string.IsNullOrEmpty(beforeSha))
+                    {
+                        var compareUrl = $"https://github.com/{Activity.Repo.Name}/compare/{beforeSha.Substring(0, Math.Min(7, beforeSha.Length))}...{headSha.Substring(0, Math.Min(7, headSha.Length))}";
+                        <a href="@compareUrl" target="_blank" class="more-commits">
+                            View all @commitCount commits
+                        </a>
+                    }
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(headSha))
+            {
+                @* No commit count but has head sha *@
+                var headUrl = $"https://github.com/{Activity.Repo.Name}/commit/{headSha}";
+                <div class="commits-list">
+                    <a href="@headUrl" target="_blank" class="more-commits">
+                        <i class="fas fa-external-link-alt"></i> View commit on GitHub
+                    </a>
+                </div>
+            }
+        </div>
+    };
+
+    private RenderFragment RenderWatchEvent() => __builder =>
+    {
+        <div class="watch-event">
+            <p class="event-description">
+                <i class="fas fa-star star-icon"></i>
+                Starred this repository
+            </p>
+        </div>
+    };
+
+    private RenderFragment RenderCreateEvent() => __builder =>
+    {
+        var refType = Activity.Payload.RefType;
+        var refName = Activity.Payload.Ref;
+        
+        <div class="create-event">
+            @if (refType == "repository")
+            {
+                <p class="event-description">
+                    Created a new repository
+                </p>
+                @if (!string.IsNullOrEmpty(Activity.Payload.Description))
+                {
+                    <p class="event-detail">@Activity.Payload.Description</p>
+                }
+            }
+            else if (refType == "branch")
+            {
+                var branchUrl = $"https://github.com/{Activity.Repo.Name}/tree/{refName}";
+                <p class="event-description">
+                    Created branch 
+                    <a href="@branchUrl" target="_blank" class="ref-link">
+                        <i class="fas fa-code-branch"></i> @refName
+                    </a>
+                </p>
+            }
+            else if (refType == "tag")
+            {
+                var tagUrl = $"https://github.com/{Activity.Repo.Name}/releases/tag/{refName}";
+                <p class="event-description">
+                    Created tag 
+                    <a href="@tagUrl" target="_blank" class="ref-link">
+                        <i class="fas fa-tag"></i> @refName
+                    </a>
+                </p>
+            }
+        </div>
+    };
+
+    private RenderFragment RenderDeleteEvent() => __builder =>
+    {
+        var refType = Activity.Payload.RefType;
+        var refName = Activity.Payload.Ref;
+        
+        <div class="delete-event">
+            <p class="event-description">
+                Deleted @refType 
+                <span class="deleted-ref">
+                    @if (refType == "branch")
+                    {
+                        <i class="fas fa-code-branch"></i>
+                    }
+                    else if (refType == "tag")
+                    {
+                        <i class="fas fa-tag"></i>
+                    }
+                    @refName
+                </span>
+            </p>
+        </div>
+    };
+
+    private RenderFragment RenderForkEvent() => __builder =>
+    {
+        var forkee = Activity.Payload.Forkee;
+        
+        <div class="fork-event">
+            <p class="event-description">
+                Forked to 
+                @if (forkee != null)
+                {
+                    <a href="@forkee.HtmlUrl" target="_blank" class="fork-link">
+                        <i class="fas fa-code-branch"></i> @forkee.FullName
+                    </a>
+                }
+            </p>
+            @if (forkee != null && !string.IsNullOrEmpty(forkee.Description))
+            {
+                <p class="event-detail">@TruncateText(forkee.Description, 100)</p>
+            }
+        </div>
+    };
+
+    private RenderFragment RenderIssuesEvent() => __builder =>
+    {
+        var issue = Activity.Payload.Issue;
+        var action = Activity.Payload.Action;
+        
+        <div class="issues-event">
+            @if (issue != null)
+            {
+                <p class="event-description">
+                    @action?.ToLower() issue
+                    <a href="@issue.HtmlUrl" target="_blank" class="issue-link">
+                        #@issue.Number
+                    </a>
+                </p>
+                <div class="issue-title">
+                    <a href="@issue.HtmlUrl" target="_blank">@issue.Title</a>
+                </div>
+                @if (issue.Labels != null && issue.Labels.Any())
+                {
+                    <div class="issue-labels">
+                        @foreach (var label in issue.Labels.Take(5))
+                        {
+                            <span class="issue-label" style="background-color: #@label.Color;">
+                                @label.Name
+                            </span>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    };
+
+    private RenderFragment RenderIssueCommentEvent() => __builder =>
+    {
+        var issue = Activity.Payload.Issue;
+        var comment = Activity.Payload.Comment;
+        
+        <div class="issue-comment-event">
+            @if (issue != null && comment != null)
+            {
+                <p class="event-description">
+                    Commented on issue
+                    <a href="@issue.HtmlUrl" target="_blank" class="issue-link">
+                        #@issue.Number
+                    </a>
+                </p>
+                <div class="issue-title">
+                    <a href="@issue.HtmlUrl" target="_blank">@issue.Title</a>
+                </div>
+                <div class="comment-body">
+                    <a href="@comment.HtmlUrl" target="_blank" class="comment-link">
+                        <i class="fas fa-comment"></i>
+                        @TruncateText(comment.Body, 120)
+                    </a>
+                </div>
+            }
+        </div>
+    };
+
+    private RenderFragment RenderPullRequestEvent() => __builder =>
+    {
+        var pr = Activity.Payload.PullRequest;
+        var action = Activity.Payload.Action;
+        
+        <div class="pull-request-event">
+            @if (pr != null)
+            {
+                <p class="event-description">
+                    @GetPRActionText(action, pr.Merged)
+                    <a href="@pr.HtmlUrl" target="_blank" class="pr-link">
+                        #@pr.Number
+                    </a>
+                </p>
+                <div class="pr-title">
+                    <a href="@pr.HtmlUrl" target="_blank">@pr.Title</a>
+                </div>
+                @if (pr.Additions.HasValue || pr.Deletions.HasValue || pr.ChangedFiles.HasValue)
+                {
+                    <div class="pr-stats">
+                        @if (pr.ChangedFiles.HasValue)
+                        {
+                            <span class="pr-stat files">
+                                <i class="fas fa-file"></i> @pr.ChangedFiles files
+                            </span>
+                        }
+                        @if (pr.Additions.HasValue)
+                        {
+                            <span class="pr-stat additions">
+                                <i class="fas fa-plus"></i> @pr.Additions
+                            </span>
+                        }
+                        @if (pr.Deletions.HasValue)
+                        {
+                            <span class="pr-stat deletions">
+                                <i class="fas fa-minus"></i> @pr.Deletions
+                            </span>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    };
+
+    private RenderFragment RenderPullRequestReviewEvent() => __builder =>
+    {
+        var pr = Activity.Payload.PullRequest;
+        var action = Activity.Payload.Action;
+        
+        <div class="pr-review-event">
+            @if (pr != null)
+            {
+                <p class="event-description">
+                    Reviewed pull request
+                    <a href="@pr.HtmlUrl" target="_blank" class="pr-link">
+                        #@pr.Number
+                    </a>
+                </p>
+                <div class="pr-title">
+                    <a href="@pr.HtmlUrl" target="_blank">@pr.Title</a>
+                </div>
+            }
+        </div>
+    };
+
+    private RenderFragment RenderPullRequestReviewCommentEvent() => __builder =>
+    {
+        var pr = Activity.Payload.PullRequest;
+        var comment = Activity.Payload.Comment;
+        
+        <div class="pr-review-comment-event">
+            @if (pr != null && comment != null)
+            {
+                <p class="event-description">
+                    Commented on pull request
+                    <a href="@pr.HtmlUrl" target="_blank" class="pr-link">
+                        #@pr.Number
+                    </a>
+                </p>
+                <div class="pr-title">
+                    <a href="@pr.HtmlUrl" target="_blank">@pr.Title</a>
+                </div>
+                <div class="comment-body">
+                    <a href="@comment.HtmlUrl" target="_blank" class="comment-link">
+                        <i class="fas fa-comment-dots"></i>
+                        @TruncateText(comment.Body, 120)
+                    </a>
+                </div>
+            }
+        </div>
+    };
+
+    private RenderFragment RenderReleaseEvent() => __builder =>
+    {
+        var release = Activity.Payload.Release;
+        
+        <div class="release-event">
+            @if (release != null)
+            {
+                <p class="event-description">
+                    Published release
+                    <a href="@release.HtmlUrl" target="_blank" class="release-link">
+                        <i class="fas fa-tag"></i> @release.TagName
+                    </a>
+                    @if (release.Prerelease)
+                    {
+                        <span class="prerelease-badge">Pre-release</span>
+                    }
+                </p>
+                @if (!string.IsNullOrEmpty(release.Name) && release.Name != release.TagName)
+                {
+                    <div class="release-name">@release.Name</div>
+                }
+                @if (!string.IsNullOrEmpty(release.Body))
+                {
+                    <p class="event-detail">@TruncateText(release.Body, 150)</p>
+                }
+            }
+        </div>
+    };
+
+    private RenderFragment RenderCommitCommentEvent() => __builder =>
+    {
+        var comment = Activity.Payload.Comment;
+        
+        <div class="commit-comment-event">
+            @if (comment != null)
+            {
+                var commitUrl = !string.IsNullOrEmpty(comment.CommitId) 
+                    ? $"https://github.com/{Activity.Repo.Name}/commit/{comment.CommitId}" 
+                    : null;
+                
+                <p class="event-description">
+                    Commented on commit
+                    @if (commitUrl != null && !string.IsNullOrEmpty(comment.CommitId))
+                    {
+                        <a href="@commitUrl" target="_blank" class="commit-sha">
+                            @comment.CommitId.Substring(0, 7)
+                        </a>
+                    }
+                </p>
+                <div class="comment-body">
+                    <a href="@comment.HtmlUrl" target="_blank" class="comment-link">
+                        <i class="fas fa-comment-alt"></i>
+                        @TruncateText(comment.Body, 120)
+                    </a>
+                </div>
+            }
+        </div>
+    };
+
+    private RenderFragment RenderGollumEvent() => __builder =>
+    {
+        var wikiPages = Activity.Payload.Pages;
+        
+        <div class="gollum-event">
+            <p class="event-description">
+                <i class="fas fa-book wiki-icon"></i>
+                Updated wiki
+            </p>
+            @if (wikiPages != null && wikiPages.Any())
+            {
+                <div class="wiki-pages">
+                    @foreach (var wikiPage in wikiPages.Take(3))
+                    {
+                        <div class="wiki-page">
+                            <span class="page-action @GetWikiActionClass(wikiPage.Action)">@wikiPage.Action</span>
+                            <a href="@wikiPage.HtmlUrl" target="_blank" class="page-link">
+                                @wikiPage.Title
+                            </a>
+                        </div>
+                    }
+                    @if (wikiPages.Count > 3)
+                    {
+                        <span class="more-pages">+ @(wikiPages.Count - 3) more page(s)</span>
+                    }
+                </div>
+            }
+        </div>
+    };
+
+    private RenderFragment RenderMemberEvent() => __builder =>
+    {
+        var member = Activity.Payload.Member;
+        var action = Activity.Payload.Action;
+        
+        <div class="member-event">
+            @if (member != null)
+            {
+                <p class="event-description">
+                    @(action == "added" ? "Added" : action) 
+                    <a href="@member.HtmlUrl" target="_blank" class="member-link">
+                        <img src="@member.AvatarUrl" alt="@member.Login" class="member-avatar" />
+                        @member.Login
+                    </a>
+                    as a collaborator
+                </p>
+            }
+        </div>
+    };
+
+    private RenderFragment RenderPublicEvent() => __builder =>
+    {
+        <div class="public-event">
+            <p class="event-description">
+                <i class="fas fa-globe globe-icon"></i>
+                Made this repository public
+            </p>
+        </div>
+    };
+
+    private RenderFragment RenderDefaultEvent() => __builder =>
+    {
+        <div class="default-event">
+            <p class="event-description">
+                @Activity.Type.Replace("Event", "") activity
+            </p>
+        </div>
+    };
+
+    private string GetPRActionText(string? action, bool? merged)
+    {
+        return action switch
+        {
+            "opened" => "Opened pull request",
+            "closed" when merged == true => "Merged pull request",
+            "closed" => "Closed pull request",
+            "reopened" => "Reopened pull request",
+            "edited" => "Edited pull request",
+            "review_requested" => "Requested review on",
+            "ready_for_review" => "Marked ready for review",
+            _ => $"{action} pull request"
+        };
+    }
+
+    private string GetWikiActionClass(string action)
+    {
+        return action.ToLower() switch
+        {
+            "created" => "action-created",
+            "edited" => "action-edited",
+            _ => ""
+        };
+    }
+
+    private string TruncateText(string text, int maxLength)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        
+        // Remove newlines and extra spaces
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ").Trim();
+        
+        if (text.Length <= maxLength) return text;
+        return text.Substring(0, maxLength) + "...";
+    }
+}

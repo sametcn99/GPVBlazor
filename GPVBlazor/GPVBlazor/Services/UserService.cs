@@ -468,5 +468,36 @@ namespace GPVBlazor.Services
             }
             return new List<Organization>();
         }
+
+        public async Task<List<Activity>> FetchUserActivities(string username, string token, int page = 1, int perPage = 30)
+        {
+            string cacheKey = $"UserActivities-{username}-{page}-{perPage}";
+            if (_memoryCache.TryGetValue(cacheKey, out List<Activity>? cachedActivities)) return cachedActivities ?? new List<Activity>();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/events/public?page={page}&per_page={perPage}");
+            request.Headers.Add("User-Agent", "BlazorApp");
+            if (!string.IsNullOrEmpty(token))
+            {
+                var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Authorization = authHeader;
+            }
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var activities = JsonSerializer.Deserialize<List<Activity>>(content, options);
+                if (activities is not null)
+                {
+                    _memoryCache.Set(cacheKey, activities, TimeSpan.FromMinutes(5));
+                    return activities;
+                }
+            }
+            return new List<Activity>();
+        }
     }
 }

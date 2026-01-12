@@ -1,0 +1,597 @@
+/* Activity Card Base Styles */
+.activity-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background: var(--card-bg, #ffffff);
+    border-radius: 12px;
+    border: 1px solid var(--border-color, #e1e4e8);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.activity-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark mode support */
+:root {
+    --card-bg: #ffffff;
+    --border-color: #e1e4e8;
+    --text-primary: #24292f;
+    --text-secondary: #57606a;
+    --text-muted: #8b949e;
+    --link-color: #0969da;
+    --code-bg: #f6f8fa;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --card-bg: #161b22;
+        --border-color: #30363d;
+        --text-primary: #c9d1d9;
+        --text-secondary: #8b949e;
+        --text-muted: #6e7681;
+        --link-color: #58a6ff;
+        --code-bg: #0d1117;
+    }
+}
+
+/* Icon Wrapper */
+.activity-icon-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.activity-timeline-line {
+    width: 2px;
+    flex-grow: 1;
+    margin-top: 0.5rem;
+    background: linear-gradient(to bottom, var(--border-color) 0%, transparent 100%);
+    min-height: 20px;
+}
+
+/* Icon Color Variants */
+.icon-push { background: linear-gradient(135deg, #2ea44f, #22863a); }
+.icon-star { background: linear-gradient(135deg, #f9826c, #e36209); }
+.icon-create { background: linear-gradient(135deg, #56d364, #2ea44f); }
+.icon-delete { background: linear-gradient(135deg, #f85149, #cf222e); }
+.icon-fork { background: linear-gradient(135deg, #a371f7, #8957e5); }
+.icon-issue-open { background: linear-gradient(135deg, #3fb950, #238636); }
+.icon-issue-closed { background: linear-gradient(135deg, #a371f7, #8957e5); }
+.icon-issue { background: linear-gradient(135deg, #3fb950, #238636); }
+.icon-comment { background: linear-gradient(135deg, #58a6ff, #0969da); }
+.icon-pr-open { background: linear-gradient(135deg, #3fb950, #238636); }
+.icon-pr-merged { background: linear-gradient(135deg, #a371f7, #8957e5); }
+.icon-pr-closed { background: linear-gradient(135deg, #f85149, #cf222e); }
+.icon-pr { background: linear-gradient(135deg, #3fb950, #238636); }
+.icon-pr-review { background: linear-gradient(135deg, #f9826c, #e36209); }
+.icon-pr-comment { background: linear-gradient(135deg, #79c0ff, #58a6ff); }
+.icon-release { background: linear-gradient(135deg, #f9826c, #e36209); }
+.icon-commit-comment { background: linear-gradient(135deg, #8b949e, #6e7681); }
+.icon-wiki { background: linear-gradient(135deg, #79c0ff, #388bfd); }
+.icon-member { background: linear-gradient(135deg, #d29922, #9e6a03); }
+.icon-public { background: linear-gradient(135deg, #3fb950, #238636); }
+.icon-default { background: linear-gradient(135deg, #8b949e, #6e7681); }
+
+/* Content Area */
+.activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-header {
+    margin-bottom: 0.5rem;
+}
+
+.activity-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Type Badge */
+.activity-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge-push { background: rgba(46, 164, 79, 0.15); color: #2ea44f; }
+.badge-star { background: rgba(249, 130, 108, 0.15); color: #e36209; }
+.badge-create { background: rgba(86, 211, 100, 0.15); color: #2ea44f; }
+.badge-delete { background: rgba(248, 81, 73, 0.15); color: #cf222e; }
+.badge-fork { background: rgba(163, 113, 247, 0.15); color: #8957e5; }
+.badge-issue { background: rgba(63, 185, 80, 0.15); color: #238636; }
+.badge-comment { background: rgba(88, 166, 255, 0.15); color: #0969da; }
+.badge-pr { background: rgba(63, 185, 80, 0.15); color: #238636; }
+.badge-pr-review { background: rgba(249, 130, 108, 0.15); color: #e36209; }
+.badge-pr-comment { background: rgba(121, 192, 255, 0.15); color: #58a6ff; }
+.badge-release { background: rgba(249, 130, 108, 0.15); color: #e36209; }
+.badge-commit-comment { background: rgba(139, 148, 158, 0.15); color: #6e7681; }
+.badge-wiki { background: rgba(121, 192, 255, 0.15); color: #388bfd; }
+.badge-member { background: rgba(210, 153, 34, 0.15); color: #9e6a03; }
+.badge-public { background: rgba(63, 185, 80, 0.15); color: #238636; }
+.badge-default { background: rgba(139, 148, 158, 0.15); color: #6e7681; }
+
+/* Time Display */
+.activity-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.activity-time i {
+    font-size: 0.7rem;
+}
+
+/* Activity Body */
+.activity-body {
+    margin-bottom: 0.75rem;
+}
+
+.event-description {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.5;
+}
+
+.event-detail {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0.5rem 0 0 0;
+    line-height: 1.4;
+    padding: 0.5rem;
+    background: var(--code-bg);
+    border-radius: 6px;
+    border-left: 3px solid var(--border-color);
+}
+
+/* Footer */
+.activity-footer {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.activity-repo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.activity-repo-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.activity-repo-link i {
+    font-size: 0.8rem;
+}
+
+/* Push Event Styles */
+.push-event .branch-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--code-bg);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.85rem;
+    color: #0969da;
+}
+
+.commits-list {
+    margin-top: 0.75rem;
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.commit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.commit-item:last-child {
+    border-bottom: none;
+}
+
+.commit-sha {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.8rem;
+    color: var(--link-color);
+    background: rgba(88, 166, 255, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.commit-sha:hover {
+    background: rgba(88, 166, 255, 0.2);
+    text-decoration: none;
+}
+
+.commit-message {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.more-commits {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.more-commits:hover {
+    text-decoration: underline;
+}
+
+/* Watch/Star Event */
+.watch-event .star-icon {
+    color: #f9826c;
+    margin-right: 0.3rem;
+}
+
+/* Create Event */
+.ref-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--code-bg);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--link-color);
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.ref-link:hover {
+    background: rgba(88, 166, 255, 0.15);
+    text-decoration: none;
+}
+
+/* Delete Event */
+.deleted-ref {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(248, 81, 73, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.85rem;
+    color: #cf222e;
+    text-decoration: line-through;
+}
+
+/* Fork Event */
+.fork-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.fork-link:hover {
+    text-decoration: underline;
+}
+
+/* Issues Event */
+.issue-link, .pr-link {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-weight: 600;
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.issue-link:hover, .pr-link:hover {
+    text-decoration: underline;
+}
+
+.issue-title, .pr-title {
+    margin: 0.5rem 0;
+}
+
+.issue-title a, .pr-title a {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    line-height: 1.4;
+}
+
+.issue-title a:hover, .pr-title a:hover {
+    color: var(--link-color);
+    text-decoration: underline;
+}
+
+.issue-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.issue-label {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Comment Styles */
+.comment-body {
+    margin-top: 0.5rem;
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 0.75rem;
+    border-left: 3px solid var(--link-color);
+}
+
+.comment-link {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    line-height: 1.5;
+}
+
+.comment-link:hover {
+    color: var(--text-primary);
+}
+
+.comment-link i {
+    margin-right: 0.4rem;
+    color: var(--text-muted);
+}
+
+/* PR Stats */
+.pr-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.pr-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.pr-stat.files {
+    color: var(--text-secondary);
+}
+
+.pr-stat.additions {
+    color: #2ea44f;
+}
+
+.pr-stat.deletions {
+    color: #f85149;
+}
+
+/* Release Event */
+.release-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(249, 130, 108, 0.1);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.85rem;
+    color: #e36209;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.release-link:hover {
+    background: rgba(249, 130, 108, 0.2);
+    text-decoration: none;
+}
+
+.prerelease-badge {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(210, 153, 34, 0.15);
+    color: #9e6a03;
+    text-transform: uppercase;
+}
+
+.release-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin: 0.5rem 0;
+}
+
+/* Wiki/Gollum Event */
+.wiki-icon {
+    color: #388bfd;
+    margin-right: 0.3rem;
+}
+
+.wiki-pages {
+    margin-top: 0.5rem;
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.wiki-page {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem;
+}
+
+.page-action {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: var(--border-color);
+    color: var(--text-secondary);
+}
+
+.page-action.action-created {
+    background: rgba(63, 185, 80, 0.15);
+    color: #238636;
+}
+
+.page-action.action-edited {
+    background: rgba(88, 166, 255, 0.15);
+    color: #0969da;
+}
+
+.page-link {
+    font-size: 0.85rem;
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.page-link:hover {
+    text-decoration: underline;
+}
+
+.more-pages {
+    display: block;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 0.3rem;
+}
+
+/* Member Event */
+.member-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.member-link:hover {
+    text-decoration: underline;
+}
+
+.member-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+/* Public Event */
+.globe-icon {
+    color: #2ea44f;
+    margin-right: 0.3rem;
+}
+
+/* Activity Type Specific Card Borders */
+.activity-push { border-left: 3px solid #2ea44f; }
+.activity-star { border-left: 3px solid #f9826c; }
+.activity-create { border-left: 3px solid #56d364; }
+.activity-delete { border-left: 3px solid #f85149; }
+.activity-fork { border-left: 3px solid #a371f7; }
+.activity-issue { border-left: 3px solid #3fb950; }
+.activity-comment { border-left: 3px solid #58a6ff; }
+.activity-pr { border-left: 3px solid #3fb950; }
+.activity-pr-review { border-left: 3px solid #f9826c; }
+.activity-pr-comment { border-left: 3px solid #79c0ff; }
+.activity-release { border-left: 3px solid #f9826c; }
+.activity-commit-comment { border-left: 3px solid #8b949e; }
+.activity-wiki { border-left: 3px solid #79c0ff; }
+.activity-member { border-left: 3px solid #d29922; }
+.activity-public { border-left: 3px solid #3fb950; }
+.activity-default { border-left: 3px solid #8b949e; }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .activity-card {
+        padding: 0.75rem;
+    }
+    
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+    
+    .activity-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .commits-list {
+        padding: 0.25rem;
+    }
+    
+    .commit-item {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .pr-stats {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}

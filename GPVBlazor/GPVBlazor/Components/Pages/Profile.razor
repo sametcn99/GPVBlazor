@@ -53,6 +53,12 @@
                             }
                         </a>
                     </li>
+                    <li class="@(activeTab == "activities" ? "is-active" : "")">
+                        <a @onclick='() => activeTab = "activities"'>
+                            <span class="icon is-small"><i class="fas fa-history" aria-hidden="true"></i></span>
+                            <span>Activities</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -302,6 +308,46 @@
                     </div>
                 }
             }
+            else if (activeTab == "activities")
+            {
+                <div class="section-header">
+                     <h2 class="section-title">
+                        <span class="section-icon">
+                            <i class="fas fa-history"></i>
+                        </span>
+                        <span>Recent Activity</span>
+                    </h2>
+                </div>
+
+                @if (activities != null && activities.Any())
+                {
+                    <div class="activity-list">
+                        @foreach (var activity in activities)
+                        {
+                            <ActivityDisplay Activity="activity" @key="activity.Id" />
+                        }
+                    </div>
+
+                    @if (hasMoreActivities)
+                    {
+                        <div class="has-text-centered mt-4">
+                            <button class="button is-fullwidth @(isLoadingMoreActivities ? "is-loading" : "")" @onclick="LoadMoreActivities">
+                                Load More Activity
+                            </button>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <p class="empty-title">No recent activity</p>
+                        <p class="empty-description">This user has no recent public activity.</p>
+                    </div>
+                }
+            }
         </div>
     }
 </div>
@@ -316,6 +362,10 @@
     private List<Gist>? gists;
     private List<Gist> filteredGists = new();
     private List<Gist> pagedGists = new();
+    private List<Activity>? activities;
+    private int activityPage = 1;
+    private bool hasMoreActivities = true;
+    private bool isLoadingMoreActivities = false;
     private RepositoryStats? stats;
     string? token;
     private int currentPage = 1;
@@ -372,11 +422,16 @@
             {
                 var repoTask = UserService.FetchUserRepositories(Username, token, user.PublicRepos);
                 var gistTask = UserService.FetchUserGists(Username, token, user.PublicGists);
+                var activityTask = UserService.FetchUserActivities(Username, token, 1, 30);
 
-                await Task.WhenAll(repoTask, gistTask);
+                await Task.WhenAll(repoTask, gistTask, activityTask);
 
                 repositories = await repoTask ?? new List<Repository>();
                 gists = await gistTask ?? new List<Gist>();
+                activities = await activityTask ?? new List<Activity>();
+                
+                hasMoreActivities = activities.Count == 30;
+                activityPage = 1;
 
                 filteredRepositories = repositories.ToList();
                 filteredGists = gists.ToList();
@@ -402,6 +457,39 @@
         {
             Console.WriteLine($"Error loading user data: {ex.Message}");
             throw;
+        }
+    }
+
+    private async Task LoadMoreActivities()
+    {
+        if (isLoadingMoreActivities || !hasMoreActivities || string.IsNullOrWhiteSpace(Username)) return;
+
+        isLoadingMoreActivities = true;
+        StateHasChanged();
+
+        try
+        {
+            activityPage++;
+            var newActivities = await UserService.FetchUserActivities(Username, token, activityPage, 30);
+            
+            if (newActivities != null && newActivities.Any())
+            {
+                activities?.AddRange(newActivities);
+                hasMoreActivities = newActivities.Count == 30;
+            }
+            else
+            {
+                hasMoreActivities = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading more activities: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingMoreActivities = false;
+            StateHasChanged();
         }
     }
 

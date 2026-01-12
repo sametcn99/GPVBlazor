@@ -44,7 +44,6 @@
 }
 
 .profile-avatar:hover img {
-    transform: scale(1.05);
     box-shadow: 0 0 40px rgba(88, 166, 255, 0.5);
 }
 
@@ -320,7 +319,6 @@
 }
 
 .organization-logo-btn:hover {
-    transform: translateY(-2px);
     border-color: var(--accent-color);
 }
 
