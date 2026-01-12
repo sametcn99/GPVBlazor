@@ -469,14 +469,15 @@
         <div class="issues-event">
             @if (issue != null)
             {
+                var issueUrl = GetIssueUrl(issue);
                 <p class="event-description">
                     @action?.ToLower() issue
-                    <a href="@issue.HtmlUrl" target="_blank" class="issue-link">
+                    <a href="@issueUrl" target="_blank" class="issue-link">
                         #@issue.Number
                     </a>
                 </p>
                 <div class="issue-title">
-                    <a href="@issue.HtmlUrl" target="_blank">@issue.Title</a>
+                    <a href="@issueUrl" target="_blank">@issue.Title</a>
                 </div>
                 @if (issue.Labels != null && issue.Labels.Any())
                 {
@@ -501,14 +502,15 @@
         <div class="issue-comment-event">
             @if (issue != null && comment != null)
             {
+                var issueUrl = GetIssueUrl(issue);
                 <p class="event-description">
                     Commented on issue
-                    <a href="@issue.HtmlUrl" target="_blank" class="issue-link">
+                    <a href="@issueUrl" target="_blank" class="issue-link">
                         #@issue.Number
                     </a>
                 </p>
                 <div class="issue-title">
-                    <a href="@issue.HtmlUrl" target="_blank">@issue.Title</a>
+                    <a href="@issueUrl" target="_blank">@issue.Title</a>
                 </div>
                 <div class="comment-body">
                     <a href="@comment.HtmlUrl" target="_blank" class="comment-link">
@@ -528,14 +530,15 @@
         <div class="pull-request-event">
             @if (pr != null)
             {
+                var prUrl = GetPullRequestUrl(pr);
                 <p class="event-description">
                     @GetPRActionText(action, pr.Merged)
-                    <a href="@pr.HtmlUrl" target="_blank" class="pr-link">
+                    <a href="@prUrl" target="_blank" class="pr-link">
                         #@pr.Number
                     </a>
                 </p>
                 <div class="pr-title">
-                    <a href="@pr.HtmlUrl" target="_blank">@pr.Title</a>
+                    <a href="@prUrl" target="_blank">@pr.Title</a>
                 </div>
                 @if (pr.Additions.HasValue || pr.Deletions.HasValue || pr.ChangedFiles.HasValue)
                 {
@@ -572,14 +575,15 @@
         <div class="pr-review-event">
             @if (pr != null)
             {
+                var prUrl = GetPullRequestUrl(pr);
                 <p class="event-description">
                     Reviewed pull request
-                    <a href="@pr.HtmlUrl" target="_blank" class="pr-link">
+                    <a href="@prUrl" target="_blank" class="pr-link">
                         #@pr.Number
                     </a>
                 </p>
                 <div class="pr-title">
-                    <a href="@pr.HtmlUrl" target="_blank">@pr.Title</a>
+                    <a href="@prUrl" target="_blank">@pr.Title</a>
                 </div>
             }
         </div>
@@ -593,14 +597,15 @@
         <div class="pr-review-comment-event">
             @if (pr != null && comment != null)
             {
+                var prUrl = GetPullRequestUrl(pr);
                 <p class="event-description">
                     Commented on pull request
-                    <a href="@pr.HtmlUrl" target="_blank" class="pr-link">
+                    <a href="@prUrl" target="_blank" class="pr-link">
                         #@pr.Number
                     </a>
                 </p>
                 <div class="pr-title">
-                    <a href="@pr.HtmlUrl" target="_blank">@pr.Title</a>
+                    <a href="@prUrl" target="_blank">@pr.Title</a>
                 </div>
                 <div class="comment-body">
                     <a href="@comment.HtmlUrl" target="_blank" class="comment-link">
@@ -763,6 +768,18 @@
             "edited" => "action-edited",
             _ => ""
         };
+    }
+
+    private string GetPullRequestUrl(ActivityPullRequest pr)
+    {
+        if (!string.IsNullOrEmpty(pr.HtmlUrl)) return pr.HtmlUrl;
+        return $"https://github.com/{Activity.Repo.Name}/pull/{pr.Number}";
+    }
+
+    private string GetIssueUrl(ActivityIssue issue)
+    {
+        if (!string.IsNullOrEmpty(issue.HtmlUrl)) return issue.HtmlUrl;
+        return $"https://github.com/{Activity.Repo.Name}/issues/{issue.Number}";
     }
 
     private string TruncateText(string text, int maxLength)
