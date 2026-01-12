@@ -2,7 +2,16 @@
 
 A modern, responsive web application built with Blazor Server that allows users to explore GitHub profiles and repositories with detailed insights, statistics, and visualizations. This comprehensive tool enables users to search for any GitHub user and view their profile details, repository information, star history, gists, and network connections all in one place.
 
-[Home Page](https://gpv.sametcc.me/)
+[Live Demo](https://gpv.sametcc.me/)
+
+## Authentication & Rate Limits
+
+To increase the API rate limit and access private repository information, the application offers two authentication methods:
+
+1. **Sign in with GitHub**: Securely sign in using your GitHub account.
+2. **Personal Access Token**: Manually enter your GitHub Personal Access Token.
+
+Both methods allow you to bypass the standard 60 requests/hour limit and utilize your own API quota (5,000 requests/hour).
 
 ## Features
 
