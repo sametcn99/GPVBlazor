@@ -7,57 +7,119 @@
 <PageTitle>GitHub Profile Viewer - Explore GitHub Profiles</PageTitle>
 
 <!-- Hero Section -->
-<section class="hero is-medium" style="background: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);">
+<section class="hero is-medium hero-modern">
+    <!-- Animated Background Elements -->
+    <div class="hero-bg-decoration">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="gradient-orb"></div>
+    </div>
+    
     <div class="hero-body">
-        <div class="container has-text-centered">
-            <div class="mb-5">
-                <span class="icon is-large has-text-primary" style="font-size: 4rem;">
+        <div class="container has-text-centered" style="position: relative; z-index: 2;">
+            <!-- Logo with Glow Effect -->
+            <div class="hero-icon-wrapper mb-5">
+                <div class="icon-glow"></div>
+                <span class="icon is-large hero-github-icon">
                     <i class="fab fa-github"></i>
                 </span>
             </div>
-            <h1 class="title is-1 is-size-2-mobile has-text-weight-bold mb-4">
-                GitHub Profile Viewer
+            
+            <!-- Main Title with Gradient -->
+            <h1 class="title is-1 is-size-2-mobile has-text-weight-bold mb-4 hero-title">
+                <span class="gradient-text">GitHub Profile</span> Viewer
             </h1>
-            <p class="subtitle is-4 is-size-5-mobile has-text-grey-light mb-2" style="max-width: 700px; margin: 0 auto;">
-                A comprehensive tool for exploring GitHub profiles, repositories, and developer statistics
-            </p>
+            
+            <!-- Subtitle with Badge -->
+            <div class="hero-subtitle-wrapper mb-4">
+                <p class="subtitle is-4 is-size-5-mobile has-text-grey-light mb-3" style="max-width: 700px; margin: 0 auto;">
+                    A comprehensive tool for exploring GitHub profiles, repositories, and developer statistics
+                </p>
+                <div class="hero-badges">
+                    <span class="hero-badge">
+                        <i class="fas fa-bolt"></i> Fast
+                    </span>
+                    <span class="hero-badge">
+                        <i class="fas fa-shield-alt"></i> Secure
+                    </span>
+                    <span class="hero-badge">
+                        <i class="fas fa-code-branch"></i> Open Source
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Description -->
             <p class="is-size-6 has-text-grey mb-5" style="max-width: 600px; margin: 0 auto;">
-                Search for any GitHub user to view their profile details, repository information, 
+                Search for any GitHub user to view their profile details, repository information,
                 star history, gists, and network connections — all in one place.
             </p>
-            <div class="buttons is-centered mt-5">
+       
                 <GPVBlazor.Components.Displays.SearchBarDisplay />
+            
+            <!-- Stats Showcase -->
+            <div class="hero-stats mt-6">
+                <div class="hero-stat">
+                    <span class="hero-stat-icon"><i class="fas fa-users"></i></span>
+                    <span class="hero-stat-text">100M+ GitHub Users</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-icon"><i class="fas fa-code"></i></span>
+                    <span class="hero-stat-text">400M+ Repositories</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-icon"><i class="fas fa-star"></i></span>
+                    <span class="hero-stat-text">Free Forever</span>
+                </div>
             </div>
         </div>
+    </div>
+    
+    <!-- Bottom Wave Decoration -->
+    <div class="hero-wave">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0V120Z" fill="var(--dark-bg)"/>
+        </svg>
     </div>
 </section>
 
 <!-- Main Content Grid -->
-<section class="section">
+<section class="section section-modern">
     <div class="container">
-        <div class="columns is-multiline">
+        <div class="has-text-centered mb-6">
+            <span class="section-label">
+                <i class="fas fa-unlock-alt"></i> Authentication
+            </span>
+            <h2 class="title is-3 has-text-weight-bold mt-3">
+                Unlock <span class="gradient-text">Premium Features</span>
+            </h2>
+            <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
+                Add your GitHub token for higher rate limits and access to more data
+            </p>
+        </div>
+        <div class="columns is-multiline is-variable is-6">
             <!-- Auth Token Section -->
             <div class="column is-6">
-                <div class="box" style="height: 100%;">
-                    <div class="is-flex is-align-items-center mb-4">
-                        <span class="icon is-medium has-text-warning mr-3">
-                            <i class="fas fa-key fa-lg"></i>
-                        </span>
-                        <div>
-                            <h2 class="title is-5 mb-0">Authentication Status</h2>
-                            <p class="is-size-7 has-text-grey">Manage your access level</p>
-                        </div>
+                <div class="modern-card auth-card">
+                    <div class="card-icon-badge warning">
+                        <i class="fas fa-key"></i>
                     </div>
-                    <div class="content">
+                    <div class="modern-card-header">
+                        <h2 class="title is-5 mb-1">Authentication Status</h2>
+                        <p class="is-size-7 has-text-grey">Manage your access level</p>
+                    </div>
+                    <div class="modern-card-content">
                         @if (string.IsNullOrEmpty(AuthService.CurrentAccessToken))
                         {
                             <p class="is-size-6 has-text-grey-light mb-4">
-                                Add your GitHub personal access token to unlock higher API rate limits 
+                                Add your GitHub personal access token to unlock higher API rate limits
                                 and access private repository information.
                             </p>
                             
                             <div class="field mb-4">
-                                <button class="button is-dark is-fullwidth" @onclick="SignInWithGitHub">
+                                <button class="button github-signin-btn is-fullwidth" @onclick="SignInWithGitHub">
                                     <span class="icon">
                                         <i class="fab fa-github"></i>
                                     </span>
@@ -65,13 +127,14 @@
                                 </button>
                             </div>
 
-                            <div class="is-divider" data-content="OR"></div>
-                            <p class="has-text-centered is-size-7 has-text-grey mb-3">- OR -</p>
+                            <div class="divider-modern">
+                                <span>OR</span>
+                            </div>
 
                             <div class="field">
                                 <label class="label is-small has-text-grey-light">Personal Access Token</label>
                                 <div class="control has-icons-left">
-                                    <input @bind="AuthToken" placeholder="ghp_xxxxxxxxxxxx" class="input"
+                                    <input @bind="AuthToken" placeholder="ghp_xxxxxxxxxxxx" class="input modern-input"
                                         type="password" @oninput="HandleInputChange" />
                                     <span class="icon is-small is-left">
                                         <i class="fas fa-lock"></i>
@@ -80,7 +143,7 @@
                             </div>
                             <div class="field">
                                 <div class="control">
-                                    <button class="button is-primary is-fullwidth" @onclick="AddToken">
+                                    <button class="button is-primary is-fullwidth modern-btn" @onclick="AddToken">
                                         <span class="icon">
                                             <i class="fas fa-plus-circle"></i>
                                         </span>
@@ -88,14 +151,14 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="notification is-dark is-size-7 py-2 px-3 mt-3" style="background-color: rgba(88, 166, 255, 0.1); border: 1px solid var(--border-color);">
+                            <div class="info-badge mt-4">
                                 <span class="icon is-small has-text-info">
                                     <i class="fas fa-shield-alt"></i>
                                 </span>
-                                <span>Your token is stored locally in your browser and never sent to our servers.</span>
+                                <span>Your token is stored locally and never sent to our servers.</span>
                             </div>
                             <div class="has-text-centered mt-3">
-                                <a class="is-size-7 has-text-primary" @onclick="OpenPATModal" style="cursor: pointer;">
+                                <a class="help-link" @onclick="OpenPATModal" style="cursor: pointer;">
                                     <span class="icon is-small">
                                         <i class="fas fa-question-circle"></i>
                                     </span>
@@ -105,22 +168,20 @@
                         }
                         else
                         {
-                            <div class="notification is-success is-light mb-4">
-                                <div class="is-flex is-align-items-center">
-                                    <span class="icon is-medium has-text-success mr-2">
-                                        <i class="fas fa-check-circle fa-lg"></i>
-                                    </span>
-                                    <div>
-                                        <p class="has-text-weight-bold">Authenticated</p>
-                                        @if (authSource == "github")
-                                        {
-                                            <p class="is-size-7">Signed in with GitHub</p>
-                                        }
-                                        else
-                                        {
-                                            <p class="is-size-7">Using Personal Access Token</p>
-                                        }
-                                    </div>
+                            <div class="success-badge mb-4">
+                                <div class="success-badge-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <p class="has-text-weight-bold has-text-success">Authenticated</p>
+                                    @if (authSource == "github")
+                                    {
+                                        <p class="is-size-7 has-text-grey">Signed in with GitHub</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="is-size-7 has-text-grey">Using Personal Access Token</p>
+                                    }
                                 </div>
                             </div>
 
@@ -128,7 +189,7 @@
                                 You currently have increased API rate limits and access to data based on your token's permissions.
                             </p>
 
-                            <button class="button is-danger is-outlined is-fullwidth" @onclick="RemoveToken">
+                            <button class="button is-danger is-outlined is-fullwidth modern-btn-outline" @onclick="RemoveToken">
                                 <span class="icon">
                                     <i class="fas fa-sign-out-alt"></i>
                                 </span>
@@ -148,40 +209,53 @@
 </section>
 
 <!-- How It Works Section -->
-<section class="section" style="background-color: var(--card-bg);">
+<section class="section section-modern section-alternate">
     <div class="container">
         <div class="has-text-centered mb-6">
-            <h2 class="title is-3 has-text-weight-bold">
-                <span class="icon has-text-primary mr-2">
-                    <i class="fas fa-cogs"></i>
-                </span>
-                How It Works
+            <span class="section-label">
+                <i class="fas fa-magic"></i> Simple & Intuitive
+            </span>
+            <h2 class="title is-3 has-text-weight-bold mt-3">
+                How It <span class="gradient-text">Works</span>
             </h2>
-            <p class="subtitle is-5 has-text-grey">Three simple steps to explore any GitHub profile</p>
+            <p class="subtitle is-5 has-text-grey" style="max-width: 500px; margin: 0 auto;">
+                Three simple steps to explore any GitHub profile
+            </p>
         </div>
-        <div class="columns">
+        <div class="columns is-variable is-6">
             <div class="column is-4">
-                <div class="has-text-centered p-4">
-                    <div class="mb-4">
-                        <span class="tag is-primary is-large is-rounded" style="width: 50px; height: 50px; font-size: 1.5rem;">1</span>
+                <div class="step-card">
+                    <div class="step-connector"></div>
+                    <div class="step-number step-primary">
+                        <span>1</span>
+                    </div>
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
                     </div>
                     <h3 class="title is-5 mb-3">Search</h3>
                     <p class="has-text-grey">Enter any GitHub username in the search bar to find the profile you want to explore.</p>
                 </div>
             </div>
             <div class="column is-4">
-                <div class="has-text-centered p-4">
-                    <div class="mb-4">
-                        <span class="tag is-info is-large is-rounded" style="width: 50px; height: 50px; font-size: 1.5rem;">2</span>
+                <div class="step-card">
+                    <div class="step-connector"></div>
+                    <div class="step-number step-info">
+                        <span>2</span>
+                    </div>
+                    <div class="step-icon">
+                        <i class="fas fa-binoculars"></i>
                     </div>
                     <h3 class="title is-5 mb-3">Explore</h3>
                     <p class="has-text-grey">Browse through repositories, view statistics, and analyze the developer's contributions.</p>
                 </div>
             </div>
             <div class="column is-4">
-                <div class="has-text-centered p-4">
-                    <div class="mb-4">
-                        <span class="tag is-success is-large is-rounded" style="width: 50px; height: 50px; font-size: 1.5rem;">3</span>
+                <div class="step-card">
+                    <div class="step-number step-success">
+                        <span>3</span>
+                    </div>
+                    <div class="step-icon">
+                        <i class="fas fa-gem"></i>
                     </div>
                     <h3 class="title is-5 mb-3">Discover</h3>
                     <p class="has-text-grey">Check followers, following, star history, and connect with the open-source community.</p>
@@ -192,46 +266,46 @@
 </section>
 
 <!-- Featured Profiles Showcase Section -->
-<section class="section">
+<section class="section section-modern">
     <div class="container">
         <div class="has-text-centered mb-6">
-            <h2 class="title is-3 has-text-weight-bold">
-                <span class="icon has-text-info mr-2">
-                    <i class="fas fa-user-astronaut"></i>
-                </span>
-                Discover Popular Profiles
+            <span class="section-label">
+                <i class="fas fa-user-astronaut"></i> Featured Developers
+            </span>
+            <h2 class="title is-3 has-text-weight-bold mt-3">
+                Discover <span class="gradient-text">Popular Profiles</span>
             </h2>
             <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
                 Get started by exploring profiles of notable developers and open-source contributors
             </p>
         </div>
-        <div class="columns is-multiline is-centered">
+        <div class="profile-grid">
             @foreach (var profile in featuredProfiles)
             {
-                <div class="column is-2-desktop is-4-tablet is-6-mobile">
-                    <a href="/p/@profile.Username" class="featured-profile-card box has-text-centered" style="height: 100%; display: block; transition: transform 0.2s ease, border-color 0.2s ease;">
-                        <figure class="image is-96x96 mx-auto mb-3">
-                            <img class="is-rounded" src="https://avatars.githubusercontent.com/@profile.Username" alt="@profile.Name" loading="lazy" style="border: 3px solid var(--border-color);">
-                        </figure>
-                        <p class="title is-6 mb-1">@profile.Name</p>
-                        <p class="is-size-7 has-text-grey">@@@profile.Username</p>
-                        <span class="tag is-dark is-small mt-2">
-                            <span class="icon is-small mr-1">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                            View
+                <a href="/p/@profile.Username" class="profile-card-modern">
+                    <div class="profile-card-glow"></div>
+                    <div class="profile-card-content">
+                        <div class="profile-avatar-wrapper">
+                            <img src="https://avatars.githubusercontent.com/@profile.Username" alt="@profile.Name" loading="lazy" />
+                            <div class="profile-avatar-ring"></div>
+                        </div>
+                        <p class="profile-name">@profile.Name</p>
+                        <p class="profile-username">@@@profile.Username</p>
+                        <span class="profile-view-btn">
+                            <i class="fas fa-arrow-right"></i>
+                            View Profile
                         </span>
-                    </a>
-                </div>
+                    </div>
+                </a>
             }
         </div>
-        <div class="has-text-centered mt-5">
-            <p class="is-size-6 has-text-grey">
-                <span class="icon is-small has-text-info mr-1">
+        <div class="has-text-centered mt-6">
+            <div class="tip-box">
+                <span class="icon is-small has-text-info mr-2">
                     <i class="fas fa-lightbulb"></i>
                 </span>
-                Or search for any GitHub username above to explore their profile
-            </p>
+                <span>Or search for any GitHub username above to explore their profile</span>
+            </div>
         </div>
     </div>
 </section>
@@ -240,32 +314,31 @@
 <FeaturesDisplay />
 
 <!-- Use Cases / Benefits Section -->
-<section class="section" style="background-color: var(--card-bg);">
+<section class="section section-modern section-alternate">
     <div class="container">
         <div class="has-text-centered mb-6">
-            <h2 class="title is-3 has-text-weight-bold">
-                <span class="icon has-text-success mr-2">
-                    <i class="fas fa-bullseye"></i>
-                </span>
-                Perfect For
+            <span class="section-label">
+                <i class="fas fa-bullseye"></i> Who It's For
+            </span>
+            <h2 class="title is-3 has-text-weight-bold mt-3">
+                Perfect For <span class="gradient-text">Everyone</span>
             </h2>
             <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
                 Whether you're a developer, recruiter, or learner — GPV helps you explore GitHub like never before
             </p>
         </div>
-        <div class="columns is-multiline">
+        <div class="columns is-multiline is-variable is-5">
             @foreach (var useCase in useCases)
             {
                 <div class="column is-4-desktop is-6-tablet">
-                    <div class="box" style="height: 100%;">
-                        <div class="is-flex is-align-items-start">
-                            <span class="icon is-large has-text-@useCase.Color mr-4" style="font-size: 2.5rem; flex-shrink: 0;">
-                                <i class="@useCase.Icon"></i>
-                            </span>
-                            <div>
-                                <h3 class="title is-5 mb-2">@useCase.Title</h3>
-                                <p class="has-text-grey-light">@useCase.Description</p>
-                            </div>
+                    <div class="usecase-card">
+                        <div class="usecase-icon-wrapper @useCase.Color">
+                            <i class="@useCase.Icon"></i>
+                        </div>
+                        <h3 class="title is-5 mb-2">@useCase.Title</h3>
+                        <p class="has-text-grey-light">@useCase.Description</p>
+                        <div class="usecase-arrow">
+                            <i class="fas fa-arrow-right"></i>
                         </div>
                     </div>
                 </div>
@@ -275,45 +348,43 @@
 </section>
 
 <!-- Technology Stack Section -->
-<section class="section">
+<section class="section section-modern">
     <div class="container">
         <div class="has-text-centered mb-6">
-            <h2 class="title is-3 has-text-weight-bold">
-                <span class="icon has-text-link mr-2">
-                    <i class="fas fa-layer-group"></i>
-                </span>
-                Built With Modern Tech
+            <span class="section-label">
+                <i class="fas fa-layer-group"></i> Technology Stack
+            </span>
+            <h2 class="title is-3 has-text-weight-bold mt-3">
+                Built With <span class="gradient-text">Modern Tech</span>
             </h2>
             <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
                 Powered by cutting-edge technologies for speed, reliability, and great developer experience
             </p>
         </div>
-        <div class="columns is-multiline is-centered">
+        <div class="tech-grid">
             @foreach (var tech in technologies)
             {
-                <div class="column is-narrow">
-                    <div class="box has-text-centered px-5 py-4" style="min-width: 140px;">
-                        <span class="icon is-large has-text-@tech.Color mb-2" style="font-size: 2.5rem;">
-                            <i class="@tech.Icon"></i>
-                        </span>
-                        <p class="title is-6 mb-1">@tech.Name</p>
-                        <p class="is-size-7 has-text-grey">@tech.Description</p>
+                <div class="tech-card-modern">
+                    <div class="tech-icon-wrapper @tech.Color">
+                        <i class="@tech.Icon"></i>
                     </div>
+                    <p class="tech-name">@tech.Name</p>
+                    <p class="tech-description">@tech.Description</p>
                 </div>
             }
         </div>
-        <div class="has-text-centered mt-5">
-            <div class="tags is-centered">
-                <span class="tag is-success is-light">
-                    <span class="icon is-small mr-1"><i class="fas fa-lock"></i></span>
+        <div class="has-text-centered mt-6">
+            <div class="feature-pills">
+                <span class="feature-pill success">
+                    <i class="fas fa-lock"></i>
                     Secure
                 </span>
-                <span class="tag is-info is-light">
-                    <span class="icon is-small mr-1"><i class="fas fa-bolt"></i></span>
+                <span class="feature-pill info">
+                    <i class="fas fa-bolt"></i>
                     Fast
                 </span>
-                <span class="tag is-warning is-light">
-                    <span class="icon is-small mr-1"><i class="fas fa-code-branch"></i></span>
+                <span class="feature-pill warning">
+                    <i class="fas fa-code-branch"></i>
                     Open Source
                 </span>
             </div>
@@ -322,14 +393,14 @@
 </section>
 
 <!-- FAQ Section -->
-<section class="section" style="background-color: var(--card-bg);">
+<section class="section section-modern section-alternate">
     <div class="container">
         <div class="has-text-centered mb-6">
-            <h2 class="title is-3 has-text-weight-bold">
-                <span class="icon has-text-warning mr-2">
-                    <i class="fas fa-question-circle"></i>
-                </span>
-                Frequently Asked Questions
+            <span class="section-label">
+                <i class="fas fa-question-circle"></i> FAQ
+            </span>
+            <h2 class="title is-3 has-text-weight-bold mt-3">
+                Frequently Asked <span class="gradient-text">Questions</span>
             </h2>
             <p class="subtitle is-5 has-text-grey" style="max-width: 600px; margin: 0 auto;">
                 Quick answers to common questions about GitHub Profile Viewer
@@ -337,58 +408,66 @@
         </div>
         <div class="columns is-centered">
             <div class="column is-8">
-                @foreach (var faq in faqs)
-                {
-                    <div class="box mb-4">
-                        <div class="is-flex is-align-items-start">
-                            <span class="icon has-text-primary mr-3" style="flex-shrink: 0;">
-                                <i class="fas fa-chevron-right"></i>
-                            </span>
-                            <div>
-                                <h3 class="title is-5 mb-2">@faq.Question</h3>
-                                <p class="has-text-grey-light">@faq.Answer</p>
+                <div class="faq-list">
+                    @foreach (var faq in faqs)
+                    {
+                        <div class="faq-item-modern">
+                            <div class="faq-question">
+                                <span class="faq-icon">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
+                                <h3>@faq.Question</h3>
+                            </div>
+                            <div class="faq-answer">
+                                <p>@faq.Answer</p>
                             </div>
                         </div>
-                    </div>
-                }
+                    }
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Open Source CTA Section -->
-<section class="section">
+<section class="section section-modern">
     <div class="container">
-        <div class="box" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border: 1px solid rgba(102, 126, 234, 0.3);">
-            <div class="has-text-centered">
-                <span class="icon is-large has-text-primary mb-4" style="font-size: 3rem;">
+        <div class="cta-modern">
+            <div class="cta-bg-elements">
+                <div class="cta-orb cta-orb-1"></div>
+                <div class="cta-orb cta-orb-2"></div>
+            </div>
+            <div class="cta-content">
+                <div class="cta-icon-wrapper">
                     <i class="fas fa-heart"></i>
-                </span>
-                <h2 class="title is-3 mb-3">Open Source & Community Driven</h2>
-                <p class="subtitle is-5 has-text-grey mb-5" style="max-width: 600px; margin: 0 auto;">
+                </div>
+                <h2 class="title is-2 mb-3 has-text-white">
+                    Open Source & <span class="cta-highlight">Community Driven</span>
+                </h2>
+                <p class="subtitle is-5 has-text-grey-lighter mb-5" style="max-width: 600px; margin: 0 auto;">
                     GPV is built by the community, for the community. We welcome contributions of all kinds!
                 </p>
-                <div class="buttons is-centered">
-                    <a href="https://github.com/sametcn99/GPVBlazor" target="_blank" rel="noopener" class="button is-dark is-medium">
+                <div class="cta-buttons">
+                    <a href="https://github.com/sametcn99/GPVBlazor" target="_blank" rel="noopener" class="cta-btn cta-btn-primary">
                         <span class="icon">
                             <i class="fab fa-github"></i>
                         </span>
                         <span>View on GitHub</span>
                     </a>
-                    <a href="https://github.com/sametcn99/GPVBlazor/stargazers" target="_blank" rel="noopener" class="button is-dark is-medium">
+                    <a href="https://github.com/sametcn99/GPVBlazor/stargazers" target="_blank" rel="noopener" class="cta-btn cta-btn-secondary">
                         <span class="icon">
                             <i class="fas fa-star"></i>
                         </span>
-                        <span>Star the Project</span>
+                        <span>Star Project</span>
                     </a>
-                    <a href="https://github.com/sametcn99/GPVBlazor/issues" target="_blank" rel="noopener" class="button is-dark is-medium">
+                    <a href="https://github.com/sametcn99/GPVBlazor/issues" target="_blank" rel="noopener" class="cta-btn cta-btn-outline">
                         <span class="icon">
                             <i class="fas fa-bug"></i>
                         </span>
                         <span>Report Issues</span>
                     </a>
                 </div>
-                <p class="is-size-7 has-text-grey mt-4">
+                <p class="is-size-7 has-text-grey-light mt-5">
                     <span class="icon is-small mr-1">
                         <i class="fas fa-code-branch"></i>
                     </span>
