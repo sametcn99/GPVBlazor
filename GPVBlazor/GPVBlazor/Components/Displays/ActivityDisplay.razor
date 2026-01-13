@@ -733,6 +733,12 @@
                 <i class="fas fa-globe globe-icon"></i>
                 Made this repository public
             </p>
+            @if (Activity.Repo.CreatedAt.HasValue)
+            {
+                <p class="event-detail">
+                    <i class="far fa-clock"></i> Repository created on @Activity.Repo.CreatedAt.Value.ToString("MMM dd, yyyy")
+                </p>
+            }
         </div>
     };
 

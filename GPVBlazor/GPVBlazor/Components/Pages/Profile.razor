@@ -430,6 +430,28 @@
                 gists = await gistTask ?? new List<Gist>();
                 var activityResult = await activityTask;
                 activities = activityResult.Activities ?? new List<Activity>();
+
+                // Fix for PublicEvent showing repo creation date
+                if (activities.Any() && repositories.Any())
+                {
+                    foreach (var activity in activities.Where(a => a.Type == "PublicEvent"))
+                    {
+                        var repo = repositories.FirstOrDefault(r => r.FullName == activity.Repo.Name);
+                        if (repo != null)
+                        {
+                            activity.Repo.CreatedAt = repo.CreatedAt;
+
+                            if (repo.CreatedAt.HasValue && repo.UpdatedAt.HasValue)
+                            {
+                                // Check if dates are close (within 1 minute) to account for any small diffs
+                                if (Math.Abs((activity.CreatedAt - repo.CreatedAt.Value).TotalMinutes) < 1)
+                                {
+                                    activity.CreatedAt = repo.UpdatedAt.Value;
+                                }
+                            }
+                        }
+                    }
+                }
                 
                 hasMoreActivities = activityResult.HasNextPage;
                 activityPage = 1;
@@ -476,6 +498,27 @@
             
             if (newActivities != null && newActivities.Any())
             {
+                // Fix for PublicEvent showing repo creation date
+                if (repositories != null && repositories.Any())
+                {
+                    foreach (var activity in newActivities.Where(a => a.Type == "PublicEvent"))
+                    {
+                        var repo = repositories.FirstOrDefault(r => r.FullName == activity.Repo.Name);
+                        if (repo != null)
+                        {
+                            activity.Repo.CreatedAt = repo.CreatedAt;
+
+                            if (repo.CreatedAt.HasValue && repo.UpdatedAt.HasValue)
+                            {
+                                if (Math.Abs((activity.CreatedAt - repo.CreatedAt.Value).TotalMinutes) < 1)
+                                {
+                                    activity.CreatedAt = repo.UpdatedAt.Value;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 activities?.AddRange(newActivities);
                 hasMoreActivities = result.HasNextPage;
             }

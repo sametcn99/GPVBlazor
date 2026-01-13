@@ -57,6 +57,8 @@ namespace GPVBlazor.Models
 
         [JsonPropertyName("url")]
         public string Url { get; set; } = string.Empty;
+
+        public DateTime? CreatedAt { get; set; }
     }
 
     public class ActivityPayload
