@@ -33,12 +33,35 @@
                         <div class="navbar-item">
                             @if (string.IsNullOrEmpty(AuthService.CurrentAccessToken))
                             {
-                                <a href="@AuthService.GetGitHubLoginUrl()" class="button is-primary is-outlined">
-                                    <span class="icon">
-                                        <i class="fab fa-github"></i>
-                                    </span>
-                                    <span>Sign In</span>
-                                </a>
+                                @if (isSignInDropdownActive)
+                                {
+                                    <div class="dropdown-backdrop" @onclick="CloseSignInDropdown"></div>
+                                }
+                                <div class="dropdown is-right @(isSignInDropdownActive ? "is-active" : "")">
+                                    <div class="dropdown-trigger">
+                                        <button class="button is-primary is-outlined" @onclick="ToggleSignInDropdown" aria-haspopup="true" aria-controls="signin-dropdown-menu">
+                                            <span class="icon">
+                                                <i class="fab fa-github"></i>
+                                            </span>
+                                            <span>Sign In</span>
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" id="signin-dropdown-menu" role="menu">
+                                        <div class="dropdown-content">
+                                            <a href="@AuthService.GetGitHubLoginUrl()" class="dropdown-item">
+                                                <span class="icon mr-2"><i class="fab fa-github"></i></span>
+                                                Sign in with GitHub
+                                            </a>
+                                            <a class="dropdown-item" @onclick="OpenTokenLoginModal">
+                                                <span class="icon mr-2"><i class="fas fa-key"></i></span>
+                                                Sign in with Access Token
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             }
                             else
                             {
@@ -84,16 +107,28 @@
         </nav>
         
         <GPVBlazor.Components.Displays.ApiLimitsModal @bind-IsActive="isApiLimitsModalActive" />
+        <GPVBlazor.Components.Displays.LoginWithTokenModal @bind-IsActive="isTokenLoginModalActive" />
         
         @code {
             private bool isMenuActive = false;
             private bool isUserMenuActive = false;
             private bool isApiLimitsModalActive = false;
+            private bool isSignInDropdownActive = false;
+            private bool isTokenLoginModalActive = false;
         
             private void ToggleNavbar() => isMenuActive = !isMenuActive;
             private void ToggleUserMenu() => isUserMenuActive = !isUserMenuActive;
             private void CloseUserMenu() => isUserMenuActive = false;
             
+            private void ToggleSignInDropdown() => isSignInDropdownActive = !isSignInDropdownActive;
+            private void CloseSignInDropdown() => isSignInDropdownActive = false;
+
+            private void OpenTokenLoginModal()
+            {
+                isTokenLoginModalActive = true;
+                isSignInDropdownActive = false;
+            }
+
             private void OpenApiLimitsModal()
             {
                 isApiLimitsModalActive = true;

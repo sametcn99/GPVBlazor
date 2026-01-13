@@ -1,0 +1,85 @@
+@inject Services.Interfaces.IAuthService AuthService
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+
+<div class="modal @(IsActive ? "is-active" : "")">
+    <div class="modal-background" @onclick="Close"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Sign in with Access Token</p>
+            <button class="delete" aria-label="close" @onclick="Close"></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="field">
+                <label class="label">Personal Access Token</label>
+                <div class="control has-icons-left">
+                    <input class="input @(isError ? "is-danger" : "")" type="password" placeholder="ghp_..." @bind="token" @bind:event="oninput" />
+                    <span class="icon is-small is-left">
+                        <i class="fas fa-key"></i>
+                    </span>
+                </div>
+                @if (isError)
+                {
+                    <p class="help is-danger">Invalid token or unable to authenticate.</p>
+                }
+                <p class="help">
+                    You can generate a token in your <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings</a>.
+                    Required scopes: <code>public_repo</code>, <code>read:user</code>, <code>user:email</code>, <code>gist</code>.
+                </p>
+            </div>
+        </section>
+        <footer class="modal-card-foot is-justify-content-flex-end">
+            <button class="button" @onclick="Close">Cancel</button>
+            <button class="button is-primary @(isLoading ? "is-loading" : "")" @onclick="Login" disabled="@string.IsNullOrWhiteSpace(token)">Sign In</button>
+        </footer>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsActive { get; set; }
+    [Parameter] public EventCallback<bool> IsActiveChanged { get; set; }
+
+    private string token = "";
+    private bool isLoading = false;
+    private bool isError = false;
+
+    private async Task Close()
+    {
+        IsActive = false;
+        token = "";
+        isError = false;
+        await IsActiveChanged.InvokeAsync(IsActive);
+    }
+
+    private async Task Login()
+    {
+        if (string.IsNullOrWhiteSpace(token)) return;
+
+        isLoading = true;
+        isError = false;
+
+        try
+        {
+            var isValid = await AuthService.IsTokenValidAsync(token);
+            if (isValid)
+            {
+                await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+                await JS.InvokeVoidAsync("localStorage.setItem", "authSource", "token");
+                AuthService.Login(token);
+                await Close();
+            }
+            else
+            {
+                isError = true;
+            }
+        }
+        catch
+        {
+            isError = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
