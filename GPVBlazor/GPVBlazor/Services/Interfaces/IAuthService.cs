@@ -11,7 +11,8 @@
         Task<GPVBlazor.Models.User?> FetchCurrentUserAsync(string token);
         Task<bool> IsTokenValidAsync(string token);
         Task<GPVBlazor.Models.RateLimitInfo?> GetRateLimitAsync(string? token);
-        Task<string?> GetAccessTokenFromCodeAsync(string code);
+        Task<GPVBlazor.Models.AuthTokenResponse?> GetAccessTokenFromCodeAsync(string code);
+        Task<GPVBlazor.Models.AuthTokenResponse?> RefreshAccessTokenAsync(string refreshToken);
         string GetGitHubLoginUrl();
     }
 }

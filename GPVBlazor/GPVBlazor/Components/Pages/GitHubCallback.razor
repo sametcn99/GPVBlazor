@@ -44,15 +44,27 @@
 
             try
             {
-                var token = await AuthService.GetAccessTokenFromCodeAsync(Code);
-                if (!string.IsNullOrEmpty(token))
+                var tokenResponse = await AuthService.GetAccessTokenFromCodeAsync(Code);
+                if (tokenResponse != null && !string.IsNullOrEmpty(tokenResponse.AccessToken))
                 {
                     // Save to localStorage
-                    await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+                    await JS.InvokeVoidAsync("localStorage.setItem", "authToken", tokenResponse.AccessToken);
                     await JS.InvokeVoidAsync("localStorage.setItem", "authSource", "github");
                     
+                    if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
+                    {
+                        await JS.InvokeVoidAsync("localStorage.setItem", "refreshToken", tokenResponse.RefreshToken);
+                        await JS.InvokeVoidAsync("localStorage.setItem", "refreshTokenExpiresIn", tokenResponse.RefreshTokenExpiresIn);
+                    }
+
+                    if (tokenResponse.ExpiresIn > 0)
+                    {
+                        var expiresAt = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
+                        await JS.InvokeVoidAsync("localStorage.setItem", "tokenExpiresAt", expiresAt.ToString("O"));
+                    }
+                    
                     // Update auth state in memory
-                    AuthService.Login(token);
+                    AuthService.Login(tokenResponse.AccessToken);
 
                     // Redirect to home without force reload
                     NavManager.NavigateTo("/", false);

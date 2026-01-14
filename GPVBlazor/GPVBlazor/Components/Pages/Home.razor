@@ -647,6 +647,9 @@
     {
         await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
         await JS.InvokeVoidAsync("localStorage.removeItem", "authSource");
+        await JS.InvokeVoidAsync("localStorage.removeItem", "refreshToken");
+        await JS.InvokeVoidAsync("localStorage.removeItem", "refreshTokenExpiresIn");
+        await JS.InvokeVoidAsync("localStorage.removeItem", "tokenExpiresAt");
         AuthService.Logout();
         // Force refresh if needed, but state change should handle it
         authSource = null;
@@ -680,9 +683,58 @@
         {
             var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
             authSource = await JS.InvokeAsync<string>("localStorage.getItem", "authSource");
+            var expiresAtStr = await JS.InvokeAsync<string>("localStorage.getItem", "tokenExpiresAt");
+            var refreshToken = await JS.InvokeAsync<string>("localStorage.getItem", "refreshToken");
             
             if (!string.IsNullOrEmpty(token))
             {
+                bool shouldRefresh = false;
+                if (!string.IsNullOrEmpty(expiresAtStr) && DateTime.TryParse(expiresAtStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out var expiresAt))
+                {
+                    // Refresh if expired or expiring in less than 5 minutes
+                    if (expiresAt <= DateTime.UtcNow.AddMinutes(5))
+                    {
+                        shouldRefresh = true;
+                    }
+                }
+
+                if (shouldRefresh && !string.IsNullOrEmpty(refreshToken))
+                {
+                    try
+                    {
+                        var newTokenResponse = await AuthService.RefreshAccessTokenAsync(refreshToken);
+                        if (newTokenResponse != null && !string.IsNullOrEmpty(newTokenResponse.AccessToken))
+                        {
+                            token = newTokenResponse.AccessToken;
+                            await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+                            
+                            if (!string.IsNullOrEmpty(newTokenResponse.RefreshToken))
+                            {
+                                await JS.InvokeVoidAsync("localStorage.setItem", "refreshToken", newTokenResponse.RefreshToken);
+                                await JS.InvokeVoidAsync("localStorage.setItem", "refreshTokenExpiresIn", newTokenResponse.RefreshTokenExpiresIn);
+                            }
+
+                            if (newTokenResponse.ExpiresIn > 0)
+                            {
+                                var newExpiresAt = DateTime.UtcNow.AddSeconds(newTokenResponse.ExpiresIn);
+                                await JS.InvokeVoidAsync("localStorage.setItem", "tokenExpiresAt", newExpiresAt.ToString("O"));
+                            }
+                        }
+                        else
+                        {
+                            // Refresh failed, clear session
+                            await RemoveToken();
+                            return;
+                        }
+                    }
+                    catch
+                    {
+                        // Refresh failed, clear session
+                        await RemoveToken();
+                        return;
+                    }
+                }
+
                 // Sync service if logic didn't happen in Navbar yet or we are first
                 if (string.IsNullOrEmpty(AuthService.CurrentAccessToken))
                 {

@@ -66,7 +66,7 @@ namespace GPVBlazor.Services
             return null;
         }
 
-        public async Task<string?> GetAccessTokenFromCodeAsync(string code)
+        public async Task<Models.AuthTokenResponse?> GetAccessTokenFromCodeAsync(string code)
         {
             var tokenReq = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -91,11 +91,48 @@ namespace GPVBlazor.Services
                     return null;
 
                 using var stream = await response.Content.ReadAsStreamAsync();
-                var tokenResponse = await JsonSerializer.DeserializeAsync<OAuthTokenResponse>(
+                var tokenResponse = await JsonSerializer.DeserializeAsync<Models.AuthTokenResponse>(
                     stream
                 );
 
-                return tokenResponse?.AccessToken;
+                return tokenResponse;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<Models.AuthTokenResponse?> RefreshAccessTokenAsync(string refreshToken)
+        {
+            var tokenReq = new HttpRequestMessage(
+                HttpMethod.Post,
+                "https://github.com/login/oauth/access_token"
+            );
+            tokenReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var parameters = new Dictionary<string, string>
+            {
+                { "client_id", ClientId ?? "" },
+                { "client_secret", ClientSecret ?? "" },
+                { "grant_type", "refresh_token" },
+                { "refresh_token", refreshToken }
+            };
+
+            tokenReq.Content = new FormUrlEncodedContent(parameters);
+
+            try
+            {
+                var response = await _httpClient.SendAsync(tokenReq);
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                using var stream = await response.Content.ReadAsStreamAsync();
+                var tokenResponse = await JsonSerializer.DeserializeAsync<Models.AuthTokenResponse>(
+                    stream
+                );
+
+                return tokenResponse;
             }
             catch
             {
@@ -167,18 +204,6 @@ namespace GPVBlazor.Services
                     },
                 },
             };
-        }
-
-        private class OAuthTokenResponse
-        {
-            [System.Text.Json.Serialization.JsonPropertyName("access_token")]
-            public string? AccessToken { get; set; }
-
-            [System.Text.Json.Serialization.JsonPropertyName("token_type")]
-            public string? TokenType { get; set; }
-
-            [System.Text.Json.Serialization.JsonPropertyName("scope")]
-            public string? Scope { get; set; }
         }
 
         private class RateRoot
