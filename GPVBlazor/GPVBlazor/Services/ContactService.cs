@@ -1,6 +1,7 @@
-﻿using GPVBlazor.Services.Interfaces;
 using System.Net.Http.Headers;
 using System.Text.Json;
+
+using GPVBlazor.Services.Interfaces;
 
 public class ContactService : IContactService
 {

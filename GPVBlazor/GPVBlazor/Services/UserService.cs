@@ -1,9 +1,11 @@
-﻿using GPVBlazor.Models;
-using GPVBlazor.Services.Interfaces;
-using Microsoft.Extensions.Caching.Memory;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+
+using GPVBlazor.Models;
+using GPVBlazor.Services.Interfaces;
+
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GPVBlazor.Services
 {
@@ -421,13 +423,13 @@ namespace GPVBlazor.Services
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, $"https://github-contributions-api.jogruber.de/v4/{username}?y=last");
                 // No auth needed for this public API
-                
+
                 var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var contributions = JsonSerializer.Deserialize<ContributionResponse>(content);
-                    
+
                     if (contributions is not null)
                     {
                         _memoryCache.Set(cacheKey, contributions, TimeSpan.FromHours(24));
@@ -496,6 +498,60 @@ namespace GPVBlazor.Services
             return new List<SocialAccount>();
         }
 
+        public async Task<List<User>> FetchUserFollowers(string username, string token, int page = 1, int perPage = 100)
+        {
+            string cacheKey = $"UserFollowers-{username}-{page}";
+            if (_memoryCache.TryGetValue(cacheKey, out List<User>? cachedUsers)) return cachedUsers ?? new List<User>();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/followers?per_page={perPage}&page={page}");
+            request.Headers.Add("User-Agent", "BlazorApp");
+            if (!string.IsNullOrEmpty(token))
+            {
+                var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Authorization = authHeader;
+            }
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var users = JsonSerializer.Deserialize<List<User>>(content);
+                if (users is not null)
+                {
+                    _memoryCache.Set(cacheKey, users, TimeSpan.FromMinutes(10));
+                    return users;
+                }
+            }
+            return new List<User>();
+        }
+
+        public async Task<List<User>> FetchUserFollowing(string username, string token, int page = 1, int perPage = 100)
+        {
+            string cacheKey = $"UserFollowing-{username}-{page}";
+            if (_memoryCache.TryGetValue(cacheKey, out List<User>? cachedUsers)) return cachedUsers ?? new List<User>();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/following?per_page={perPage}&page={page}");
+            request.Headers.Add("User-Agent", "BlazorApp");
+            if (!string.IsNullOrEmpty(token))
+            {
+                var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Authorization = authHeader;
+            }
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var users = JsonSerializer.Deserialize<List<User>>(content);
+                if (users is not null)
+                {
+                    _memoryCache.Set(cacheKey, users, TimeSpan.FromMinutes(10));
+                    return users;
+                }
+            }
+            return new List<User>();
+        }
+
         public async Task<(List<Activity> Activities, bool HasNextPage)> FetchUserActivities(string username, string token, int page = 1, int perPage = 30)
         {
             string cacheKey = $"UserActivities-v2-{username}-{page}-{perPage}";
@@ -518,7 +574,7 @@ namespace GPVBlazor.Services
                     PropertyNameCaseInsensitive = true
                 };
                 var activities = JsonSerializer.Deserialize<List<Activity>>(content, options) ?? new List<Activity>();
-                
+
                 bool hasNextPage = false;
                 if (response.Headers.TryGetValues("Link", out var linkValues))
                 {

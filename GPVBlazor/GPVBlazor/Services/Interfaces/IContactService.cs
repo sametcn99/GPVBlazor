@@ -1,4 +1,4 @@
-﻿namespace GPVBlazor.Services.Interfaces
+namespace GPVBlazor.Services.Interfaces
 {
     public interface IContactService
     {

@@ -1,4 +1,4 @@
-﻿using GPVBlazor.Models;
+using GPVBlazor.Models;
 
 namespace GPVBlazor.Services.Interfaces
 {

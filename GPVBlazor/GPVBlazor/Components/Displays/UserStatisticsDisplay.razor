@@ -141,9 +141,9 @@
                         @if (contributions.Contributions.Any())
                         {
                             <span class="contribution-date-range">
-                                @DateTime.Parse(contributions.Contributions.First().Date).ToString("MMM d, yyyy")
+                                @DateTime.Parse(contributions.Contributions.First().Date!).ToString("MMM d, yyyy")
                                 -
-                                @DateTime.Parse(contributions.Contributions.Last().Date).ToString("MMM d, yyyy")
+                                @DateTime.Parse(contributions.Contributions.Last().Date!).ToString("MMM d, yyyy")
                             </span>
                         }
                     </div>
@@ -163,7 +163,7 @@
                             @foreach (var day in contributions.Contributions)
                             {
                                 <div class="contribution-day level-@day.Level"
-                                     data-tooltip="@($"{day.Count} contributions on {DateTime.Parse(day.Date).ToString("MMM d, yyyy")}")">
+                                     data-tooltip="@($"{day.Count} contributions on {DateTime.Parse(day.Date!).ToString("MMM d, yyyy")}")">
                                 </div>
                             }
                         </div>
@@ -257,7 +257,7 @@
         {
             _lastUsername = user.Login;
             contributions = null;
-            contributions = await UserService.FetchUserContributions(user.Login);
+            contributions = await UserService.FetchUserContributions(user.Login ?? string.Empty);
         }
     }
 

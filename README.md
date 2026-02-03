@@ -28,6 +28,12 @@ Both methods allow you to bypass the standard 60 requests/hour limit and utilize
 * **Profile Statistics**: View comprehensive profile statistics including total stars received, total forks, primary languages, and contribution metrics.
 * **Network Analysis**: Explore a user's network by viewing their followers and following lists. Identify connections and key contributors in the open-source community.
 
+### API Documentation
+
+The application includes a fully documented API powered by Scalar.
+* **Interactive Docs**: Access the API documentation at `/docs` to explore endpoints and test requests.
+* **Integration**: Use the API to programmatically access user profiles, repositories, and statistics.
+
 ### User Experience
 
 * **Advanced Filtering**: Filter repositories by language, sort by stars or date, and search within a user's repositories to find exactly what you're looking for.

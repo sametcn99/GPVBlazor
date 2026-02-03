@@ -1,0 +1,48 @@
+root = true
+
+# ----------------------------------
+# Global settings
+# ----------------------------------
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# ----------------------------------
+# C# (Blazor Server & WASM)
+# ----------------------------------
+[*.cs]
+indent_size = 4
+
+# Using directives ordering
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+
+# Braces style
+csharp_new_line_before_open_brace = all
+
+# Indentation rules
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+
+# Readability preferences
+csharp_prefer_braces = true:suggestion
+dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:suggestion
+
+# Treat formatting issues as warnings
+dotnet_diagnostic.IDE0055.severity = warning
+
+# ----------------------------------
+# Razor files (Blazor components)
+# ----------------------------------
+[*.razor]
+indent_size = 2
+
+# ----------------------------------
+# JSON / frontend-related config files
+# ----------------------------------
+[*.{json,js,ts}]
+indent_size = 2

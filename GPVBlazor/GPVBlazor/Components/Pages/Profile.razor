@@ -493,7 +493,7 @@
         try
         {
             activityPage++;
-            var result = await UserService.FetchUserActivities(Username, token, activityPage, 30);
+            var result = await UserService.FetchUserActivities(Username, token ?? string.Empty, activityPage, 30);
             var newActivities = result.Activities;
             
             if (newActivities != null && newActivities.Any())

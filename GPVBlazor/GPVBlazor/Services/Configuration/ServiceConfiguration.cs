@@ -1,4 +1,4 @@
-﻿using global::GPVBlazor.Services.Interfaces;
+using global::GPVBlazor.Services.Interfaces;
 
 namespace GPVBlazor.Services.Configuration
 {

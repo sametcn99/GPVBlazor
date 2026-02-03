@@ -1,4 +1,4 @@
-﻿using GPVBlazor.Models;
+using GPVBlazor.Models;
 
 namespace GPVBlazor.Services.Interfaces
 {
@@ -13,6 +13,8 @@ namespace GPVBlazor.Services.Interfaces
         Task<ContributionResponse?> FetchUserContributions(string username);
         Task<List<Organization>> FetchUserOrganizations(string username, string token);
         Task<List<SocialAccount>> FetchUserSocialAccounts(string username, string token);
+        Task<List<User>> FetchUserFollowers(string username, string token, int page = 1, int perPage = 100);
+        Task<List<User>> FetchUserFollowing(string username, string token, int page = 1, int perPage = 100);
         Task<(List<Activity> Activities, bool HasNextPage)> FetchUserActivities(string username, string token, int page = 1, int perPage = 30);
     }
 }

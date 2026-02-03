@@ -1,4 +1,4 @@
-﻿namespace GPVBlazor.Models
+namespace GPVBlazor.Models
 {
     public class ChartModel
     {
