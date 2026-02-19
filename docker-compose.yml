@@ -9,6 +9,9 @@ services:
     environment:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_ENVIRONMENT=Production
+      - GitHub__ClientId=${GitHub__ClientId}
+      - GitHub__ClientSecret=${GitHub__ClientSecret}
+      - GitHub__RedirectUri=${GitHub__RedirectUri}
 
   nginx:
     image: nginx:alpine

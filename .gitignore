@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 **/**/appsettings.*.json
 _publish_check
+.env
