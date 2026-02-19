@@ -1,12 +1,26 @@
 using GPVBlazor.Components;
 using GPVBlazor.Services.Configuration;
 
+using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.HttpOverrides;
 
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 ServiceConfiguration.Configure(builder.Services);
+
+builder.Services.Configure<CircuitOptions>(options =>
+{
+    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(3);
+    options.DetailedErrors = false;
+});
+
+builder.Services.AddSignalR(options =>
+{
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+    options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+});
 
 // Add Controllers for API endpoints
 builder.Services.AddControllers();
