@@ -187,6 +187,13 @@
     </div>
 </div>
 
+@if (!string.IsNullOrWhiteSpace(_contactLoadError))
+{
+    <div class="notification is-warning is-light mb-5">
+        @_contactLoadError
+    </div>
+}
+
 
 @if (_showFollowersModal)
 {
@@ -218,6 +225,7 @@
     private NetworkAnalysisResult? _networkAnalysisResult;
     private bool _showNetworkAnalysisModal;
     private bool _isLoadingNetworkAnalysis;
+    private string? _contactLoadError;
 
     private List<Organization>? _organizations;
     private List<SocialAccount>? _socialAccounts;
@@ -276,11 +284,22 @@
         if (UserProfile?.Login is null) return;
         if (Token is null) return;
 
+        _contactLoadError = null;
         _isLoadingFollowers = true;
-        _followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers", Token);
-        _isLoadingFollowers = false;
 
-        ToggleModalVisibility(showFollowers: true);
+        try
+        {
+            _followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers", Token);
+            ToggleModalVisibility(showFollowers: true);
+        }
+        catch
+        {
+            _contactLoadError = "Followers list could not be loaded right now.";
+        }
+        finally
+        {
+            _isLoadingFollowers = false;
+        }
     }
 
     private async Task FetchAndShowFollowingModal()
@@ -288,11 +307,22 @@
         if (UserProfile?.Login is null) return;
         if (Token is null) return;
 
+        _contactLoadError = null;
         _isLoadingFollowing = true;
-        _followings = await ContactService.FetchModalData<User>(UserProfile.Login, "following", Token);
-        _isLoadingFollowing = false;
 
-        ToggleModalVisibility(showFollowing: true);
+        try
+        {
+            _followings = await ContactService.FetchModalData<User>(UserProfile.Login, "following", Token);
+            ToggleModalVisibility(showFollowing: true);
+        }
+        catch
+        {
+            _contactLoadError = "Following list could not be loaded right now.";
+        }
+        finally
+        {
+            _isLoadingFollowing = false;
+        }
     }
 
     private async Task FetchAndShowNetworkAnalysisModal()
@@ -300,13 +330,23 @@
         if (UserProfile?.Login is null) return;
         if (Token is null) return;
 
+        _contactLoadError = null;
         _isLoadingNetworkAnalysis = true;
 
-        var networkData = await ContactService.FetchNetworkData(UserProfile.Login, Token);
-        _networkAnalysisResult = NetworkAnalysisService.BuildAnalysis(networkData.Followers, networkData.Following);
-
-        _isLoadingNetworkAnalysis = false;
-        ToggleModalVisibility(showNetworkAnalysis: true);
+        try
+        {
+            var networkData = await ContactService.FetchNetworkData(UserProfile.Login, Token);
+            _networkAnalysisResult = NetworkAnalysisService.BuildAnalysis(networkData.Followers, networkData.Following);
+            ToggleModalVisibility(showNetworkAnalysis: true);
+        }
+        catch
+        {
+            _contactLoadError = "Network analysis could not be completed right now.";
+        }
+        finally
+        {
+            _isLoadingNetworkAnalysis = false;
+        }
     }
 
     private void ToggleModalVisibility(bool showFollowers = false, bool showFollowing = false, bool showNetworkAnalysis = false)

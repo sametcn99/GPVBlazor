@@ -4,45 +4,70 @@ using System.Text.Json;
 using GPVBlazor.Models;
 using GPVBlazor.Services.Interfaces;
 
-public class ContactService : IContactService
+namespace GPVBlazor.Services
 {
-    private readonly HttpClient _httpClient;
-
-    public ContactService(HttpClient httpClient)
+    public class ContactService : IContactService
     {
-        _httpClient = httpClient;
-    }
+        private readonly HttpClient _httpClient;
+        private const int PageSize = 100;
 
-    public async Task<List<T>> FetchModalData<T>(string username, string endpoint, string token, int page = 1)
-    {
-        var collection = new List<T>();
-        while (true)
+        public ContactService(HttpClient httpClient)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/{endpoint}?per_page=100&page={page}");
-            request.Headers.Add("User-Agent", "BlazorApp");
-            if (token is not null)
-            {
-                var authHeader = new AuthenticationHeaderValue("Bearer", token);
-                request.Headers.Authorization = authHeader;
-            }
-            var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode) break;
-            var pageItems = JsonSerializer.Deserialize<List<T>>(await response.Content.ReadAsStringAsync());
-            if (pageItems is null || pageItems.Count is 0) break;
-
-            collection.AddRange(pageItems);
-            page++;
+            _httpClient = httpClient;
         }
-        return collection;
-    }
 
-    public async Task<(List<User> Followers, List<User> Following)> FetchNetworkData(string username, string token)
-    {
-        var followersTask = FetchModalData<User>(username, "followers", token);
-        var followingTask = FetchModalData<User>(username, "following", token);
+        public async Task<List<T>> FetchModalData<T>(string username, string endpoint, string token, int page = 1)
+        {
+            var collection = new List<T>();
+            while (true)
+            {
+                try
+                {
+                    var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/users/{username}/{endpoint}?per_page={PageSize}&page={page}");
+                    request.Headers.Add("User-Agent", "BlazorApp");
+                    if (!string.IsNullOrWhiteSpace(token))
+                    {
+                        var authHeader = new AuthenticationHeaderValue("Bearer", token);
+                        request.Headers.Authorization = authHeader;
+                    }
 
-        await Task.WhenAll(followersTask, followingTask);
+                    var response = await _httpClient.SendAsync(request);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        break;
+                    }
 
-        return (await followersTask, await followingTask);
+                    var pageItems = JsonSerializer.Deserialize<List<T>>(await response.Content.ReadAsStringAsync());
+                    if (pageItems is null || pageItems.Count is 0)
+                    {
+                        break;
+                    }
+
+                    collection.AddRange(pageItems);
+                    if (pageItems.Count < PageSize)
+                    {
+                        break;
+                    }
+
+                    page++;
+                }
+                catch
+                {
+                    break;
+                }
+            }
+
+            return collection;
+        }
+
+        public async Task<(List<User> Followers, List<User> Following)> FetchNetworkData(string username, string token)
+        {
+            var followersTask = FetchModalData<User>(username, "followers", token);
+            var followingTask = FetchModalData<User>(username, "following", token);
+
+            await Task.WhenAll(followersTask, followingTask);
+
+            return (await followersTask, await followingTask);
+        }
     }
 }
