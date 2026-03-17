@@ -51,7 +51,7 @@
                                     </div>
                                     <div class="dropdown-menu" id="signin-dropdown-menu" role="menu">
                                         <div class="dropdown-content">
-                                            <a href="@AuthService.GetGitHubLoginUrl()" class="dropdown-item">
+                                            <a href="/api/auth/login" class="dropdown-item">
                                                 <span class="icon mr-2"><i class="fab fa-github"></i></span>
                                                 Sign in with GitHub
                                             </a>
@@ -105,21 +105,21 @@
                 </div>
             </div>
         </nav>
-        
+
         <GPVBlazor.Components.Displays.ApiLimitsModal @bind-IsActive="isApiLimitsModalActive" />
         <GPVBlazor.Components.Displays.LoginWithTokenModal @bind-IsActive="isTokenLoginModalActive" />
-        
+
         @code {
             private bool isMenuActive = false;
             private bool isUserMenuActive = false;
             private bool isApiLimitsModalActive = false;
             private bool isSignInDropdownActive = false;
             private bool isTokenLoginModalActive = false;
-        
+
             private void ToggleNavbar() => isMenuActive = !isMenuActive;
             private void ToggleUserMenu() => isUserMenuActive = !isUserMenuActive;
             private void CloseUserMenu() => isUserMenuActive = false;
-            
+
             private void ToggleSignInDropdown() => isSignInDropdownActive = !isSignInDropdownActive;
             private void CloseSignInDropdown() => isSignInDropdownActive = false;
 
@@ -134,94 +134,35 @@
                 isApiLimitsModalActive = true;
                 isUserMenuActive = false;
             }
-        
+
             private string GetNavbarMenuClass() { return "navbar-menu" + (isMenuActive ? " is-active" : ""); }
-        
+
             protected override void OnInitialized()
             {
                 AuthService.OnAuthStateChanged += StateHasChanged;
             }
-        
+
             protected override async Task OnAfterRenderAsync(bool firstRender)
             {
                 if (firstRender)
                 {
-                    var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-                    var expiresAtStr = await JS.InvokeAsync<string>("localStorage.getItem", "tokenExpiresAt");
-                    var refreshToken = await JS.InvokeAsync<string>("localStorage.getItem", "refreshToken");
-
-                    if (!string.IsNullOrEmpty(token))
-                    {
-                        bool shouldRefresh = false;
-                        if (!string.IsNullOrEmpty(expiresAtStr) && DateTime.TryParse(expiresAtStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out var expiresAt))
-                        {
-                            // Refresh if expired or expiring in less than 5 minutes
-                            if (expiresAt <= DateTime.UtcNow.AddMinutes(5))
-                            {
-                                shouldRefresh = true;
-                            }
-                        }
-
-                        if (shouldRefresh && !string.IsNullOrEmpty(refreshToken))
-                        {
-                            try
-                            {
-                                var newTokenResponse = await AuthService.RefreshAccessTokenAsync(refreshToken);
-                                if (newTokenResponse != null && !string.IsNullOrEmpty(newTokenResponse.AccessToken))
-                                {
-                                    token = newTokenResponse.AccessToken;
-                                    await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
-                                    
-                                    if (!string.IsNullOrEmpty(newTokenResponse.RefreshToken))
-                                    {
-                                        await JS.InvokeVoidAsync("localStorage.setItem", "refreshToken", newTokenResponse.RefreshToken);
-                                        await JS.InvokeVoidAsync("localStorage.setItem", "refreshTokenExpiresIn", newTokenResponse.RefreshTokenExpiresIn);
-                                    }
-
-                                    if (newTokenResponse.ExpiresIn > 0)
-                                    {
-                                        var newExpiresAt = DateTime.UtcNow.AddSeconds(newTokenResponse.ExpiresIn);
-                                        await JS.InvokeVoidAsync("localStorage.setItem", "tokenExpiresAt", newExpiresAt.ToString("O"));
-                                    }
-                                }
-                                else
-                                {
-                                    // Refresh failed, clear session
-                                    await SignOut();
-                                    return;
-                                }
-                            }
-                            catch
-                            {
-                                // Refresh failed, clear session
-                                await SignOut();
-                                return;
-                            }
-                        }
-
-                        AuthService.Login(token);
-                        StateHasChanged();
-                    }
+                    await AuthService.InitializeFromSessionAsync();
+                    StateHasChanged();
                 }
             }
-        
+
             public void Dispose()
             {
                 AuthService.OnAuthStateChanged -= StateHasChanged;
             }
-        
+
             private async Task SignOut()
             {
-                await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
-                await JS.InvokeVoidAsync("localStorage.removeItem", "authSource");
-                await JS.InvokeVoidAsync("localStorage.removeItem", "refreshToken");
-                await JS.InvokeVoidAsync("localStorage.removeItem", "refreshTokenExpiresIn");
-                await JS.InvokeVoidAsync("localStorage.removeItem", "tokenExpiresAt");
-                AuthService.Logout();
-                NavManager.NavigateTo("/", false);
+                await JS.InvokeAsync<bool>("gpvAuth.signOut");
+                NavManager.NavigateTo("/", true);
             }
         }
-        
+
         <style>
             .dropdown-backdrop {
                 position: fixed;
@@ -232,7 +173,7 @@
                 z-index: 998;
                 cursor: default;
             }
-            
+
             .dropdown.is-active {
                 z-index: 999;
             }

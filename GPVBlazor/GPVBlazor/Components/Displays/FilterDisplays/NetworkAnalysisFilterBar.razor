@@ -1,0 +1,162 @@
+@using GPVBlazor.Models
+@using GPVBlazor.Services.Interfaces
+@inject INetworkAnalysisFilterService FilterService
+
+<section class="box mb-4 network-filter-box">
+    <div class="is-flex is-align-items-center is-justify-content-space-between mb-4">
+        <h3 class="title is-5 mb-0">
+            <span class="icon has-text-primary">
+                <i class="fas fa-filter"></i>
+            </span>
+            <span>Filter Network</span>
+        </h3>
+        <button type="button"
+                class="button is-small is-light"
+                @onclick="ToggleCollapse">
+            <span class="icon">
+                <i class="fas @(_isCollapsed ? "fa-chevron-down" : "fa-chevron-up")"></i>
+            </span>
+            <span>@(_isCollapsed ? "Show Filters" : "Hide Filters")</span>
+        </button>
+    </div>
+
+    @if (!_isCollapsed)
+    {
+        <div class="field">
+            <label class="label">Search</label>
+            <div class="control has-icons-left">
+                <input type="text"
+                       value="@_searchQuery"
+                       @oninput="OnSearchQueryChanged"
+                       class="input"
+                       placeholder="Search by login...">
+                <span class="icon is-left">
+                    <i class="fas fa-search"></i>
+                </span>
+            </div>
+        </div>
+
+        <div class="columns is-multiline">
+            <div class="column is-4">
+                <div class="field">
+                    <label class="label">Category</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select @onchange="HandleCategoryChange">
+                                <option value="">All Relationships</option>
+                                <option value="Mutual">Mutuals</option>
+                                <option value="NotFollowingBack">Not Following Back</option>
+                                <option value="Fan">Fans</option>
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-project-diagram"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-4">
+                <div class="field">
+                    <label class="label">Type</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select @onchange="HandleTypeChange">
+                                <option value="">All Types</option>
+                                @foreach (var userType in UserTypes)
+                                {
+                                    <option value="@userType">@userType</option>
+                                }
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-user-tag"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-4">
+                <div class="field">
+                    <label class="label">Sort</label>
+                    <div class="control has-icons-left">
+                        <div class="select is-fullwidth">
+                            <select @onchange="HandleSortChange">
+                                <option value="A-Z">A-Z</option>
+                                <option value="Z-A">Z-A</option>
+                                <option value="Category">Category</option>
+                            </select>
+                        </div>
+                        <span class="icon is-left">
+                            <i class="fas fa-sort-alpha-down"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter] public List<NetworkAnalysisItem>? Items { get; set; }
+    [Parameter] public EventCallback<List<NetworkAnalysisItem>> OnFilteredItemsChanged { get; set; }
+
+    private List<string> UserTypes { get; set; } = new();
+    private string _searchQuery = string.Empty;
+    private string _selectedCategory = string.Empty;
+    private string _selectedType = string.Empty;
+    private string _selectedSort = "Category";
+    private bool _isCollapsed;
+
+    protected override void OnParametersSet()
+    {
+        UserTypes = Items?
+            .Select(item => item.User.Type)
+            .Where(type => !string.IsNullOrWhiteSpace(type))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(type => type)
+            .Cast<string>()
+            .ToList() ?? new List<string>();
+
+        ApplyFilters();
+    }
+
+    private void OnSearchQueryChanged(ChangeEventArgs e)
+    {
+        _searchQuery = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void HandleCategoryChange(ChangeEventArgs e)
+    {
+        _selectedCategory = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void HandleTypeChange(ChangeEventArgs e)
+    {
+        _selectedType = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void HandleSortChange(ChangeEventArgs e)
+    {
+        _selectedSort = e.Value?.ToString() ?? "A-Z";
+        ApplyFilters();
+    }
+
+    private void ToggleCollapse() => _isCollapsed = !_isCollapsed;
+
+    private void ApplyFilters()
+    {
+        var filteredItems = FilterService.FilterItems(
+            Items ?? new List<NetworkAnalysisItem>(),
+            _searchQuery,
+            _selectedCategory,
+            _selectedType,
+            _selectedSort);
+
+        OnFilteredItemsChanged.InvokeAsync(filteredItems);
+        StateHasChanged();
+    }
+}

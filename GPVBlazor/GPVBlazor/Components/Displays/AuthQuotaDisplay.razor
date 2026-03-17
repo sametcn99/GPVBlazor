@@ -1,6 +1,5 @@
 @rendermode InteractiveServer
 @implements IDisposable
-@inject IJSRuntime JS
 @inject Services.Interfaces.IAuthService AuthService
 
 <div class="box" style="height: 100%;">
@@ -42,8 +41,8 @@
                     <p class="heading has-text-grey mb-1">Core API</p>
                     <p class="title is-4 mb-0 has-text-primary">@rateInfo.Resources.Core.Remaining</p>
                     <p class="is-size-7 has-text-grey">of @rateInfo.Resources.Core.Limit requests</p>
-                    <progress class="progress is-small is-primary mt-2" 
-                              value="@rateInfo.Resources.Core.Remaining" 
+                    <progress class="progress is-small is-primary mt-2"
+                              value="@rateInfo.Resources.Core.Remaining"
                               max="@rateInfo.Resources.Core.Limit">
                     </progress>
                 </div>
@@ -53,8 +52,8 @@
                     <p class="heading has-text-grey mb-1">Search API</p>
                     <p class="title is-4 mb-0 has-text-success">@rateInfo.Resources.Search.Remaining</p>
                     <p class="is-size-7 has-text-grey">of @rateInfo.Resources.Search.Limit requests</p>
-                    <progress class="progress is-small is-success mt-2" 
-                              value="@rateInfo.Resources.Search.Remaining" 
+                    <progress class="progress is-small is-success mt-2"
+                              value="@rateInfo.Resources.Search.Remaining"
                               max="@rateInfo.Resources.Search.Limit">
                     </progress>
                 </div>
@@ -90,6 +89,7 @@
     {
         if (firstRender)
         {
+            await AuthService.InitializeFromSessionAsync();
             await LoadRateLimitAsync();
             StateHasChanged();
         }
@@ -111,25 +111,7 @@
             loading = true;
             StateHasChanged();
 
-            var token = AuthService.CurrentAccessToken;
-            if (string.IsNullOrEmpty(token))
-            {
-                try 
-                { 
-                    token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken"); 
-                } 
-                catch { /* ignore js errors */ }
-            }
-
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                rateInfo = null;
-                resetTime = string.Empty;
-                loading = false;
-                return;
-            }
-
-            rateInfo = await AuthService.GetRateLimitAsync(token);
+            rateInfo = await AuthService.GetRateLimitAsync();
             if (rateInfo?.Resources?.Core is { Reset: var reset } && reset != 0)
             {
                 var dt = DateTimeOffset.FromUnixTimeSeconds(reset).ToLocalTime();

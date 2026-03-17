@@ -1,0 +1,55 @@
+.network-analysis-modal-card {
+    width: min(1040px, calc(100vw - 2rem));
+}
+
+.network-analysis-subtitle {
+    margin: 0.35rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.network-analysis-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.network-stat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--dark-bg);
+}
+
+.network-stat-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.network-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.network-analysis-results {
+    min-height: 320px;
+}
+
+.network-filter-box {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+@media screen and (max-width: 768px) {
+    .network-analysis-modal-card {
+        width: calc(100vw - 1rem);
+        margin: 0.5rem;
+    }
+}

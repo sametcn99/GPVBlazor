@@ -15,7 +15,7 @@
         <div class="floating-shape shape-3"></div>
         <div class="gradient-orb"></div>
     </div>
-    
+
     <div class="hero-body">
         <div class="container has-text-centered" style="position: relative; z-index: 2;">
             <!-- Logo with Glow Effect -->
@@ -25,12 +25,12 @@
                     <i class="fab fa-github"></i>
                 </span>
             </div>
-            
+
             <!-- Main Title with Gradient -->
             <h1 class="title is-1 is-size-2-mobile has-text-weight-bold mb-4 hero-title">
                 <span class="gradient-text">GitHub Profile</span> Viewer
             </h1>
-            
+
             <!-- Subtitle with Badge -->
             <div class="hero-subtitle-wrapper mb-4">
                 <p class="subtitle is-4 is-size-5-mobile has-text-grey-light mb-3" style="max-width: 700px; margin: 0 auto;">
@@ -48,15 +48,15 @@
                     </span>
                 </div>
             </div>
-            
+
             <!-- Description -->
             <p class="is-size-6 has-text-grey mb-5" style="max-width: 600px; margin: 0 auto;">
                 Search for any GitHub user to view their profile details, repository information,
                 star history, gists, and network connections — all in one place.
             </p>
-       
+
                 <GPVBlazor.Components.Displays.SearchBarDisplay />
-            
+
             <!-- Stats Showcase -->
             <div class="hero-stats mt-6">
                 <div class="hero-stat">
@@ -76,7 +76,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Bottom Wave Decoration -->
     <div class="hero-wave">
         <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -117,7 +117,7 @@
                                 Add your GitHub personal access token to unlock higher API rate limits
                                 and access private repository information.
                             </p>
-                            
+
                             <div class="field mb-4">
                                 <button class="button github-signin-btn is-fullwidth" @onclick="SignInWithGitHub">
                                     <span class="icon">
@@ -155,7 +155,7 @@
                                 <span class="icon is-small has-text-info">
                                     <i class="fas fa-shield-alt"></i>
                                 </span>
-                                <span>Your token is stored locally and never sent to our servers.</span>
+                                <span>Your session is stored in a secure HttpOnly cookie and GitHub tokens stay on the server.</span>
                             </div>
                             <div class="has-text-centered mt-3">
                                 <a class="help-link" @onclick="OpenPATModal" style="cursor: pointer;">
@@ -570,7 +570,7 @@
         new FaqItem
         {
             Question = "Is my personal access token secure?",
-            Answer = "Absolutely! Your token is stored only in your browser's local storage and is never sent to our servers. All API calls are made directly to GitHub from your browser."
+            Answer = "GPV stores authentication in a secure HttpOnly session cookie. GitHub access tokens are kept server-side and are not exposed to browser storage."
         },
         new FaqItem
         {
@@ -632,32 +632,23 @@
     {
         if (!string.IsNullOrWhiteSpace(AuthToken))
         {
-            // Simple validation that it looks like a token if needed, but the API check is better
-            bool isValid = await AuthService.IsTokenValidAsync(AuthToken);
+            bool isValid = await JS.InvokeAsync<bool>("gpvAuth.signInWithToken", AuthToken);
             if (!isValid)
             {
                 await JS.InvokeAsync<object>("alert", "Invalid token. Please check your GitHub personal access token.");
                 return;
             }
-            await JS.InvokeVoidAsync("localStorage.setItem", "authToken", AuthToken);
-            await JS.InvokeVoidAsync("localStorage.setItem", "authSource", "manual");
-            authSource = "manual";
-            AuthService.Login(AuthToken);
-            // Clear the input
+
             AuthToken = string.Empty;
+            NavManager.NavigateTo("/", forceLoad: true);
         }
     }
 
     private async Task RemoveToken()
     {
-        await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
-        await JS.InvokeVoidAsync("localStorage.removeItem", "authSource");
-        await JS.InvokeVoidAsync("localStorage.removeItem", "refreshToken");
-        await JS.InvokeVoidAsync("localStorage.removeItem", "refreshTokenExpiresIn");
-        await JS.InvokeVoidAsync("localStorage.removeItem", "tokenExpiresAt");
-        AuthService.Logout();
-        // Force refresh if needed, but state change should handle it
+        await JS.InvokeAsync<bool>("gpvAuth.signOut");
         authSource = null;
+        NavManager.NavigateTo("/", forceLoad: true);
     }
 
     private void HandleInputChange(ChangeEventArgs e)
@@ -678,75 +669,16 @@
 
     private void SignInWithGitHub()
     {
-        var url = AuthService.GetGitHubLoginUrl();
-        NavManager.NavigateTo(url, forceLoad: true);
+        NavManager.NavigateTo("/api/auth/login", forceLoad: true);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-            authSource = await JS.InvokeAsync<string>("localStorage.getItem", "authSource");
-            var expiresAtStr = await JS.InvokeAsync<string>("localStorage.getItem", "tokenExpiresAt");
-            var refreshToken = await JS.InvokeAsync<string>("localStorage.getItem", "refreshToken");
-            
-            if (!string.IsNullOrEmpty(token))
-            {
-                bool shouldRefresh = false;
-                if (!string.IsNullOrEmpty(expiresAtStr) && DateTime.TryParse(expiresAtStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out var expiresAt))
-                {
-                    // Refresh if expired or expiring in less than 5 minutes
-                    if (expiresAt <= DateTime.UtcNow.AddMinutes(5))
-                    {
-                        shouldRefresh = true;
-                    }
-                }
-
-                if (shouldRefresh && !string.IsNullOrEmpty(refreshToken))
-                {
-                    try
-                    {
-                        var newTokenResponse = await AuthService.RefreshAccessTokenAsync(refreshToken);
-                        if (newTokenResponse != null && !string.IsNullOrEmpty(newTokenResponse.AccessToken))
-                        {
-                            token = newTokenResponse.AccessToken;
-                            await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
-                            
-                            if (!string.IsNullOrEmpty(newTokenResponse.RefreshToken))
-                            {
-                                await JS.InvokeVoidAsync("localStorage.setItem", "refreshToken", newTokenResponse.RefreshToken);
-                                await JS.InvokeVoidAsync("localStorage.setItem", "refreshTokenExpiresIn", newTokenResponse.RefreshTokenExpiresIn);
-                            }
-
-                            if (newTokenResponse.ExpiresIn > 0)
-                            {
-                                var newExpiresAt = DateTime.UtcNow.AddSeconds(newTokenResponse.ExpiresIn);
-                                await JS.InvokeVoidAsync("localStorage.setItem", "tokenExpiresAt", newExpiresAt.ToString("O"));
-                            }
-                        }
-                        else
-                        {
-                            // Refresh failed, clear session
-                            await RemoveToken();
-                            return;
-                        }
-                    }
-                    catch
-                    {
-                        // Refresh failed, clear session
-                        await RemoveToken();
-                        return;
-                    }
-                }
-
-                // Sync service if logic didn't happen in Navbar yet or we are first
-                if (string.IsNullOrEmpty(AuthService.CurrentAccessToken))
-                {
-                    AuthService.Login(token);
-                }
-                StateHasChanged();
-            }
+            await AuthService.InitializeFromSessionAsync();
+            authSource = AuthService.CurrentAuthSource;
+            StateHasChanged();
         }
     }
 }

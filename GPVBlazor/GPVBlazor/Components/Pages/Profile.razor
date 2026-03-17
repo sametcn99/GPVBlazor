@@ -2,7 +2,7 @@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject Services.Interfaces.IUserService UserService
 @inject Services.Interfaces.IContactService ContactService
-@inject IJSRuntime JS
+@inject Services.Interfaces.IAuthService AuthService
 @inject NavigationManager NavigationManager
 @using GPVBlazor.Models
 @using GPVBlazor.Components.Displays
@@ -12,7 +12,7 @@
 <div class="container mt-5 mb-6">
     @if (user is not null)
     {
-        <UserProfileDisplay UserProfile="@user" token="@token" />
+        <UserProfileDisplay UserProfile="@user" Token="@token" />
     }
     else
     {
@@ -81,7 +81,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <GPVBlazor.Components.Displays.FilterDisplays.RepositoryFilterBar Repositories="repositories"
                                                                                   OnFilteredRepositoriesChanged="UpdateFilteredRepositories"
                                                                                   PageSize="pageSize"
@@ -220,7 +220,7 @@
                             </div>
                         }
                     </div>
-                    
+
                      @if (GistTotalPages > 1)
                     {
                         <div class="pagination-wrapper">
@@ -381,14 +381,8 @@
         {
             try
             {
-                token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-                
-                if (string.IsNullOrWhiteSpace(token))
-                {
-                    await JS.InvokeVoidAsync("alert", "You need to add a auth token in home page.");
-                    NavigationManager.NavigateTo("/");
-                    return;
-                }
+                await AuthService.InitializeFromSessionAsync();
+                token = await AuthService.GetActiveAccessTokenAsync();
 
                 if (!string.IsNullOrWhiteSpace(Username))
                 {
@@ -398,7 +392,6 @@
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in OnAfterRenderAsync: {ex.Message}");
-                await JS.InvokeVoidAsync("alert", "An error occurred while loading the profile. Please try again.");
                 NavigationManager.NavigateTo("/");
             }
             finally
@@ -410,19 +403,19 @@
 
     private async Task LoadUserData()
     {
-        if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(token))
+        if (string.IsNullOrWhiteSpace(Username))
             return;
 
         try
         {
-            user = await UserService.FetchUserProfile(Username, token);
+            user = await UserService.FetchUserProfile(Username, token ?? string.Empty);
             StateHasChanged();
 
             if (user is not null)
             {
-                var repoTask = UserService.FetchUserRepositories(Username, token, user.PublicRepos);
-                var gistTask = UserService.FetchUserGists(Username, token, user.PublicGists);
-                var activityTask = UserService.FetchUserActivities(Username, token, 1, 30);
+                var repoTask = UserService.FetchUserRepositories(Username, token ?? string.Empty, user.PublicRepos);
+                var gistTask = UserService.FetchUserGists(Username, token ?? string.Empty, user.PublicGists);
+                var activityTask = UserService.FetchUserActivities(Username, token ?? string.Empty, 1, 30);
 
                 await Task.WhenAll(repoTask, gistTask, activityTask);
 
@@ -452,16 +445,16 @@
                         }
                     }
                 }
-                
+
                 hasMoreActivities = activityResult.HasNextPage;
                 activityPage = 1;
 
                 filteredRepositories = repositories.ToList();
                 filteredGists = gists.ToList();
-                
+
                 currentPage = 1;
                 gistCurrentPage = 1;
-                
+
                 UpdatePagination();
                 UpdateGistPagination();
 
@@ -469,7 +462,7 @@
                 {
                     stats = new RepositoryStats(repositories);
                     StateHasChanged();
-                    repositories = await UserService.FetchReadmes(Username, token, repositories);
+                    repositories = await UserService.FetchReadmes(Username, token ?? string.Empty, repositories);
                     filteredRepositories = repositories.ToList();
                     UpdatePagination();
                     StateHasChanged();
@@ -495,7 +488,7 @@
             activityPage++;
             var result = await UserService.FetchUserActivities(Username, token ?? string.Empty, activityPage, 30);
             var newActivities = result.Activities;
-            
+
             if (newActivities != null && newActivities.Any())
             {
                 // Fix for PublicEvent showing repo creation date

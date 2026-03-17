@@ -1,8 +1,6 @@
 @page "/github-callback"
 @rendermode InteractiveServer
 @inject NavigationManager NavManager
-@inject Services.Interfaces.IAuthService AuthService
-@inject IJSRuntime JS
 
 <div class="container has-text-centered py-6">
     @if (isLoading)
@@ -44,37 +42,7 @@
 
             try
             {
-                var tokenResponse = await AuthService.GetAccessTokenFromCodeAsync(Code);
-                if (tokenResponse != null && !string.IsNullOrEmpty(tokenResponse.AccessToken))
-                {
-                    // Save to localStorage
-                    await JS.InvokeVoidAsync("localStorage.setItem", "authToken", tokenResponse.AccessToken);
-                    await JS.InvokeVoidAsync("localStorage.setItem", "authSource", "github");
-                    
-                    if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
-                    {
-                        await JS.InvokeVoidAsync("localStorage.setItem", "refreshToken", tokenResponse.RefreshToken);
-                        await JS.InvokeVoidAsync("localStorage.setItem", "refreshTokenExpiresIn", tokenResponse.RefreshTokenExpiresIn);
-                    }
-
-                    if (tokenResponse.ExpiresIn > 0)
-                    {
-                        var expiresAt = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
-                        await JS.InvokeVoidAsync("localStorage.setItem", "tokenExpiresAt", expiresAt.ToString("O"));
-                    }
-                    
-                    // Update auth state in memory
-                    AuthService.Login(tokenResponse.AccessToken);
-
-                    // Redirect to home without force reload
-                    NavManager.NavigateTo("/", false);
-                }
-                else
-                {
-                    errorMessage = "Failed to exchange code for access token. Please ensure your Client ID and Secret are correct in appsettings.json";
-                    isLoading = false;
-                    StateHasChanged();
-                }
+                NavManager.NavigateTo($"/api/auth/github-callback?code={Uri.EscapeDataString(Code)}", forceLoad: true);
             }
             catch (Exception ex)
             {

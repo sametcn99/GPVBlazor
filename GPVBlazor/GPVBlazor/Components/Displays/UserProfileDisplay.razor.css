@@ -258,6 +258,17 @@
     text-decoration: none;
 }
 
+.profile-action-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.network-btn:hover {
+    border-color: #48c78e;
+    background: rgba(72, 199, 142, 0.12);
+    color: #9df1c0;
+}
+
 .profile-action-btn:hover {
     background: var(--card-bg-hover);
     border-color: var(--accent-color);

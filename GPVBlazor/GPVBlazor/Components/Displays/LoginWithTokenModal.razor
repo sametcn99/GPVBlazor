@@ -1,4 +1,3 @@
-@inject Services.Interfaces.IAuthService AuthService
 @inject IJSRuntime JS
 @inject NavigationManager NavManager
 
@@ -60,13 +59,11 @@
 
         try
         {
-            var isValid = await AuthService.IsTokenValidAsync(token);
+            var isValid = await JS.InvokeAsync<bool>("gpvAuth.signInWithToken", token);
             if (isValid)
             {
-                await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
-                await JS.InvokeVoidAsync("localStorage.setItem", "authSource", "token");
-                AuthService.Login(token);
                 await Close();
+                NavManager.NavigateTo("/", forceLoad: true);
             }
             else
             {

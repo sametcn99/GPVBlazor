@@ -1,8 +1,8 @@
 ﻿@rendermode InteractiveServer
 @using GPVBlazor.Models
 @inject Services.Interfaces.IContactService ContactService
+@inject Services.Interfaces.INetworkAnalysisService NetworkAnalysisService
 @inject Services.Interfaces.IUserService UserService
-@inject NavigationManager NavigationManager
 
 @if (UserProfile is null) { return; }
 <div class="profile-hero-card box mb-5">
@@ -32,7 +32,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="profile-info">
             <div class="profile-name-section">
                 <h1 class="profile-name">@(UserProfile.Name ?? UserProfile.Login)</h1>
@@ -42,7 +42,7 @@
                     <i class="fas fa-external-link-alt fa-xs"></i>
                 </a>
             </div>
-            
+
             @if (!string.IsNullOrEmpty(UserProfile.Bio))
             {
                 <p class="profile-bio">
@@ -89,9 +89,9 @@
                         <a href="https://twitter.com/@UserProfile.TwitterUsername" target="_blank" rel="noopener">@@@UserProfile.TwitterUsername</a>
                     </div>
                 }
-                @if (socialAccounts is not null)
+                @if (_socialAccounts is not null)
                 {
-                    @foreach (var account in socialAccounts)
+                    @foreach (var account in _socialAccounts)
                     {
                         <div class="profile-detail-item">
                             <i class="@GetSocialIcon(account.Provider ?? "")"></i>
@@ -103,11 +103,11 @@
                     <i class="fas fa-calendar-alt"></i>
                     <span>Joined @UserProfile.CreatedAt.ToString("MMMM yyyy")</span>
                 </div>
-                @if (organizations is not null && organizations.Any())
+                @if (_organizations is not null && _organizations.Any())
                 {
                     <div class="profile-detail-item organizations-section">
                         <div class="organizations-list">
-                            @foreach (var org in organizations)
+                            @foreach (var org in _organizations)
                             {
                                 <a href="/p/@org.Login" class="organization-logo-btn" data-tooltip="@org.Login">
                                     <img src="@org.AvatarUrl" alt="@org.Login" />
@@ -142,8 +142,8 @@
     </div>
 
     <div class="profile-actions">
-        <button class="profile-action-btn followers-btn" @onclick="FetchAndShowFollowersModal" disabled="@isLoadingFollowers">
-            @if (isLoadingFollowers)
+        <button class="profile-action-btn followers-btn" @onclick="FetchAndShowFollowersModal" disabled="@_isLoadingFollowers">
+            @if (_isLoadingFollowers)
             {
                 <i class="fas fa-spinner fa-pulse"></i>
                 <span>Loading...</span>
@@ -155,8 +155,8 @@
                 <span class="action-count">@FormatCount(UserProfile.Followers)</span>
             }
         </button>
-        <button class="profile-action-btn following-btn" @onclick="FetchAndShowFollowingModal" disabled="@isLoadingFollowing">
-            @if (isLoadingFollowing)
+        <button class="profile-action-btn following-btn" @onclick="FetchAndShowFollowingModal" disabled="@_isLoadingFollowing">
+            @if (_isLoadingFollowing)
             {
                 <i class="fas fa-spinner fa-pulse"></i>
                 <span>Loading...</span>
@@ -168,6 +168,18 @@
                 <span class="action-count">@FormatCount(UserProfile.Following)</span>
             }
         </button>
+        <button class="profile-action-btn network-btn" @onclick="FetchAndShowNetworkAnalysisModal" disabled="@_isLoadingNetworkAnalysis">
+            @if (_isLoadingNetworkAnalysis)
+            {
+                <i class="fas fa-spinner fa-pulse"></i>
+                <span>Analyzing...</span>
+            }
+            else
+            {
+                <i class="fas fa-network-wired"></i>
+                <span>Network Analyze</span>
+            }
+        </button>
         <a href="https://github.com/@UserProfile.Login" target="_blank" rel="noopener" class="profile-action-btn github-btn">
             <i class="fab fa-github"></i>
             <span>View on GitHub</span>
@@ -176,43 +188,51 @@
 </div>
 
 
-@if (showFollowersModal is true)
+@if (_showFollowersModal)
 {
-    <ContactListModal ShowModal="showFollowersModal" Users="followers"
+    <ContactListModal ShowModal="_showFollowersModal" Users="_followers"
         ModalTitle="ContactListModal.ModalTitleEnum.Followers" OnClose="ToggleModal" />
 }
-else if (showFollowingModal is true)
+@if (_showFollowingModal)
 {
-    <ContactListModal ShowModal="showFollowingModal" Users="followings"
+    <ContactListModal ShowModal="_showFollowingModal" Users="_followings"
         ModalTitle="ContactListModal.ModalTitleEnum.Following" OnClose="ToggleModal" />
+}
+@if (_showNetworkAnalysisModal)
+{
+    <NetworkAnalysisModal ShowModal="_showNetworkAnalysisModal" AnalysisResult="_networkAnalysisResult" OnClose="ToggleModal" />
 }
 
 @code {
     [Parameter] public User? UserProfile { get; set; }
-    [Parameter] public string? token { get; set; }
+    [Parameter] public string? Token { get; set; }
 
-    private List<User>? followers;
-    private bool showFollowersModal = false;
-    private bool isLoadingFollowers = false;
+    private List<User>? _followers;
+    private bool _showFollowersModal;
+    private bool _isLoadingFollowers;
 
-    private List<User>? followings;
-    private bool showFollowingModal = false;
-    private bool isLoadingFollowing = false;
+    private List<User>? _followings;
+    private bool _showFollowingModal;
+    private bool _isLoadingFollowing;
 
-    private List<Organization>? organizations;
-    private List<SocialAccount>? socialAccounts;
+    private NetworkAnalysisResult? _networkAnalysisResult;
+    private bool _showNetworkAnalysisModal;
+    private bool _isLoadingNetworkAnalysis;
+
+    private List<Organization>? _organizations;
+    private List<SocialAccount>? _socialAccounts;
 
     protected override async Task OnParametersSetAsync()
     {
-        if (UserProfile?.Login is not null && token is not null)
+        if (UserProfile?.Login is not null && Token is not null)
         {
-            var orgsTask = UserService.FetchUserOrganizations(UserProfile.Login, token);
-            var socialTask = UserService.FetchUserSocialAccounts(UserProfile.Login, token);
+            var orgsTask = UserService.FetchUserOrganizations(UserProfile.Login, Token);
+            var socialTask = UserService.FetchUserSocialAccounts(UserProfile.Login, Token);
 
             await Task.WhenAll(orgsTask, socialTask);
 
-            organizations = await orgsTask;
-            socialAccounts = await socialTask;
+            _organizations = await orgsTask;
+            _socialAccounts = await socialTask;
         }
     }
 
@@ -254,11 +274,11 @@ else if (showFollowingModal is true)
     private async Task FetchAndShowFollowersModal()
     {
         if (UserProfile?.Login is null) return;
-        if (token is null) return;
+        if (Token is null) return;
 
-        isLoadingFollowers = true;
-        followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers", token);
-        isLoadingFollowers = false;
+        _isLoadingFollowers = true;
+        _followers = await ContactService.FetchModalData<User>(UserProfile.Login, "followers", Token);
+        _isLoadingFollowers = false;
 
         ToggleModalVisibility(showFollowers: true);
     }
@@ -266,24 +286,40 @@ else if (showFollowingModal is true)
     private async Task FetchAndShowFollowingModal()
     {
         if (UserProfile?.Login is null) return;
-        if (token is null) return;
+        if (Token is null) return;
 
-        isLoadingFollowing = true;
-        followings = await ContactService.FetchModalData<User>(UserProfile.Login, "following", token);
-        isLoadingFollowing = false;
+        _isLoadingFollowing = true;
+        _followings = await ContactService.FetchModalData<User>(UserProfile.Login, "following", Token);
+        _isLoadingFollowing = false;
 
         ToggleModalVisibility(showFollowing: true);
     }
 
-    private void ToggleModalVisibility(bool showFollowers = false, bool showFollowing = false)
+    private async Task FetchAndShowNetworkAnalysisModal()
     {
-        showFollowersModal = showFollowers;
-        showFollowingModal = showFollowing;
+        if (UserProfile?.Login is null) return;
+        if (Token is null) return;
+
+        _isLoadingNetworkAnalysis = true;
+
+        var networkData = await ContactService.FetchNetworkData(UserProfile.Login, Token);
+        _networkAnalysisResult = NetworkAnalysisService.BuildAnalysis(networkData.Followers, networkData.Following);
+
+        _isLoadingNetworkAnalysis = false;
+        ToggleModalVisibility(showNetworkAnalysis: true);
+    }
+
+    private void ToggleModalVisibility(bool showFollowers = false, bool showFollowing = false, bool showNetworkAnalysis = false)
+    {
+        _showFollowersModal = showFollowers;
+        _showFollowingModal = showFollowing;
+        _showNetworkAnalysisModal = showNetworkAnalysis;
     }
 
     private void ToggleModal()
     {
-        showFollowersModal = false;
-        showFollowingModal = false;
+        _showFollowersModal = false;
+        _showFollowingModal = false;
+        _showNetworkAnalysisModal = false;
     }
 }

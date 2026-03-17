@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using GPVBlazor.Models;
 using GPVBlazor.Services.Interfaces;
 
 public class ContactService : IContactService
@@ -33,5 +34,15 @@ public class ContactService : IContactService
             page++;
         }
         return collection;
+    }
+
+    public async Task<(List<User> Followers, List<User> Following)> FetchNetworkData(string username, string token)
+    {
+        var followersTask = FetchModalData<User>(username, "followers", token);
+        var followingTask = FetchModalData<User>(username, "following", token);
+
+        await Task.WhenAll(followersTask, followingTask);
+
+        return (await followersTask, await followingTask);
     }
 }

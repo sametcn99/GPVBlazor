@@ -1,13 +1,16 @@
 using GPVBlazor.Components;
+using GPVBlazor.Models;
 using GPVBlazor.Services.Configuration;
 
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Options;
 
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-ServiceConfiguration.Configure(builder.Services);
+ServiceConfiguration.Configure(builder.Services, builder.Configuration);
 
 builder.Services.Configure<CircuitOptions>(options =>
 {
@@ -56,6 +59,8 @@ builder.Services.AddOpenApi(options =>
 });
 
 var app = builder.Build();
+var antiforgery = app.Services.GetRequiredService<IAntiforgery>();
+var authSecurityOptions = app.Services.GetRequiredService<IOptions<AuthSecurityOptions>>().Value;
 
 app.UseForwardedHeaders();
 
@@ -74,6 +79,42 @@ else
 // app.UseHttpsRedirection(); // Disabled for simplified Docker deployment
 
 app.UseStaticFiles();
+app.Use(
+    async (context, next) =>
+    {
+        if (HttpMethods.IsGet(context.Request.Method)
+            && !Path.HasExtension(context.Request.Path.Value)
+            && !context.Request.Path.StartsWithSegments("/_framework")
+            && !context.Request.Path.StartsWithSegments("/_blazor")
+            && !context.Request.Path.StartsWithSegments("/api"))
+        {
+            var tokens = antiforgery.GetAndStoreTokens(context);
+            if (!string.IsNullOrWhiteSpace(tokens.RequestToken))
+            {
+                context.Response.Cookies.Append(
+                    authSecurityOptions.AntiforgeryRequestTokenCookieName,
+                    tokens.RequestToken,
+                    new CookieOptions
+                    {
+                        HttpOnly = false,
+                        IsEssential = true,
+                        SameSite = authSecurityOptions.AntiforgeryRequestTokenCookieSameSite,
+                        Secure = authSecurityOptions.AntiforgeryCookieSecurePolicy switch
+                        {
+                            CookieSecurePolicy.Always => true,
+                            CookieSecurePolicy.None => false,
+                            _ => context.Request.IsHttps,
+                        },
+                    }
+                );
+            }
+        }
+
+        await next();
+    }
+);
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
 // Map OpenAPI endpoint

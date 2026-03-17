@@ -1,0 +1,60 @@
+@using GPVBlazor.Models
+
+<a class="box mb-3 network-analysis-item" href="/p/@Item.User.Login" @key="Item.User.NodeId">
+    <div class="image is-64x64 is-flex-shrink-0">
+        <img class="is-rounded" src="@Item.User.AvatarUrl" alt="Avatar" />
+    </div>
+    <div class="ml-4 is-flex-grow-1 network-analysis-main">
+        <div class="network-analysis-header">
+            <p class="title is-5 mb-1">@Item.User.Login</p>
+            <span class="tag @GetCategoryClass(Item.Category)">@GetCategoryLabel(Item.Category)</span>
+        </div>
+        <div class="network-analysis-meta">
+            <span class="network-analysis-pill">
+                <i class="fas fa-tag"></i>
+                @Item.User.Type
+            </span>
+            @if (Item.IsFollower)
+            {
+                <span class="network-analysis-pill success-pill">
+                    <i class="fas fa-arrow-down"></i>
+                    Follows you
+                </span>
+            }
+            @if (Item.IsFollowing)
+            {
+                <span class="network-analysis-pill info-pill">
+                    <i class="fas fa-arrow-up"></i>
+                    You follow
+                </span>
+            }
+        </div>
+    </div>
+    <span class="icon has-text-grey-light">
+        <i class="fas fa-chevron-right"></i>
+    </span>
+</a>
+
+@code {
+    [Parameter] public NetworkAnalysisItem Item { get; set; } = new();
+
+    private static string GetCategoryLabel(NetworkRelationshipCategory category)
+    {
+        return category switch
+        {
+            NetworkRelationshipCategory.Mutual => "Mutual",
+            NetworkRelationshipCategory.NotFollowingBack => "Not Following Back",
+            _ => "Fan"
+        };
+    }
+
+    private static string GetCategoryClass(NetworkRelationshipCategory category)
+    {
+        return category switch
+        {
+            NetworkRelationshipCategory.Mutual => "is-success is-light",
+            NetworkRelationshipCategory.NotFollowingBack => "is-warning is-light",
+            _ => "is-info is-light"
+        };
+    }
+}

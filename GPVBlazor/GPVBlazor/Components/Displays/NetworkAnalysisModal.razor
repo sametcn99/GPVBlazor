@@ -1,0 +1,93 @@
+@rendermode InteractiveServer
+@using GPVBlazor.Models
+@using GPVBlazor.Components.Displays.FilterDisplays
+
+@if (ShowModal && AnalysisResult is not null)
+{
+    <div class="modal is-active">
+        <div class="modal-background" @onclick="CloseModal"></div>
+        <div class="modal-card network-analysis-modal-card">
+            <header class="modal-card-head">
+                <div>
+                    <p class="modal-card-title">
+                        <span class="icon">
+                            <i class="fas fa-network-wired"></i>
+                        </span>
+                        <span>Network Analysis</span>
+                        <span class="tag ml-2">@FilteredItems.Count</span>
+                    </p>
+                    <p class="network-analysis-subtitle">Followers and following compared in one view.</p>
+                </div>
+                <button class="delete is-large" aria-label="close" @onclick="CloseModal"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="network-analysis-stats">
+                    <article class="network-stat-card">
+                        <span class="network-stat-label">Followers</span>
+                        <span class="network-stat-value">@AnalysisResult.Followers.Count</span>
+                    </article>
+                    <article class="network-stat-card">
+                        <span class="network-stat-label">Following</span>
+                        <span class="network-stat-value">@AnalysisResult.Following.Count</span>
+                    </article>
+                    <article class="network-stat-card">
+                        <span class="network-stat-label">Mutuals</span>
+                        <span class="network-stat-value">@AnalysisResult.MutualCount</span>
+                    </article>
+                    <article class="network-stat-card">
+                        <span class="network-stat-label">Not Following Back</span>
+                        <span class="network-stat-value">@AnalysisResult.NotFollowingBackCount</span>
+                    </article>
+                    <article class="network-stat-card">
+                        <span class="network-stat-label">Fans</span>
+                        <span class="network-stat-value">@AnalysisResult.FanCount</span>
+                    </article>
+                </div>
+
+                <NetworkAnalysisFilterBar Items="AnalysisResult.Items" OnFilteredItemsChanged="HandleFilteredItemsChanged" />
+
+                @if (FilteredItems.Any())
+                {
+                    <div class="network-analysis-results">
+                        <Virtualize Items="FilteredItems" Context="item">
+                            <NetworkAnalysisListItem Item="item" />
+                        </Virtualize>
+                    </div>
+                }
+                else
+                {
+                    <div class="notification is-info">
+                        <span class="icon">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                        No matching accounts found for the selected filters.
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool ShowModal { get; set; }
+    [Parameter] public NetworkAnalysisResult? AnalysisResult { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private List<NetworkAnalysisItem> FilteredItems { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        FilteredItems = AnalysisResult?.Items.ToList() ?? new List<NetworkAnalysisItem>();
+    }
+
+    private void HandleFilteredItemsChanged(List<NetworkAnalysisItem> items)
+    {
+        FilteredItems = items;
+    }
+
+    private async Task CloseModal()
+    {
+        ShowModal = false;
+        await OnClose.InvokeAsync();
+    }
+}

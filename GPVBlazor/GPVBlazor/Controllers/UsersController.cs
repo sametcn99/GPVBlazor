@@ -14,10 +14,12 @@ namespace GPVBlazor.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IAuthService _authService;
 
-    public UsersController(IUserService userService)
+    public UsersController(IUserService userService, IAuthService authService)
     {
         _userService = userService;
+        _authService = authService;
     }
 
     /// <summary>
@@ -41,13 +43,13 @@ public class UsersController : ControllerBase
     /// Get a GitHub user's profile
     /// </summary>
     /// <param name="username">GitHub username</param>
-    /// <param name="token">Optional GitHub access token for higher rate limits</param>
     /// <returns>User profile information</returns>
     [HttpGet("{username}")]
     [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<User>> GetUserProfile(string username, [FromHeader(Name = "X-GitHub-Token")] string? token = null)
+    public async Task<ActionResult<User>> GetUserProfile(string username, CancellationToken cancellationToken)
     {
+        var token = await _authService.GetActiveAccessTokenAsync(User, cancellationToken);
         var user = await _userService.FetchUserProfile(username, token ?? string.Empty);
         if (user == null)
             return NotFound($"User '{username}' not found");
@@ -61,7 +63,6 @@ public class UsersController : ControllerBase
     /// <param name="username">GitHub username</param>
     /// <param name="count">Number of repositories per page</param>
     /// <param name="page">Page number</param>
-    /// <param name="token">Optional GitHub access token for higher rate limits</param>
     /// <returns>List of repositories</returns>
     [HttpGet("{username}/repositories")]
     [ProducesResponseType(typeof(List<Repository>), StatusCodes.Status200OK)]
@@ -69,8 +70,9 @@ public class UsersController : ControllerBase
         string username,
         [FromQuery] int count = 30,
         [FromQuery] int page = 1,
-        [FromHeader(Name = "X-GitHub-Token")] string? token = null)
+        CancellationToken cancellationToken = default)
     {
+        var token = await _authService.GetActiveAccessTokenAsync(User, cancellationToken);
         var repositories = await _userService.FetchUserRepositories(username, token ?? string.Empty, count, page);
         return Ok(repositories);
     }
@@ -81,7 +83,6 @@ public class UsersController : ControllerBase
     /// <param name="username">GitHub username</param>
     /// <param name="count">Number of gists per page</param>
     /// <param name="page">Page number</param>
-    /// <param name="token">Optional GitHub access token for higher rate limits</param>
     /// <returns>List of gists</returns>
     [HttpGet("{username}/gists")]
     [ProducesResponseType(typeof(List<Gist>), StatusCodes.Status200OK)]
@@ -89,8 +90,9 @@ public class UsersController : ControllerBase
         string username,
         [FromQuery] int count = 30,
         [FromQuery] int page = 1,
-        [FromHeader(Name = "X-GitHub-Token")] string? token = null)
+        CancellationToken cancellationToken = default)
     {
+        var token = await _authService.GetActiveAccessTokenAsync(User, cancellationToken);
         var gists = await _userService.FetchUserGists(username, token ?? string.Empty, count, page);
         return Ok(gists);
     }
@@ -116,14 +118,14 @@ public class UsersController : ControllerBase
     /// Get a GitHub user's organizations
     /// </summary>
     /// <param name="username">GitHub username</param>
-    /// <param name="token">Optional GitHub access token for higher rate limits</param>
     /// <returns>List of organizations</returns>
     [HttpGet("{username}/organizations")]
     [ProducesResponseType(typeof(List<Organization>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<Organization>>> GetUserOrganizations(
         string username,
-        [FromHeader(Name = "X-GitHub-Token")] string? token = null)
+        CancellationToken cancellationToken = default)
     {
+        var token = await _authService.GetActiveAccessTokenAsync(User, cancellationToken);
         var organizations = await _userService.FetchUserOrganizations(username, token ?? string.Empty);
         return Ok(organizations);
     }
@@ -132,14 +134,14 @@ public class UsersController : ControllerBase
     /// Get a GitHub user's social accounts
     /// </summary>
     /// <param name="username">GitHub username</param>
-    /// <param name="token">Optional GitHub access token for higher rate limits</param>
     /// <returns>List of social accounts</returns>
     [HttpGet("{username}/social-accounts")]
     [ProducesResponseType(typeof(List<SocialAccount>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<SocialAccount>>> GetUserSocialAccounts(
         string username,
-        [FromHeader(Name = "X-GitHub-Token")] string? token = null)
+        CancellationToken cancellationToken = default)
     {
+        var token = await _authService.GetActiveAccessTokenAsync(User, cancellationToken);
         var socialAccounts = await _userService.FetchUserSocialAccounts(username, token ?? string.Empty);
         return Ok(socialAccounts);
     }
@@ -150,7 +152,6 @@ public class UsersController : ControllerBase
     /// <param name="username">GitHub username</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Number of items per page</param>
-    /// <param name="token">Optional GitHub access token for higher rate limits</param>
     /// <returns>List of followers</returns>
     [HttpGet("{username}/followers")]
     [ProducesResponseType(typeof(List<User>), StatusCodes.Status200OK)]
@@ -158,8 +159,9 @@ public class UsersController : ControllerBase
         string username,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 100,
-        [FromHeader(Name = "X-GitHub-Token")] string? token = null)
+        CancellationToken cancellationToken = default)
     {
+        var token = await _authService.GetActiveAccessTokenAsync(User, cancellationToken);
         var followers = await _userService.FetchUserFollowers(username, token ?? string.Empty, page, perPage);
         return Ok(followers);
     }
@@ -170,7 +172,6 @@ public class UsersController : ControllerBase
     /// <param name="username">GitHub username</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Number of items per page</param>
-    /// <param name="token">Optional GitHub access token for higher rate limits</param>
     /// <returns>List of followed users</returns>
     [HttpGet("{username}/following")]
     [ProducesResponseType(typeof(List<User>), StatusCodes.Status200OK)]
@@ -178,8 +179,9 @@ public class UsersController : ControllerBase
         string username,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 100,
-        [FromHeader(Name = "X-GitHub-Token")] string? token = null)
+        CancellationToken cancellationToken = default)
     {
+        var token = await _authService.GetActiveAccessTokenAsync(User, cancellationToken);
         var following = await _userService.FetchUserFollowing(username, token ?? string.Empty, page, perPage);
         return Ok(following);
     }
@@ -190,7 +192,6 @@ public class UsersController : ControllerBase
     /// <param name="username">GitHub username</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Number of activities per page</param>
-    /// <param name="token">Optional GitHub access token for higher rate limits</param>
     /// <returns>List of activities and pagination info</returns>
     [HttpGet("{username}/activities")]
     [ProducesResponseType(typeof(UserActivitiesResponse), StatusCodes.Status200OK)]
@@ -198,8 +199,9 @@ public class UsersController : ControllerBase
         string username,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 30,
-        [FromHeader(Name = "X-GitHub-Token")] string? token = null)
+        CancellationToken cancellationToken = default)
     {
+        var token = await _authService.GetActiveAccessTokenAsync(User, cancellationToken);
         var (activities, hasNextPage) = await _userService.FetchUserActivities(username, token ?? string.Empty, page, perPage);
         return Ok(new UserActivitiesResponse { Activities = activities, HasNextPage = hasNextPage });
     }
@@ -209,15 +211,15 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <param name="owner">Repository owner</param>
     /// <param name="repo">Repository name</param>
-    /// <param name="token">Optional GitHub access token for higher rate limits</param>
     /// <returns>Star history data</returns>
     [HttpGet("{owner}/{repo}/star-history")]
     [ProducesResponseType(typeof(StarHistory), StatusCodes.Status200OK)]
     public async Task<ActionResult<StarHistory>> GetStarHistory(
         string owner,
         string repo,
-        [FromHeader(Name = "X-GitHub-Token")] string? token = null)
+        CancellationToken cancellationToken = default)
     {
+        var token = await _authService.GetActiveAccessTokenAsync(User, cancellationToken);
         var starHistory = await _userService.FetchStarHistory(owner, repo, token ?? string.Empty);
         return Ok(starHistory);
     }
