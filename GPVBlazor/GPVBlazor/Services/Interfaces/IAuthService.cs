@@ -18,7 +18,7 @@ namespace GPVBlazor.Services.Interfaces
         Task<GPVBlazor.Models.User?> FetchCurrentUserAsync(string token, CancellationToken cancellationToken = default);
         Task<bool> IsTokenValidAsync(string token, CancellationToken cancellationToken = default);
         Task<GPVBlazor.Models.RateLimitInfo?> GetRateLimitAsync(string? token = null, ClaimsPrincipal? principal = null, CancellationToken cancellationToken = default);
-        Task<GPVBlazor.Models.AuthTokenResponse?> GetAccessTokenFromCodeAsync(string code, CancellationToken cancellationToken = default);
+        Task<GPVBlazor.Models.AuthTokenResponse?> GetAccessTokenFromCodeAsync(string code, string redirectUri, CancellationToken cancellationToken = default);
         Task<GPVBlazor.Models.AuthTokenResponse?> RefreshAccessTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
         Task<bool> SignInWithGitHubCodeAsync(HttpContext httpContext, string code, string? state, CancellationToken cancellationToken = default);
         Task<bool> SignInWithPersonalAccessTokenAsync(HttpContext httpContext, string token, string authSource = "token", CancellationToken cancellationToken = default);

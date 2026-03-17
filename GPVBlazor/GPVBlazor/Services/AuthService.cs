@@ -48,7 +48,7 @@ namespace GPVBlazor.Services
         public string GetGitHubLoginUrl(HttpContext httpContext)
         {
             var scopes = "public_repo,read:user,user:email,gist";
-            var redirectUri = GetOAuthCallbackUri();
+            var redirectUri = GetOAuthCallbackUri(httpContext);
             var state = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(32));
 
             httpContext.Response.Cookies.Append(
@@ -198,7 +198,7 @@ namespace GPVBlazor.Services
             };
         }
 
-        public async Task<AuthTokenResponse?> GetAccessTokenFromCodeAsync(string code, CancellationToken cancellationToken = default)
+        public async Task<AuthTokenResponse?> GetAccessTokenFromCodeAsync(string code, string redirectUri, CancellationToken cancellationToken = default)
         {
             var tokenReq = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
             tokenReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -208,7 +208,7 @@ namespace GPVBlazor.Services
                     { "client_id", ClientId ?? string.Empty },
                     { "client_secret", ClientSecret ?? string.Empty },
                     { "code", code },
-                    { "redirect_uri", GetOAuthCallbackUri() },
+                    { "redirect_uri", redirectUri },
                 }
             );
 
@@ -267,7 +267,8 @@ namespace GPVBlazor.Services
                 return false;
             }
 
-            var tokenResponse = await GetAccessTokenFromCodeAsync(code, cancellationToken);
+            var redirectUri = GetOAuthCallbackUri(httpContext);
+            var tokenResponse = await GetAccessTokenFromCodeAsync(code, redirectUri, cancellationToken);
             if (tokenResponse == null || string.IsNullOrWhiteSpace(tokenResponse.AccessToken))
             {
                 return false;
@@ -474,29 +475,40 @@ namespace GPVBlazor.Services
             cancellationToken.ThrowIfCancellationRequested();
         }
 
-        private string GetOAuthCallbackUri()
+        private string GetOAuthCallbackUri(HttpContext? httpContext = null)
         {
-            var redirectUri = RedirectUri ?? string.Empty;
-            if (redirectUri.Contains("/api/auth/github-callback", StringComparison.OrdinalIgnoreCase))
+            if (httpContext != null)
             {
-                return redirectUri;
+                var request = httpContext.Request;
+                var origin = $"{request.Scheme}://{request.Host.ToUriComponent()}{request.PathBase.ToUriComponent()}";
+                return BuildCallbackUri(origin);
             }
 
-            if (redirectUri.Contains("/github-callback", StringComparison.OrdinalIgnoreCase))
+            return BuildCallbackUri(RedirectUri ?? string.Empty);
+        }
+
+        private static string BuildCallbackUri(string baseUri)
+        {
+            if (baseUri.Contains("/api/auth/github-callback", StringComparison.OrdinalIgnoreCase))
             {
-                return redirectUri.Replace(
+                return baseUri;
+            }
+
+            if (baseUri.Contains("/github-callback", StringComparison.OrdinalIgnoreCase))
+            {
+                return baseUri.Replace(
                     "/github-callback",
                     "/api/auth/github-callback",
                     StringComparison.OrdinalIgnoreCase
                 );
             }
 
-            if (redirectUri.EndsWith("/", StringComparison.Ordinal))
+            if (baseUri.EndsWith("/", StringComparison.Ordinal))
             {
-                return $"{redirectUri}api/auth/github-callback";
+                return $"{baseUri}api/auth/github-callback";
             }
 
-            return $"{redirectUri}/api/auth/github-callback";
+            return $"{baseUri}/api/auth/github-callback";
         }
 
         private static bool ShouldUseSecureCookies(CookieSecurePolicy policy, HttpContext httpContext)
