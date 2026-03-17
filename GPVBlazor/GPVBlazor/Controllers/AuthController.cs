@@ -93,9 +93,9 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="code">OAuth code</param>
     /// <param name="state">OAuth state</param>
+    /// <param name="cancellationToken">Request cancellation token</param>
     /// <returns>Redirect to home page after sign-in</returns>
     [HttpGet("github-callback")]
-    [HttpGet("/github-callback")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GitHubCallback([FromQuery] string code, [FromQuery] string? state, CancellationToken cancellationToken)
     {
@@ -113,6 +113,7 @@ public class AuthController : ControllerBase
     /// Sign in with a personal access token
     /// </summary>
     /// <param name="request">Personal access token request</param>
+    /// <param name="cancellationToken">Request cancellation token</param>
     /// <returns>Authentication status</returns>
     [HttpPost("personal-access-token")]
     [ProducesResponseType(StatusCodes.Status200OK)]

@@ -42,7 +42,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer(
-        (document, context, ct) =>
+        (document, _, _) =>
         {
             document.Info.Title = "GPVBlazor API";
             document.Info.Version = "v1";
@@ -88,7 +88,48 @@ app.Use(
             && !context.Request.Path.StartsWithSegments("/_blazor")
             && !context.Request.Path.StartsWithSegments("/api"))
         {
-            var tokens = antiforgery.GetAndStoreTokens(context);
+            AntiforgeryTokenSet tokens;
+            try
+            {
+                tokens = antiforgery.GetAndStoreTokens(context);
+            }
+            catch (AntiforgeryValidationException)
+            {
+                context.Response.Cookies.Delete(
+                    authSecurityOptions.AntiforgeryCookieName,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        IsEssential = true,
+                        SameSite = authSecurityOptions.AntiforgeryCookieSameSite,
+                        Secure = authSecurityOptions.AntiforgeryCookieSecurePolicy switch
+                        {
+                            CookieSecurePolicy.Always => true,
+                            CookieSecurePolicy.None => false,
+                            _ => context.Request.IsHttps,
+                        },
+                    }
+                );
+
+                context.Response.Cookies.Delete(
+                    authSecurityOptions.AntiforgeryRequestTokenCookieName,
+                    new CookieOptions
+                    {
+                        HttpOnly = false,
+                        IsEssential = true,
+                        SameSite = authSecurityOptions.AntiforgeryRequestTokenCookieSameSite,
+                        Secure = authSecurityOptions.AntiforgeryCookieSecurePolicy switch
+                        {
+                            CookieSecurePolicy.Always => true,
+                            CookieSecurePolicy.None => false,
+                            _ => context.Request.IsHttps,
+                        },
+                    }
+                );
+
+                tokens = antiforgery.GetAndStoreTokens(context);
+            }
+
             if (!string.IsNullOrWhiteSpace(tokens.RequestToken))
             {
                 context.Response.Cookies.Append(
