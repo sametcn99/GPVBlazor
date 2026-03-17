@@ -477,6 +477,11 @@ namespace GPVBlazor.Services
         private string GetOAuthCallbackUri()
         {
             var redirectUri = RedirectUri ?? string.Empty;
+            if (redirectUri.Contains("/api/auth/github-callback", StringComparison.OrdinalIgnoreCase))
+            {
+                return redirectUri;
+            }
+
             if (redirectUri.Contains("/github-callback", StringComparison.OrdinalIgnoreCase))
             {
                 return redirectUri.Replace(
