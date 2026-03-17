@@ -26,7 +26,7 @@ builder.Services.AddSignalR(options =>
 });
 
 // Add Controllers for API endpoints
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
