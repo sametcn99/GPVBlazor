@@ -95,6 +95,7 @@ public class AuthController : ControllerBase
     /// <param name="state">OAuth state</param>
     /// <returns>Redirect to home page after sign-in</returns>
     [HttpGet("github-callback")]
+    [HttpGet("/github-callback")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GitHubCallback([FromQuery] string code, [FromQuery] string? state, CancellationToken cancellationToken)
     {

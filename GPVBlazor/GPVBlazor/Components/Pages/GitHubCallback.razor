@@ -25,6 +25,9 @@
     [SupplyParameterFromQuery]
     public string? Code { get; set; }
 
+    [SupplyParameterFromQuery]
+    public string? State { get; set; }
+
     private bool isLoading = true;
     private string? errorMessage;
 
@@ -42,7 +45,13 @@
 
             try
             {
-                NavManager.NavigateTo($"/api/auth/github-callback?code={Uri.EscapeDataString(Code)}", forceLoad: true);
+                var callbackUrl = $"/api/auth/github-callback?code={Uri.EscapeDataString(Code)}";
+                if (!string.IsNullOrWhiteSpace(State))
+                {
+                    callbackUrl = $"{callbackUrl}&state={Uri.EscapeDataString(State)}";
+                }
+
+                NavManager.NavigateTo(callbackUrl, forceLoad: true);
             }
             catch (Exception ex)
             {

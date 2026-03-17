@@ -477,6 +477,11 @@ namespace GPVBlazor.Services
 
         private string GetOAuthCallbackUri(HttpContext? httpContext = null)
         {
+            if (Uri.TryCreate(RedirectUri, UriKind.Absolute, out var absoluteRedirectUri))
+            {
+                return absoluteRedirectUri.ToString();
+            }
+
             if (httpContext != null)
             {
                 var request = httpContext.Request;
@@ -501,6 +506,11 @@ namespace GPVBlazor.Services
                     "/api/auth/github-callback",
                     StringComparison.OrdinalIgnoreCase
                 );
+            }
+
+            if (baseUri.StartsWith("/", StringComparison.Ordinal))
+            {
+                return baseUri;
             }
 
             if (baseUri.EndsWith("/", StringComparison.Ordinal))
